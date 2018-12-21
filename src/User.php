@@ -1,0 +1,10 @@
+<?php
+
+/**
+ * Class
+ */
+
+class User
+{
+
+}
