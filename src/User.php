@@ -31,7 +31,6 @@ class User
 
     $this->password = password_hash(htmlentities($password), PASSWORD_BCRYPT);
 
-    $password = rand(); // Set password to something random.
     unset($password); // Make sure we are NOT storing the password in the script. Just in case.
 
     // Create User ID
