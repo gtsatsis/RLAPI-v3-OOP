@@ -1,5 +1,6 @@
 {
     "require": {
-        "aws/aws-sdk-php": "^3.82"
+        "aws/aws-sdk-php": "^3.82",
+        "ramsey/uuid": "^3.8"
     }
 }
