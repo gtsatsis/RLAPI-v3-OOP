@@ -58,7 +58,7 @@ class User
     $preparedStatement = pg_prepare($dbconn, "delete_user", "DELETE FROM users WHERE id = $1 AND email = $2");
     $executePreparedStatement = pg_execute($dbconn, "delete_user", array($this->userid, $this->email));
 
-    $prepareStatementApiKeys = pg_prepare($dbconn, "delete_user_api_keys", "DELETE FROM tokens WHERE id = $1");
+    $prepareStatementApiKeys = pg_prepare($dbconn, "delete_user_api_keys", "DELETE FROM tokens WHERE user_id = $1");
     $executePreparedStatementApiKeys = pg_execute($dbconn, "delete_user_api_keys", array($this->userid));
 
     if(){ // If both worked, send this
@@ -85,7 +85,18 @@ class User
   }
 
   public function deleteUserAPIKey($apikey, $id, $email) {
-    
+     $this->userid = $id;
+     $this->email = $email;
+     $this->token = $apikey;
+
+     $prepareStatement = pg_prepare($dbconn, "delete_api_key", "DELETE FROM tokens WHERE user_id = $1 AND token = $2");
+     $executePreparedStatement = pg_execute($dbconn, "delete_api_key", array($this->userid, $this->token));
+
+    if(){ //TODO: Again, properly check if statement worked.
+
+    }else{
+
+    }
   }
 
   public function setUserTier($id, $email, $tier) {
