@@ -40,22 +40,56 @@ class User
 
     // Create User ID
     $this->userid = Uuid::uuid4();
-    $this->userid = $uuid4->toString();
+    $this->userid = $this->userid->toString();
 
     $preparedStatement = pg_prepare($dbconn, "create_user", "INSERT INTO users ('id', 'username', 'password', 'email', 'tier', 'is_admin', 'is_blocked') VALUES ($1, $2, $3, $4, 'free', false, false)");
     $executePreparedStatement =  pg_execute($dbconn, "create_user", array($this->userid, $this->username, $this->password, $this->email));
+    if() { // (TODO: If statement executed properly
+        return json_encode(array('success' => true, 'status' => 'created', 'account' => array('id' => $this->userid, 'username' => $this->username, 'email' => $this->email)));
+    }else{
+        return json_encode(array('success' => false, 'message' => 'Something went horribly wrong while inserting the user into the database! Check the logs!'));
+    }
+  }
+
+  public function deleteUser($id, $email){
+    $this->userid = $id;
+    $this->email = $email;
+
+    $preparedStatement = pg_prepare($dbconn, "delete_user", "DELETE FROM users WHERE id = $1 AND email = $2");
+    $executePreparedStatement = pg_execute($dbconn, "delete_user", array($this->userid, $this->email));
+
+    $prepareStatementApiKeys = pg_prepare($dbconn, "delete_user_api_keys", "DELETE FROM tokens WHERE id = $1");
+    $executePreparedStatementApiKeys = pg_execute($dbconn, "delete_user_api_keys", array($this->userid));
+
+    if(){ // If both worked, send this
+        return json_encode(array('success' => true, 'account' => array('deleted' => true)));
+    }else{
+        return json_encode(array('success' => false, 'message' => 'Something went horribly wrong while inserting the user into the database! Check the logs!'));
+    }
   }
 
   public function createUserAPIKey($id, $email) {
+    $this->userid = $id;
+    $this->email = $email;
 
+
+    $apikey = Uuid::uuid4();
+    $apikey = $apikey->toString();
+
+    $prepareStatementCheck = pg_prepare($dbconn, "check_if_api_key_exists", "SELECT * FROM tokens WHERE token = $1");
+    $executePreparedStatement = pg_execute($dbconn, "check_if_api_key_exists", array($apikey));
+
+    if(){ //TODO: Find out how to loop inborder to make an api key until one  isn't taken
+
+    }
   }
 
   public function deleteUserAPIKey($apikey, $id, $email) {
     
   }
 
-  public function setUserTier($email) {
-
+  public function setUserTier($id, $email, $tier) {
+    
   }
 
 }
