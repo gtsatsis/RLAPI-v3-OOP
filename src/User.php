@@ -61,7 +61,7 @@ class User
     $prepareStatementApiKeys = pg_prepare($dbconn, "delete_user_api_keys", "DELETE FROM tokens WHERE user_id = $1");
     $executePreparedStatementApiKeys = pg_execute($dbconn, "delete_user_api_keys", array($this->userid));
 
-    if(){ // If both worked, send this
+    if(){ // TODO: If both worked, send this
         return json_encode(array('success' => true, 'account' => array('deleted' => true)));
     }else{
         return json_encode(array('success' => false, 'message' => 'Something went horribly wrong while inserting the user into the database! Check the logs!'));
