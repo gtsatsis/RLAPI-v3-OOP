@@ -68,20 +68,35 @@ class User
     }
   }
 
-  public function createUserAPIKey($id, $email) {
+  public function createUserAPIKey($id) {
     $this->userid = $id;
-    $this->email = $email;
 
+    $unique = false;
+    while($unique == false){
 
-    $apikey = Uuid::uuid4();
-    $apikey = $apikey->toString();
+        $apikey = Uuid::uuid4();
+        $apikey = $apikey->toString();
 
-    $prepareStatementCheck = pg_prepare($dbconn, "check_if_api_key_exists", "SELECT * FROM tokens WHERE token = $1");
-    $executePreparedStatement = pg_execute($dbconn, "check_if_api_key_exists", array($apikey));
+        $prepareStatement = pg_prepare($dbconn, "check_if_api_key_exists", "SELECT * FROM tokens WHERE token = $1");
+        $executePreparedStatement = pg_execute($dbconn, "check_if_api_key_exists", array($apikey));
 
-    if(){ //TODO: Find out how to loop inborder to make an api key until one  isn't taken
+        $numberOfRows = pg_num_rows($executePreparedStatement);
+        if($numberOfRows == 0){
+            $unique = true;
+        }
+    }
+
+    $prepareStatement = pg_prepare($dbconn, "instert_api_key", "INSERT INTO tokens ('user_id', 'token') VALUES ($1, $2)");
+    $executePreparedStatement = pg_execute($dbconn, "insert_api_key", $this->userid, $apikey);
+
+    //TODO: If both worked, send this:
+
+    if(){
+
+    }else{
 
     }
+
   }
 
   public function deleteUserAPIKey($apikey, $id, $email) {
