@@ -6,7 +6,7 @@
 
 class User
 {
-  include 'vendor/autoload.php';
+  include '../vendor/autoload.php';
   use Ramsey\Uuid\Uuid;
   use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
   
@@ -44,10 +44,15 @@ class User
 
     $preparedStatement = pg_prepare($dbconn, "create_user", "INSERT INTO users ('id', 'username', 'password', 'email', 'tier', 'is_admin', 'is_blocked') VALUES ($1, $2, $3, $4, 'free', false, false)");
     $executePreparedStatement =  pg_execute($dbconn, "create_user", array($this->userid, $this->username, $this->password, $this->email));
-    if() { // (TODO: If statement executed properly
+
+    if(pg_result_status($executePreparedStatement) == 1 || pg_result_status($executePreparedStatement) == 6) {
+
         return json_encode(array('success' => true, 'status' => 'created', 'account' => array('id' => $this->userid, 'username' => $this->username, 'email' => $this->email)));
+
     }else{
+
         return json_encode(array('success' => false, 'message' => 'Something went horribly wrong while inserting the user into the database! Check the logs!'));
+
     }
   }
 
@@ -61,10 +66,14 @@ class User
     $prepareStatementApiKeys = pg_prepare($dbconn, "delete_user_api_keys", "DELETE FROM tokens WHERE user_id = $1");
     $executePreparedStatementApiKeys = pg_execute($dbconn, "delete_user_api_keys", array($this->userid));
 
-    if(){ // TODO: If both worked, send this
+    if(pg_result_status($executePreparedStatement) == 1 || pg_result_status($executePreparedStatement) == 6 && pg_result_status($executePreparedStatementApiKeys) == 1 || pg_result_status($executePreparedStatementApiKeys) == 6){
+
         return json_encode(array('success' => true, 'account' => array('deleted' => true)));
+
     }else{
+
         return json_encode(array('success' => false, 'message' => 'Something went horribly wrong while inserting the user into the database! Check the logs!'));
+
     }
   }
 
