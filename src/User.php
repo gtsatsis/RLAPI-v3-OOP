@@ -1,96 +1,97 @@
 <?php
 
-/**
- * Class
- */
-
 class User
 {
 
-  include '../vendor/autoload.php';
+  //include '../vendor/autoload.php'  TODO: Actually make the file, then uncomment this line
 
   use Ramsey\Uuid\Uuid;
   use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
-  
+
   public $username;
   public $email;
   public $password;
   public $userid;
   public $token;
-  public $email;
   public $tier;
   public $userDetails;
   public $isLoggedIn;
   public $isAdmin;
   public $isBlocked;
-  // TODO: add all variables
-  
-  public function __construct($username, $password = null) {
+  //TODO: add more variables
+
+  public function __construct($username, $password = null)
+  {
     include '../inc/development_db_password.inc.php';
-    $dbconn = pg_connect("host=localhost port=5432 dbname=rlapi_devel user=rlapi_devel password=".$dbPass);
-  } 
+    $dbconn = pg_connect("host=localhost port=5432 dbname=rlapi_devel user=rlapi_devel password=" . $dbPass); //Note, $dbPass is defined in development_db_password.inc.php
+  }
 
   /* Functions related to user detail fetching */
 
-  public function getUserIdByApiKey($apikey){
-
+  public function getUserIdByApiKey($apikey)
+  {
+    //TODO: make it work
+  }
+  
+  public function getUserById($id)
+  {
+    //TODO: make it work
   }
 
-  public function getUserById($id){
-
+  public function getUserByEmail($email)
+  {
+    //TODO: make it work
   }
 
-  public function getUserByEmail($email){
-
-  }
-
-  public function getUserByUsername($username){
+  public function getUserByUsername($username)
+  {
     $this->username = htmlspecialchars($username);
-
     $prepareStatement = pg_prepare($dbconn, "get_user_by_username", "SELECT * FROM users WHERE username = $1");
     $executePreparedStatement = pg_execute($dbconn, "get_user_by_username", $this->username);
 
-    if(){ //TODO: Yet again..
-    $this->userDetails = pg_fetch_object($executePreparedStatement);
-    }else{
-
+    if($prepareStatement !== false && $executePreparedStatement !== false)
+    {
+      $this->userDetails = pg_fetch_object($executePreparedStatement);
+    }
+    else
+    {
+      die('Error! getUserByName failed, either prepareStatement or executePreparedStatement didnt work!');
     }
   }
 
   /* Functions Related to creating and deleting users */
 
-  public function createUser($username, $password, $email){
-    // First sanitize user input
+  public function createUser($username, $password, $email)
+  {
+    // Sanitize
     $this->username = htmlspecialchars($username);
     $this->email = htmlspecialchars($email);
-
     // Encrypt Password
-
     $this->password = password_hash(htmlentities($password), PASSWORD_BCRYPT);
-
-    unset($password); // Make sure we are NOT storing the password in the script. Just in case.
+    unset($password); // We dont want to store the password in the code
 
     // Create User ID
     $this->userid = Uuid::uuid4();
     $this->userid = $this->userid->toString();
 
+    // Add the user to DB
     $preparedStatement = pg_prepare($dbconn, "create_user", "INSERT INTO users ('id', 'username', 'password', 'email', 'tier', 'is_admin', 'is_blocked') VALUES ($1, $2, $3, $4, 'free', false, false)");
     $executePreparedStatement =  pg_execute($dbconn, "create_user", array($this->userid, $this->username, $this->password, $this->email));
 
-    if(pg_result_status($executePreparedStatement) == 1 || pg_result_status($executePreparedStatement) == 6) {
-
-        return json_encode(array('success' => true, 'status' => 'created', 'account' => array('id' => $this->userid, 'username' => $this->username, 'email' => $this->email)));
-
-    }else{
-
-        return json_encode(array('success' => false, 'message' => 'Something went horribly wrong while inserting the user into the database! Check the logs!'));
-
+    if(pg_result_status($executePreparedStatement) == 1 || pg_result_status($executePreparedStatement) == 6)
+    {
+      return json_encode(array('success' => true, 'status' => 'created', 'account' => array('id' => $this->userid, 'username' => $this->username, 'email' => $this->email)));
+    }
+    else
+    {
+      return json_encode(array('success' => false, 'message' => 'Something went horribly wrong while inserting the user into the database! Check the logs!'));
     }
   }
 
-  public function deleteUser($id, $email){
-    $this->userid = $id;
-    $this->email = $email;
+  public function deleteUser($id, $email)
+  {
+    $this->userid = htmlspecialchars($id);
+    $this->email = htmlspecialchars($email);
 
     $preparedStatement = pg_prepare($dbconn, "delete_user", "DELETE FROM users WHERE id = $1 AND email = $2");
     $executePreparedStatement = pg_execute($dbconn, "delete_user", array($this->userid, $this->email));
@@ -98,69 +99,73 @@ class User
     $prepareStatementApiKeys = pg_prepare($dbconn, "delete_user_api_keys", "DELETE FROM tokens WHERE user_id = $1");
     $executePreparedStatementApiKeys = pg_execute($dbconn, "delete_user_api_keys", array($this->userid));
 
-    if(pg_result_status($executePreparedStatement) == 1 || pg_result_status($executePreparedStatement) == 6 && pg_result_status($executePreparedStatementApiKeys) == 1 || pg_result_status($executePreparedStatementApiKeys) == 6){
-
-        return json_encode(array('success' => true, 'account' => array('deleted' => true)));
-
-    }else{
-
-        return json_encode(array('success' => false, 'message' => 'Something went horribly wrong while inserting the user into the database! Check the logs!'));
-
+    if(pg_result_status($executePreparedStatement) == 1 || pg_result_status($executePreparedStatement) == 6 && pg_result_status($executePreparedStatementApiKeys) == 1 || pg_result_status($executePreparedStatementApiKeys) == 6)
+    {
+      return json_encode(array('success' => true, 'account' => array('deleted' => true)));
+    }
+    else
+    {
+      return json_encode(array('success' => false, 'message' => 'Something went horribly wrong while deleting the user from the database! Check the logs!'));
     }
   }
 
   /* Functions Regarding API Keys (Tokens) */
 
-  public function createUserAPIKey($id) {
+  public function createUserAPIKey($id)
+  {
     $this->userid = $id;
-
     $unique = false;
-    while($unique == false){
+    while ($unique == false)
+    {
+      $apikey = Uuid::uuid4();
+      $apikey = $apikey->toString();
 
-        $apikey = Uuid::uuid4();
-        $apikey = $apikey->toString();
-
-        $prepareStatement = pg_prepare($dbconn, "check_if_api_key_exists", "SELECT * FROM tokens WHERE token = $1");
-        $executePreparedStatement = pg_execute($dbconn, "check_if_api_key_exists", array($apikey));
-
-        $numberOfRows = pg_num_rows($executePreparedStatement);
-        if($numberOfRows == 0){
-            $unique = true;
-        }
+      $prepareStatement = pg_prepare($dbconn, "check_if_api_key_exists", "SELECT * FROM tokens WHERE token = $1");
+      $executePreparedStatement = pg_execute($dbconn, "check_if_api_key_exists", array($apikey));
+      $numberOfRows = pg_num_rows($executePreparedStatement);
+      if($numberOfRows == 0)
+      {
+        $unique = true;
+      }
     }
-
     $prepareStatement = pg_prepare($dbconn, "instert_api_key", "INSERT INTO tokens ('user_id', 'token') VALUES ($1, $2)");
     $executePreparedStatement = pg_execute($dbconn, "insert_api_key", $this->userid, $apikey);
 
-    //TODO: If both worked, send this:
-
-    if(){
-
-    }else{
-
+    if($prepareStatement !== false && $executePreparedStatement !== false)
+    {
+      //success?
     }
-
+    else
+    {
+      die('there was an oopsie. Check logs (ln 140)');
+    }
   }
 
-  public function deleteUserAPIKey($apikey, $id, $email) {
-     $this->userid = $id;
-     $this->email = $email;
-     $this->token = $apikey;
+  public function deleteUserAPIKey($apikey, $id, $email)
+  {
+    $this->userid = htmlspecialchars($id);
+    $this->email = htmlspecialchars($email);
+    $this->token = htmlspecialchars($apikey);
 
-     $prepareStatement = pg_prepare($dbconn, "delete_api_key", "DELETE FROM tokens WHERE user_id = $1 AND token = $2");
-     $executePreparedStatement = pg_execute($dbconn, "delete_api_key", array($this->userid, $this->token));
+    $prepareStatement = pg_prepare($dbconn, "delete_api_key", "DELETE FROM tokens WHERE user_id = $1 AND token = $2");
+    $executePreparedStatement = pg_execute($dbconn, "delete_api_key", array($this->userid, $this->token));
 
-    if(){ //TODO: Again, properly check if statement worked.
-
-    }else{
-
+    if($prepareStatement !== false && $executePreparedStatement !== false)
+    {
+      //success
+    }
+    else
+    {
+      die("there was an oopsie. Check the logs (ln 159)");
     }
   }
 
   /* Other user-related functions */
 
-  public function setUserTier($id, $email, $tier) {
-    
+  public function setUserTier($id, $email, $tier)
+  {
+    //TODO
   }
-
 }
+
+?>
