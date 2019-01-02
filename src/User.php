@@ -1,8 +1,10 @@
 <?php
+
+include_once '../vendor/autoload.php'; //I happen to be an idiot, this file is installed with Composer
+include_once './SentrySys.php'; // SentrySys by Sxribe
 class User
 {
 
-  include '../vendor/autoload.php'  //I happen to be an idiot, this file is installed with Composer
 
   use Ramsey\Uuid\Uuid;
   use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
@@ -23,6 +25,7 @@ class User
   {
     include '../inc/development_db_password.inc.php';
     $dbconn = pg_connect("host=localhost port=5432 dbname=rlapi_devel user=rlapi_devel password=" . $dbPass); //Note, $dbPass is defined in development_db_password.inc.php
+    $this->sentry_instance = new SentryInstance('API-KEY-HERE!'); // Get api key from Sxribe#1182
   }
 
   /* Functions related to user detail fetching */
@@ -54,7 +57,8 @@ class User
     }
     else
     {
-      return json_encode(('success' => false, 'message' => 'Error! getUserByName failed, either prepareStatement or executePreparedStatement didnt work!'));
+      return json_encode(array('success' => false, 'message' => 'Error! getUserByName failed, either prepareStatement or executePreparedStatement didnt work!'));
+      $this->sentry_instance->log_error('getUserByName failed, either prepareStatement or executePreparedStatement didnt work! Time: ' . gmdate("Y-m-d H:i:s", time()));
     }
   }
 
@@ -84,6 +88,7 @@ class User
     else
     {
       return json_encode(array('success' => false, 'message' => 'Something went horribly wrong while inserting the user into the database! Check the logs!'));
+      $this->sentry_instance->log_error('Something went horribly wrong while inserting the user into the database! Check the logs! Time: ' . gmdate("Y-m-d H:i:s", time()));
     }
   }
 
@@ -105,6 +110,7 @@ class User
     else
     {
       return json_encode(array('success' => false, 'message' => 'Something went horribly wrong while deleting the user from the database! Check the logs!'));
+      $this->sentry_instance->log_error('Something went horribly wrong while deleting the user from the database! Check the logs! Time: ' . gmdate("Y-m-d H:i:s", time()));
     }
   }
 
@@ -136,7 +142,8 @@ class User
     }
     else
     {
-      return json_encode(array('success' => false, 'message' => 'there was an oopsie. Check logs (ln 140)'));
+      return json_encode(array('success' => false, 'message' => 'There was an oopsie. Check logs (ln 140)'));
+      $this->sentry_instance->log_error('There was an oopsie. Check logs (ln 140) Time: ' . gmdate("Y-m-d H:i:s", time()));
     }
   }
 
@@ -156,6 +163,7 @@ class User
     else
     {
       return json_encode(array('success' => false, 'message' => 'there was an oopsie. Check the logs (ln 159)'));
+      $this->sentry_instance->log_error('There was an oopsie. Check logs (ln 159) Time: ' . gmdate("Y-m-d H:i:s", time()));
     }
   }
 
