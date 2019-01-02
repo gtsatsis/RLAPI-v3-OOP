@@ -1,7 +1,7 @@
 <?
 namespace RRLME;
 include_once '../vendor/autoload.php';
-class User
+class Apikeys
 {
 
   use Ramsey\Uuid\Uuid;
