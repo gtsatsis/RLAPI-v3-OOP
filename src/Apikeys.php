@@ -19,9 +19,10 @@ class User
     $this->sentry_instance = new SentryInstance();
   }
 
-  public function createUserAPIKey(mixed $id)
+  public function createUserAPIKey(mixed $id, string $apikeyName)
   {
     $this->userid = $id;
+    $this->apikeyName = htmlspecialchars($apikeyName);
     $unique = false;
     while ($unique == false)
     {
@@ -35,8 +36,8 @@ class User
         $unique = true;
       }
     }
-    $prepareStatement = pg_prepare($dbconn, "instert_api_key", "INSERT INTO tokens ('user_id', 'token') VALUES ($1, $2)");
-    $executePreparedStatement = pg_execute($dbconn, "insert_api_key", $this->userid, $apikey);
+    $prepareStatement = pg_prepare($dbconn, "instert_api_key", "INSERT INTO tokens ('user_id', 'token', 'name') VALUES ($1, $2, $3)");
+    $executePreparedStatement = pg_execute($dbconn, "insert_api_key", $this->userid, $apikey, $this->apikeyName);
     if($prepareStatement !== false && $executePreparedStatement !== false)
     {
       return json_encode(array('success' => true, 'message' => 'API key created', 'apikey' => $apikey));
