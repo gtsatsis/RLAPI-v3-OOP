@@ -37,12 +37,34 @@ class User
   
   public function getUserById(mixed $id)
   {
-    //TODO: make it work
+    $this->id = $id;
+    $prepareStatement = pg_prepare($dbconn, "get_user_by_username", "SELECT * FROM users WHERE id = $1");
+    $executePreparedStatement = pg_execute($dbconn, "get_user_by_username", $this->id);
+    if($prepareStatement !== false && $executePreparedStatement !== false)
+    {
+      $this->userDetails = pg_fetch_object($executePreparedStatement);
+    }
+    else
+    {
+      return json_encode(array('success' => false, 'message' => 'Error! getUserById failed, either prepareStatement or executePreparedStatement didnt work!'));
+      $this->sentry_instance->log_error('getUserById failed, either prepareStatement or executePreparedStatement didnt work! Time: ' . gmdate("Y-m-d H:i:s", time()));
+    }
   }
 
   public function getUserByEmail(string $email)
   {
-    //TODO: make it work
+    $this->email = $email;
+    $prepareStatement = pg_prepare($dbconn, "get_user_by_username", "SELECT * FROM users WHERE id = $1");
+    $executePreparedStatement = pg_execute($dbconn, "get_user_by_username", $this->id);
+    if($prepareStatement !== false && $executePreparedStatement !== false)
+    {
+      $this->userDetails = pg_fetch_object($executePreparedStatement);
+    }
+    else
+    {
+      return json_encode(array('success' => false, 'message' => 'Error! getUserByEmail failed, either prepareStatement or executePreparedStatement didnt work!'));
+      $this->sentry_instance->log_error('getUserByEmail failed, either prepareStatement or executePreparedStatement didnt work! Time: ' . gmdate("Y-m-d H:i:s", time()));
+    }
   }
 
   public function getUserByUsername(string $username)

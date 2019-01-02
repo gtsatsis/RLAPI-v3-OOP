@@ -1,14 +1,11 @@
 <?php
 
 /*
-*
 * @name SentrySys.php
 * @desc Simple class that uses an API key to interact with sentry
 * @author Sxribe
 * @date 1/2/2019
-*
 */
-
 
 require_once '../vendor/autoload.php';
 class SentryInstance
