@@ -21,7 +21,7 @@ class User
   public $isBlocked;
   //TODO: add more variables
 
-  public function __construct($username, $password = null)
+  public function __construct(string $username,string $password = null)
   {
     include '../inc/development_db_password.inc.php';
     $dbconn = pg_connect("host=localhost port=5432 dbname=rlapi_devel user=rlapi_devel password=" . $dbPass); //Note, $dbPass is defined in development_db_password.inc.php
@@ -30,22 +30,22 @@ class User
 
   /* Functions related to user detail fetching */
 
-  public function getUserIdByApiKey($apikey)
+  public function getUserIdByApiKey(string $apikey)
   {
     //TODO: make it work
   }
   
-  public function getUserById($id)
+  public function getUserById(mixed $id)
   {
     //TODO: make it work
   }
 
-  public function getUserByEmail($email)
+  public function getUserByEmail(string $email)
   {
     //TODO: make it work
   }
 
-  public function getUserByUsername($username)
+  public function getUserByUsername(string $username)
   {
     $this->username = htmlspecialchars($username);
     $prepareStatement = pg_prepare($dbconn, "get_user_by_username", "SELECT * FROM users WHERE username = $1");
@@ -64,7 +64,7 @@ class User
 
   /* Functions Related to creating and deleting users */
 
-  public function createUser($username, $password, $email)
+  public function createUser(string $username, string $password, string $email)
   {
     // Sanitize
     $this->username = htmlspecialchars($username);
@@ -92,7 +92,7 @@ class User
     }
   }
 
-  public function deleteUser($id, $email)
+  public function deleteUser(mixed $id, string $email)
   {
     $this->userid = htmlspecialchars($id);
     $this->email = htmlspecialchars($email);
@@ -116,7 +116,7 @@ class User
 
   /* Functions Regarding API Keys (Tokens) */
 
-  public function createUserAPIKey($id)
+  public function createUserAPIKey(mixed $id)
   {
     $this->userid = $id;
     $unique = false;
@@ -147,7 +147,7 @@ class User
     }
   }
 
-  public function deleteUserAPIKey($apikey, $id, $email)
+  public function deleteUserAPIKey(string $apikey, mixed $id, string $email)
   {
     $this->userid = htmlspecialchars($id);
     $this->email = htmlspecialchars($email);
@@ -169,7 +169,7 @@ class User
 
   /* Other user-related functions */
 
-  public function setUserTier($id, $email, $tier)
+  public function setUserTier(mixed $id, string $email, string $tier)
   {
     //TODO
   }
