@@ -191,9 +191,21 @@ class User
 
   /* Other user-related functions */
 
-  public function setUserTier(mixed $id, string $email, string $tier)
+  public function setUserTier(mixed $id, string $tier)
   {
-    //TODO
+    $this->id = $id;
+    $preparedStatement = pg_prepare($dbconn, "update_tier", "UPDATE users SET tier = $1 WHERE id = $2");
+    $executePreparedStatement =  pg_execute($dbconn, "update_tier", array($tier, $id));
+
+    if($prepareStatement !== false && $executePreparedStatement !== false)
+    {
+      return json_encode(array('success' => true, 'tier' => array('updated' => true)));
+    }
+    else
+    {
+      return json_encode(array('success' => false, 'tier' => array('updated' => false)));
+      $this->sentry_instance->log_error('Couldnt update the tier of user ' . $this->id->toString() .  ' Time: ' . gmdate("Y-m-d H:i:s", time()));
+    }
   }
 }
 
