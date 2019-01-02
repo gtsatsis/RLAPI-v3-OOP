@@ -27,6 +27,26 @@ class User
     $dbconn = pg_connect("host=localhost port=5432 dbname=rlapi_devel user=rlapi_devel password=".$dbPass);
   } 
 
+  /* Functions related to user detail fetching */
+
+  public function getUserIdByApiKey($apikey){
+
+  }
+
+  public function getUserById($id){
+
+  }
+
+  public function getUserByEmail($email){
+
+  }
+
+  public function getUserByUsername($username){
+
+  }
+
+  /* Functions Related to creating and deleting users */
+
   public function createUser($username, $password, $email){
     // First sanitize user input
     $this->username = htmlspecialchars($username);
@@ -77,6 +97,8 @@ class User
     }
   }
 
+  /* Functions Regarding API Keys (Tokens) */
+
   public function createUserAPIKey($id) {
     $this->userid = $id;
 
@@ -122,6 +144,8 @@ class User
 
     }
   }
+
+  /* Other user-related functions */
 
   public function setUserTier($id, $email, $tier) {
     
