@@ -160,7 +160,7 @@ class User
 
     if($prepareStatement !== false && $executePreparedStatement !== false)
     {
-      //success?
+      return json_encode(array('success' => true, 'message' => 'API key created', 'apikey' => $apikey));
     }
     else
     {
