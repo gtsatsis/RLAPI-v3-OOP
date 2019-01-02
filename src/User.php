@@ -19,7 +19,6 @@ class User
   public $isLoggedIn;
   public $isAdmin;
   public $isBlocked;
-  //TODO: add more variables
 
   public function __construct(string $username,string $password = null)
   {
@@ -32,14 +31,25 @@ class User
 
   public function getUserIdByApiKey(string $apikey)
   {
-    //TODO: make it work
+    $this->apikey = $apikey;
+    $prepareStatement = pg_prepare($dbconn, "get_user_by_apikey", "SELECT * FROM tokens WHERE user_id = $1");
+    $executePreparedStatement = pg_execute($dbconn, "get_user_by_apikey", $this->apikey);
+    if($prepareStatement !== false && $executePreparedStatement !== false)
+    {
+      getUserById(pg_fetch_object($executePreparedStatement, 0)->user_id);
+    }
+    else
+    {
+      return json_encode(array('success' => false, 'message' => 'Error! getUserByApiKey failed, either prepareStatement or executePreparedStatement didnt work!'));
+      $this->sentry_instance->log_error('getUserByApiKey failed, either prepareStatement or executePreparedStatement didnt work! Time: ' . gmdate("Y-m-d H:i:s", time()));
+    }
   }
   
   public function getUserById(mixed $id)
   {
     $this->id = $id;
-    $prepareStatement = pg_prepare($dbconn, "get_user_by_username", "SELECT * FROM users WHERE id = $1");
-    $executePreparedStatement = pg_execute($dbconn, "get_user_by_username", $this->id);
+    $prepareStatement = pg_prepare($dbconn, "get_user_by_id", "SELECT * FROM users WHERE id = $1");
+    $executePreparedStatement = pg_execute($dbconn, "get_user_by_id", $this->id);
     if($prepareStatement !== false && $executePreparedStatement !== false)
     {
       $this->userDetails = pg_fetch_object($executePreparedStatement);
