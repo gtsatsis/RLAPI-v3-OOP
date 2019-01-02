@@ -1,5 +1,4 @@
 <?php
-
 class User
 {
 
@@ -55,7 +54,7 @@ class User
     }
     else
     {
-      die('Error! getUserByName failed, either prepareStatement or executePreparedStatement didnt work!');
+      return json_encode(('success' => false, 'message' => 'Error! getUserByName failed, either prepareStatement or executePreparedStatement didnt work!'));
     }
   }
 
@@ -137,7 +136,7 @@ class User
     }
     else
     {
-      die('there was an oopsie. Check logs (ln 140)');
+      return json_encode(array('success' => false, 'message' => 'there was an oopsie. Check logs (ln 140)'));
     }
   }
 
@@ -156,7 +155,7 @@ class User
     }
     else
     {
-      die("there was an oopsie. Check the logs (ln 159)");
+      return json_encode(array('success' => false, 'message' => 'there was an oopsie. Check the logs (ln 159)'));
     }
   }
 
