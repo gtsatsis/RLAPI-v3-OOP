@@ -57,7 +57,7 @@ class User
     $executePreparedStatement = pg_execute($dbconn, "delete_api_key", array($this->userid, $this->token));
     if($prepareStatement !== false && $executePreparedStatement !== false)
     {
-      //success
+      return json_encode(array('success' => true, 'key' => array('deleted' => true)));
     }
     else
     {
