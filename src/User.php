@@ -36,7 +36,7 @@ class User
     $executePreparedStatement = pg_execute($dbconn, "get_user_by_apikey", $this->apikey);
     if($prepareStatement !== false && $executePreparedStatement !== false)
     {
-      getUserById(pg_fetch_object($executePreparedStatement, 0)->user_id);
+      $this->getUserById(pg_fetch_object($executePreparedStatement, 0)->user_id);
     }
     else
     {
