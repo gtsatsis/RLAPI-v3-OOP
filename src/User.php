@@ -9,8 +9,6 @@ class User
 
   include '../vendor/autoload.php';
 
- 
-
   use Ramsey\Uuid\Uuid;
   use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
   
@@ -52,7 +50,7 @@ class User
     $prepareStatement = pg_prepare($dbconn, "get_user_by_username", "SELECT * FROM users WHERE username = $1");
     $executePreparedStatement = pg_execute($dbconn, "get_user_by_username", $this->username);
 
-    if(){
+    if(){ //TODO: Yet again..
     $this->userDetails = pg_fetch_object($executePreparedStatement);
     }else{
 
