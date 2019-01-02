@@ -3,7 +3,7 @@
 class User
 {
 
-  //include '../vendor/autoload.php'  TODO: Actually make the file, then uncomment this line
+  include '../vendor/autoload.php'  //I happen to be an idiot, this file is installed with Composer
 
   use Ramsey\Uuid\Uuid;
   use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
