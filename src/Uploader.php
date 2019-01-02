@@ -1,4 +1,5 @@
 <?php
+namespace RLME;
 
 class Uploader
 {

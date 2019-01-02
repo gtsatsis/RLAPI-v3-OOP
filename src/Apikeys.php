@@ -1,4 +1,5 @@
 <?
+namespace RRLME;
 include_once '../vendor/autoload.php';
 class User
 {

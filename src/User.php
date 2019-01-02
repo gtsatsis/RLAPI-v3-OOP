@@ -1,4 +1,5 @@
 <?php
+namespace RLME;
 
 include_once '../vendor/autoload.php';
 class User
