@@ -1,3 +1,4 @@
 # Exclude /vendor
 /vendor
 /inc/development_db_password.inc.php
+/inc/development_sentry_dsn.inc.php

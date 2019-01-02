@@ -10,9 +10,10 @@
 require_once '../vendor/autoload.php';
 class SentryInstance
 {
-    public function __construct(string $apikey)
+    public function __construct()
     {
-        $client = new Raven_Client('https://' . apikey . '@sentry.io/1363144');
+        include '../inc/development_sentry_dsn.inc.php';
+        $client = new Raven_Client($dsn);
         $errorHandler = new Raven_ErrorHandler($client);
         $this->client = $client;
         $this->errorHandler = $errorHandler;
