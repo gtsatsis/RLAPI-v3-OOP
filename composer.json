@@ -2,5 +2,8 @@
     "require": {
         "aws/aws-sdk-php": "^3.82",
         "ramsey/uuid": "^3.8"
+    },
+    "autoload": {
+        "psr-4": {"RLAPI\\": "src/"}
     }
 }
