@@ -17,6 +17,7 @@ class User
   public $token;
   public $email;
   public $tier;
+  public $userDetails;
   public $isLoggedIn;
   public $isAdmin;
   public $isBlocked;
@@ -42,7 +43,16 @@ class User
   }
 
   public function getUserByUsername($username){
+    $this->username = htmlspecialchars($username);
 
+    $prepareStatement = pg_prepare($dbconn, "get_user_by_username", "SELECT * FROM users WHERE username = $1");
+    $executePreparedStatement = pg_execute($dbconn, "get_user_by_username", $this->username);
+
+    if(){
+    $this->userDetails = pg_fetch_object($executePreparedStatement);
+    }else{
+
+    }
   }
 
   /* Functions Related to creating and deleting users */
