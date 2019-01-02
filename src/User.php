@@ -6,7 +6,11 @@
 
 class User
 {
+
   include '../vendor/autoload.php';
+
+ 
+
   use Ramsey\Uuid\Uuid;
   use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
   
