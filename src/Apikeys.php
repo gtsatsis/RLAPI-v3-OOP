@@ -40,11 +40,22 @@ class Apikeys
     $executePreparedStatement = pg_execute($dbconn, "insert_api_key", $this->userid, $apikey, $this->apikeyName);
     if($prepareStatement !== false && $executePreparedStatement !== false)
     {
-      return json_encode(array('success' => true, 'message' => 'API key created', 'apikey' => $apikey));
+      return
+        [
+          'success' => true,
+          'apikey' => [
+            'created' => true,
+            'key' => $apikey
+          ]
+        ];
     }
     else
     {
-      return json_encode(array('success' => false, 'message' => 'There was an oopsie. Check logs (ln 140)'));
+      return
+        [
+          'success' => false,
+          'error_code' => 302882
+        ];
       $this->sentry_instance->log_error('There was an oopsie. Check logs (ln 140) Time: ' . gmdate("Y-m-d H:i:s", time()));
     }
   }
@@ -58,11 +69,21 @@ class Apikeys
     $executePreparedStatement = pg_execute($dbconn, "delete_api_key", array($this->userid, $this->token));
     if($prepareStatement !== false && $executePreparedStatement !== false)
     {
-      return json_encode(array('success' => true, 'key' => array('deleted' => true)));
+      return
+        [
+           'success' => true,
+           'apikey' => [
+             'deleted' => true
+           ]
+        ];
     }
     else
     {
-      return json_encode(array('success' => false, 'message' => 'there was an oopsie. Check the logs (ln 159)'));
+      return
+        [
+          'success' => false,
+          'errorcode' => 302882
+        ];
       $this->sentry_instance->log_error('There was an oopsie. Check logs (ln 159) Time: ' . gmdate("Y-m-d H:i:s", time()));
     }
   }
