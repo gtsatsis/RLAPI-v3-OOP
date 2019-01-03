@@ -29,10 +29,27 @@ class User
 
   /* Functions related to user detail fetching */
 
+
+  public function getApiKeyFromUserId(mixed $userId)
+  {
+    $this->userId = $userId;
+    $prepareStatement = pg_prepare($dbconn, "get_apikey_by_user", "SELECT * FROM tokens WHERE user_id = $1");
+    $executePreparedStatement = pg_execute($dbconn, "get_apikey_by_user", $this->userId);
+    if($prepareStatement !== false && $executePreparedStatement !== false)
+    {
+      $this->getUserById(pg_fetch_object($executePreparedStatement, 0)->token);
+    }
+    else
+    {
+      return json_encode(array('success' => false, 'message' => 'Error! getApiKeyFromUserId failed, either prepareStatement or executePreparedStatement didnt work!'));
+      $this->sentry_instance->log_error('getApiKeyFromUserId failed, either prepareStatement or executePreparedStatement didnt work! Time: ' . gmdate("Y-m-d H:i:s", time()));
+    }
+  }
+
   public function getUserIdByApiKey(string $apikey)
   {
     $this->apikey = $apikey;
-    $prepareStatement = pg_prepare($dbconn, "get_user_by_apikey", "SELECT * FROM tokens WHERE user_id = $1");
+    $prepareStatement = pg_prepare($dbconn, "get_user_by_apikey", "SELECT * FROM tokens WHERE  = $1");
     $executePreparedStatement = pg_execute($dbconn, "get_user_by_apikey", $this->apikey);
     if($prepareStatement !== false && $executePreparedStatement !== false)
     {
