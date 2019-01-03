@@ -55,7 +55,7 @@ class User
           'account' => [
             'id' => $this->userid,
             'username' => $this->username,
-            'email' => this->email
+            'email' => $this->email
           ]
         ];
     }
