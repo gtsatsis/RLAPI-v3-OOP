@@ -22,8 +22,9 @@ class Domains
   public function addDomain($id, $domainname){
     $domainname = htmlspecialchars($domainname);
     $validationHash = md5($domainname);
-    
-    $prepareStatement = pg_prepare($dbconn, "add_domain", "INSERT INTO domains ('id', 'user_id', 'domainname', 'validated', 'validationhash', 'type', 'bucket', 'expirydate') VALUES ($1, $2, $3, false, $4, 'public', 'owoapi', $5)");
+
+        
+    $prepareStatement = pg_prepare($dbconn, "add_domain", "INSERT INTO domains ('id', 'user_id', 'domainname', 'validated', 'validationhash', 'official', 'type', 'bucket', 'expirydate') VALUES ($1, $2, $3, false, $4, false, 'public', 'owoapi', $5)");
     $executePreparedStatement = pg_execute($dbconn, "add_domain", array($domainid, $userid, $domainname, $validationHash, $expiryDate));
 
 
