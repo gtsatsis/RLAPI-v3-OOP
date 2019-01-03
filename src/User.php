@@ -115,25 +115,26 @@ class User
     if($prepareStatement !== false && $executePreparedStatement !== false)
     {
       return
-        [
-          'success' => true,
-          'account' => [
-            'tier' => [
-              'updated' => true
-            ]
+      [
+        'success' => true,
+        'account' => [
+          'tier' => [
+            'updated' => true
           ]
-        ];
+        ]
+      ];
     }
     else
     {
       return
-        [
-          'success' => false,
-          'account' => [
-            'tier' => [
-              'updated' => false
-            ]
-          ];
+      [
+        'success' => false,
+        'account' => [
+          'tier' => [
+            'updated' => false
+          ]
+        ]
+      ];
       $this->sentry_instance->log_error('Couldnt update the tier of user ' . $this->id .  ' Time: ' . gmdate("Y-m-d H:i:s", time()));
     }
   }
