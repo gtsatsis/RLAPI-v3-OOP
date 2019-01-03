@@ -10,6 +10,7 @@ class Getters
 
   public $username;
   public $email;
+  public $password;
   public $userid;
   public $token;
   public $apikeys;
