@@ -48,11 +48,25 @@ class User
 
     if(pg_result_status($executePreparedStatement) == 1 || pg_result_status($executePreparedStatement) == 6)
     {
-      return json_encode(array('success' => true, 'status' => 'created', 'account' => array('id' => $this->userid, 'username' => $this->username, 'email' => $this->email)));
+      return 
+        [
+          'success' => true,
+          'status' => 'created',
+          'account' => [
+            'id' => $this->userid,
+            'username' => $this->username,
+            'email' => this->email
+          ]
+        ];
     }
     else
     {
-      return json_encode(array('success' => false, 'message' => 'Something went horribly wrong while inserting the user into the database! Check the logs!'));
+      return
+        [
+          'success' => false,
+          'message' => 'Something went horribly wrong while inserting the user into the database! Check the logs!'
+        ];
+
       $this->sentry_instance->log_error('Something went horribly wrong while inserting the user into the database! Check the logs! Time: ' . gmdate("Y-m-d H:i:s", time()));
     }
   }
@@ -70,11 +84,22 @@ class User
 
     if(pg_result_status($executePreparedStatement) == 1 || pg_result_status($executePreparedStatement) == 6 && pg_result_status($executePreparedStatementApiKeys) == 1 || pg_result_status($executePreparedStatementApiKeys) == 6)
     {
-      return json_encode(array('success' => true, 'account' => array('deleted' => true)));
+      return
+        [
+          'success' => true,
+          'account' => [
+            'deleted' => true
+          ]
+        ];
     }
     else
     {
-      return json_encode(array('success' => false, 'message' => 'Something went horribly wrong while deleting the user from the database! Check the logs!'));
+      return
+        [
+          'success' => false,
+          'message' => 'Something went horribly wrong while deleting the user from the database! Check the logs!'
+        ];
+
       $this->sentry_instance->log_error('Something went horribly wrong while deleting the user from the database! Check the logs! Time: ' . gmdate("Y-m-d H:i:s", time()));
     }
   }
@@ -89,11 +114,26 @@ class User
 
     if($prepareStatement !== false && $executePreparedStatement !== false)
     {
-      return json_encode(array('success' => true, 'tier' => array('updated' => true)));
+      return
+        [
+          'success' => true,
+          'account' => [
+            'tier' => [
+              'updated' => true
+            ]
+          ]
+        ];
     }
     else
     {
-      return json_encode(array('success' => false, 'tier' => array('updated' => false)));
+      return
+        [
+          'success' => false,
+          'account' => [
+            'tier' => [
+              'updated' => false
+            ]
+          ];
       $this->sentry_instance->log_error('Couldnt update the tier of user ' . $this->id .  ' Time: ' . gmdate("Y-m-d H:i:s", time()));
     }
   }

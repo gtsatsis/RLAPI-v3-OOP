@@ -12,6 +12,7 @@ class Getters
   public $email;
   public $userid;
   public $token;
+  public $apikeys;
 
   public function __construct(string $username,string $password = null)
 
@@ -28,7 +29,7 @@ class Getters
     $executePreparedStatement = pg_execute($dbconn, "get_apikeys_by_user", $this->userid);
     if($prepareStatement !== false && $executePreparedStatement !== false)
     {
-      return $this->getUserById(pg_fetch_object($executePreparedStatement, 0)->token);
+      $this->apikeys = pg_fetch_object($executePreparedStatement, 0);
     }
     else
     {
