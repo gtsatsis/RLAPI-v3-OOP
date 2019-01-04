@@ -1,5 +1,5 @@
 <?
-namespace RRLME;
+namespace RLME;
 include_once '../vendor/autoload.php';
 class Apikeys
 {
