@@ -1,7 +1,7 @@
 <?php
 
 include_once '../vendor/autoload.php';
-use RLME\SentrySys;
+use RLME\Utils\Sentry;
 
 class DomainRequest
 {
