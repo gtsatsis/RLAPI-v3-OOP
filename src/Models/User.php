@@ -174,6 +174,77 @@ class User
       $this->sentry_instance->log_error('Couldnt update the email of user w/ username of ' . $userName .  ' Time: ' . gmdate("Y-m-d H:i:s", time()));
     }
   }
+
+  public function setNewPassword($username, $oldPassword="", $newRawPassword, $override=false)
+  {
+    if ($override == true)
+    {
+      unset($oldPassword); //we dont need this anymore
+      $this->newPassword = password_hash(htmlspecialchars($newRawPassword), PASSWORD_BCRYPT);
+      unset($newRawPassword); // we dont keep this
+      $prepareStatement = pg_prepare($dbconn, "update_password_ovr", "UPDATE users SET password = $1 WHERE username = $2");
+      $executePreparedStatement = pg_execute($dbconn, "update_password_ovr", array($this->newPassword, $username));
+      if($prepareStatement !== false && $executePreparedStatement !== false)
+      {
+        return
+        [
+          'success' => true,
+          'account' => [
+            'password' => [
+              'updated' => true
+            ]
+          ]
+        ];
+      }
+      else
+      {
+        return
+        [
+          'success' => false,
+          'account' => [
+            'password' => [
+              'updated' => false
+            ]
+          ]
+        ];
+        $this->sentry_instance->log_error('Couldnt update the password (OVERRIDE) of user w/ username of ' . $username .  ' Time: ' . gmdate("Y-m-d H:i:s", time()));
+      }
+    }
+    elseif($override == false)
+    {
+      $this->newPassword = password_hash(htmlspecialchars($newRawPassword), PASSWORD_BCRYPT);
+      unset($newRawPassword); // we dont keep this
+      $prepareStatement = pg_prepare($dbconn, "update_password_ovr", "UPDATE users SET password = $1 WHERE username = $2 AND password = $3");
+      $this->old_pass = password_hash(htmlspecialchars($oldPassword), PASSWORD_BCRYPT);
+      $executePreparedStatement = pg_execute($dbconn, "update_password_ovr", array($this->newPassword, $username, $this->old_pass));
+      if($prepareStatement !== false && $executePreparedStatement !== false)
+      {
+        return
+        [
+          'success' => true,
+          'account' => [
+            'password' => [
+              'updated' => true
+            ]
+          ]
+        ];
+      }
+      else
+      {
+        return
+        [
+          'success' => false,
+          'account' => [
+            'password' => [
+              'updated' => false
+            ]
+          ]
+        ];
+        $this->sentry_instance->log_error('Couldnt update the password (OVERRIDE) of user w/ username of ' . $username .  ' Time: ' . gmdate("Y-m-d H:i:s", time()));
+      }
+      unset($username, $oldPassword, $newRawPassword, $override);
+    }
+  }
 }
 
 ?>
