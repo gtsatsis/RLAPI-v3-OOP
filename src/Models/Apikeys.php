@@ -1,12 +1,12 @@
 <?
-namespace RLME;
+namespace RLME\Models;
 include_once '../vendor/autoload.php';
 class Apikeys
 {
 
   use Ramsey\Uuid\Uuid;
   use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
-  use RLME\SentrySys;
+  use RLME\Utils\Sentry;
   
   public $username;
   public $email;

@@ -1,8 +1,9 @@
 <?php
-namespace RLME;
+namespace RLME\Domains;
 include_once '../vendor/autoload.php';
-include_once './User.php';
-class Domains
+use RLME\Models\User;
+uee RLME\Utils\Sentry;
+class DomainController
 {
 
   use Ramsey\Uuid\Uuid;

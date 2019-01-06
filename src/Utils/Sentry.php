@@ -1,5 +1,5 @@
 <?php
-namespace RLME;
+namespace RLME\Utils;
 
 /*
 * @name SentrySys.php
