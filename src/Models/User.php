@@ -138,6 +138,42 @@ class User
       $this->sentry_instance->log_error('Couldnt update the tier of user ' . $this->id .  ' Time: ' . gmdate("Y-m-d H:i:s", time()));
     }
   }
+
+  public function setUserEmail(string $userName, string $userRawPassword, string $newUserEmail)
+  {
+    //immediatly sanitize, hash, and unset password
+    $this->temp_pass = password_hash(htmlentities($userRawPassword), PASSWORD_BCRYPT);
+    unset($userRawPassword);
+
+    $prepareStatement = pg_prepare($dbconn, "update_email", "UPDATE users SET email = $1 WHERE username = $2 AND password = $3");
+    $executePreparedStatement = pg_execute($dbconn, "update_email", array($newUserEmail, $userName, $this->temp_pass));
+    unset($this->temp_pass);
+    if($prepareStatement !== false && $executePreparedStatement !== false)
+    {
+      return
+      [
+        'success' => true,
+        'account' => [
+          'email' => [
+            'updated' => true
+          ]
+        ]
+      ];
+    }
+    else
+    {
+      return
+      [
+        'success' => false,
+        'account' => [
+          'email' => [
+            'updated' => false
+          ]
+        ]
+      ];
+      $this->sentry_instance->log_error('Couldnt update the email of user w/ username of ' . $userName .  ' Time: ' . gmdate("Y-m-d H:i:s", time()));
+    }
+  }
 }
 
 ?>
