@@ -56,7 +56,7 @@ class Apikeys
           'success' => false,
           'error_code' => 302882
         ];
-      $this->sentry_instance->log_error('There was an oopsie. Check logs (ln 140) Time: ' . gmdate("Y-m-d H:i:s", time()));
+      $this->sentry_instance->log_error('There was an oopsie. Check logs (ln 59) Time: ' . gmdate("Y-m-d H:i:s", time()));
     }
   }
 
@@ -84,8 +84,36 @@ class Apikeys
           'success' => false,
           'errorcode' => 302882
         ];
-      $this->sentry_instance->log_error('There was an oopsie. Check logs (ln 159) Time: ' . gmdate("Y-m-d H:i:s", time()));
+      $this->sentry_instance->log_error('There was an oopsie. Check logs (ln 87) Time: ' . gmdate("Y-m-d H:i:s", time()));
     }
   }
 
+  public function renameApiKey(string $user_id)
+  {
+    $this->userid = htmlspecialchars($uuid);
+    $prepareStatement = pg_prepare($dbconn, "rename_apikey", "UPDATE tokens SET token = $1 WHERE user_id = $2");
+    $this->new_token = Uuid::uuid4();
+    $this->new_token = $apikey->toString();
+    $executePreparedStatement = pg_execute($dbconn, "rename_apikey", array($this->new_token, $this->userid));
+    if($prepareStatement !== false && $executePreparedStatement !== false)
+    {
+      return
+        [
+           'success' => true,
+           'apikey' => [
+             'updated' => true,
+             'new_value' => $this->new_token
+           ]
+        ];
+    }
+    else
+    {
+      return
+        [
+          'success' => false,
+          'errorcode' => 302882
+        ];
+      $this->sentry_instance->log_error('There was an oopsie. Check logs (ln 116) Time: ' . gmdate("Y-m-d H:i:s", time()));
+    }
+  }
 }
