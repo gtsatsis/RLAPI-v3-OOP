@@ -37,24 +37,49 @@ class DomainController
         $executePreparedStatement = pg_execute($dbconn, "add_domain", array($domainid, $userid, $domainname, $validationHash, $expiryDate));
         if($prepareStatement !== false && $executePreparedStatement !== false)
         {
-          return
+            return
             [
-              'success' => true,
-              'domain' => [
+                'success' => true,
+                'domain' => [
                 'added' => true
-              ]
+                ]
             ];
         }
         else
         {
-          return
+            return
             [
-              'success' => false,
-              'error_code' => 302882
+                'success' => false,
+                'error_code' => 302882
             ];
-          $this->sentry_instance->log_error('There was a domain addition oopsie. Check logs (ln 55) Time: ' . gmdate("Y-m-d H:i:s", time()));
+            $this->sentry_instance->log_error('There was a domain addition oopsie. Check logs (ln 55) Time: ' . gmdate("Y-m-d H:i:s", time()));
+        }
+    }   
+    public function removeDomain($domainname){
+        $domainname = htmlspecialchars($domainname);
+        $validationHash = md5($domainname);
+            
+        $prepareStatement = pg_prepare($dbconn, "remove_domain", "DELETE FROM domains WHERE domainname = $1 AND validationhash = $2");
+        $executePreparedStatement = pg_execute($dbconn, "remove_domain", array($domainname, $validationHash));
+        if($prepareStatement !== false && $executePreparedStatement !== false)
+        {
+            return
+            [
+                'success' => true,
+                'domain' => [
+                    'removed' => true
+                ]
+            ];
+        }
+        else
+        {
+            return
+            [
+                'success' => false,
+                'error_code' => 302882
+            ];
+            $this->sentry_instance->log_error('There was a domain addition oopsie. Check logs (ln 81) Time: ' . gmdate("Y-m-d H:i:s", time()));
         }
     }
 
 }
-
