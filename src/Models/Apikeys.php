@@ -1,6 +1,6 @@
 <?
 namespace RLME\Models;
-include_once '../vendor/autoload.php';
+include_once '../../vendor/autoload.php';
 class Apikeys
 {
 
@@ -12,17 +12,18 @@ class Apikeys
   public $email;
   public $userid;
   public $token;
-  public function __construct(string $username)
+  public $sentry_instance;
+
+  public function __construct()
   {
-    include '../inc/development_db_password.inc.php';
-    $dbconn = pg_connect("host=localhost port=5432 dbname=rlapi_devel user=rlapi_devel password=" . $dbPass); //Note, $dbPass is defined in development_db_password.inc.php
+    include '../../inc/development_db_password.inc.php';
     $this->sentry_instance = new SentryInstance();
   }
 
   public function createUserAPIKey(mixed $id, string $apikeyName)
   {
     $this->userid = $id;
-    $this->apikeyName = htmlspecialchars($apikeyName);
+    $apikeyName = $apikeyName;
     $unique = false;
     while ($unique == false)
     {
@@ -37,7 +38,7 @@ class Apikeys
       }
     }
     $prepareStatement = pg_prepare($dbconn, "instert_api_key", "INSERT INTO tokens ('user_id', 'token', 'name') VALUES ($1, $2, $3)");
-    $executePreparedStatement = pg_execute($dbconn, "insert_api_key", $this->userid, $apikey, $this->apikeyName);
+    $executePreparedStatement = pg_execute($dbconn, "insert_api_key", $this->userid, $apikey, $apikeyName);
     if($prepareStatement !== false && $executePreparedStatement !== false)
     {
       return
@@ -62,9 +63,9 @@ class Apikeys
 
   public function deleteUserAPIKey(string $apikey, mixed $id, string $email)
   {
-    $this->userid = htmlspecialchars($id);
-    $this->email = htmlspecialchars($email);
-    $this->token = htmlspecialchars($apikey);
+    $this->userid = $id;
+    $this->email = $email;
+    $this->token = $apikey;
     $prepareStatement = pg_prepare($dbconn, "delete_api_key", "DELETE FROM tokens WHERE user_id = $1 AND token = $2");
     $executePreparedStatement = pg_execute($dbconn, "delete_api_key", array($this->userid, $this->token));
     if($prepareStatement !== false && $executePreparedStatement !== false)
@@ -88,13 +89,41 @@ class Apikeys
     }
   }
 
-  public function renameApiKey(string $user_id)
+  public function renameApiKey(string $user_id, string $apikey, string $newFriendlyName)
   {
-    $this->userid = htmlspecialchars($uuid);
-    $prepareStatement = pg_prepare($dbconn, "rename_apikey", "UPDATE tokens SET token = $1 WHERE user_id = $2");
-    $this->new_token = Uuid::uuid4();
-    $this->new_token = $apikey->toString();
-    $executePreparedStatement = pg_execute($dbconn, "rename_apikey", array($this->new_token, $this->userid));
+    $prepareStatement = pg_prepare($dbconn, "rename_apikey", "UPDATE tokens SET name = $1 WHERE token = $2");
+    $executePreparedStatement = pg_execute($dbconn, "rename_apikey", $newFriendlyName, $apikey);
+
+    if($executePreparedStatement){
+      return
+        [
+        'success' => true,
+        'apikey' => [
+          'apikey' => $apikey,
+          'name' => $newFriendlyName
+        ]
+      ];
+    }else{
+      return
+        [
+          'success' => false,
+          'errorcode' => 302882
+        ];
+    }
+  }
+
+  public function regenerateApiKey(string $user_id, string $apikey)
+  {
+    $this->userid = $user_id;
+    $old_token = $apikey;
+
+    $prepareStatement = pg_prepare($dbconn, "regen_apikey", "UPDATE tokens SET token = $1 WHERE token = $2 AND user_id = $3");
+
+    $new_token = Uuid::uuid4();
+    $new_token = $new_token->toString();
+
+    $executePreparedStatement = pg_execute($dbconn, "regen_apikey", array($new_token, $old_token, $this->userid));
+
     if($prepareStatement !== false && $executePreparedStatement !== false)
     {
       return
@@ -102,7 +131,7 @@ class Apikeys
            'success' => true,
            'apikey' => [
              'updated' => true,
-             'new_value' => $this->new_token
+             'new_value' => $new_token
            ]
         ];
     }
