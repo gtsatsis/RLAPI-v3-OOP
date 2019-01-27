@@ -24,7 +24,7 @@ class Apikeys
   {
     $this->userid = $id;
     $apikeyName = $apikeyName;
-    $unique = false;
+    $unique = false; /* Hey, This is a kinda-personalized note to Night, no, we're not doing UNIQUE constraints in the DB. <3, George. */
     while ($unique == false)
     {
       $apikey = Uuid::uuid4();

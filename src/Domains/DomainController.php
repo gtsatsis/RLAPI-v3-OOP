@@ -17,6 +17,7 @@ class DomainController
   public $domainDetails;
   public $is_admin;
   public $user_obj;
+  public $sentry_instance;
 
   public function __construct()
   {
