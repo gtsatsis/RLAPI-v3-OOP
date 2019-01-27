@@ -1,7 +1,7 @@
 <?php
 namespace RLME\Models;
 
-include_once '../vendor/autoload.php';
+include_once '../../vendor/autoload.php';
 class User
 {
 
@@ -19,11 +19,12 @@ class User
   public $isLoggedIn;
   public $isAdmin;
   public $isBlocked;
+  public $sentry_instance;
 
-  public function __construct(string $username,string $password = null)
+  public function __construct()
   {
-    include '../inc/development_db_password.inc.php';
-    $dbconn = pg_connect("host=localhost port=5432 dbname=rlapi_devel user=rlapi_devel password=" . $dbPass); //Note, $dbPass is defined in development_db_password.inc.php
+    include '../../inc/development_db_password.inc.php';
+    //Note, $dbconn is defined in the above inclusion
     $this->sentry_instance = new SentryInstance();
   }
 
@@ -32,10 +33,10 @@ class User
   public function createUser(string $username, string $password, string $email)
   {
     // Sanitize
-    $this->username = htmlspecialchars($username);
-    $this->email = htmlspecialchars($email);
+    $this->username = $username;
+    $this->email = $email;
     // Encrypt Password
-    $this->password = password_hash(htmlentities($password), PASSWORD_BCRYPT);
+    $this->password = password_hash($password, PASSWORD_BCRYPT);
     unset($password); // We dont want to store the password in the code
 
     // Create User ID
@@ -73,8 +74,8 @@ class User
 
   public function deleteUser(mixed $id, string $email)
   {
-    $this->userid = htmlspecialchars($id);
-    $this->email = htmlspecialchars($email);
+    $this->userid = $id;
+    $this->email = $email;
 
     $preparedStatement = pg_prepare($dbconn, "delete_user", "DELETE FROM users WHERE id = $1 AND email = $2");
     $executePreparedStatement = pg_execute($dbconn, "delete_user", array($this->userid, $this->email));
@@ -142,7 +143,7 @@ class User
   public function setUserEmail(string $userName, string $userRawPassword, string $newUserEmail)
   {
     //immediatly sanitize, hash, and unset password
-    $this->temp_pass = password_hash(htmlentities($userRawPassword), PASSWORD_BCRYPT);
+    $this->temp_pass = password_hash($userRawPassword, PASSWORD_BCRYPT);
     unset($userRawPassword);
 
     $prepareStatement = pg_prepare($dbconn, "update_email", "UPDATE users SET email = $1 WHERE username = $2 AND password = $3");
@@ -180,10 +181,10 @@ class User
     if ($override == true)
     {
       unset($oldPassword); //we dont need this anymore
-      $this->newPassword = password_hash(htmlspecialchars($newRawPassword), PASSWORD_BCRYPT);
+      $newPassword = password_hash($newRawPassword, PASSWORD_BCRYPT);
       unset($newRawPassword); // we dont keep this
       $prepareStatement = pg_prepare($dbconn, "update_password_ovr", "UPDATE users SET password = $1 WHERE username = $2");
-      $executePreparedStatement = pg_execute($dbconn, "update_password_ovr", array($this->newPassword, $username));
+      $executePreparedStatement = pg_execute($dbconn, "update_password_ovr", array($newPassword, $username));
       if($prepareStatement !== false && $executePreparedStatement !== false)
       {
         return
@@ -212,39 +213,46 @@ class User
     }
     elseif($override == false)
     {
-      $this->newPassword = password_hash(htmlspecialchars($newRawPassword), PASSWORD_BCRYPT);
+      $newPassword = password_hash($newRawPassword, PASSWORD_BCRYPT);
       unset($newRawPassword); // we dont keep this
-      $prepareStatement = pg_prepare($dbconn, "update_password_ovr", "UPDATE users SET password = $1 WHERE username = $2 AND password = $3");
-      $this->old_pass = password_hash(htmlspecialchars($oldPassword), PASSWORD_BCRYPT);
-      $executePreparedStatement = pg_execute($dbconn, "update_password_ovr", array($this->newPassword, $username, $this->old_pass));
-      if($prepareStatement !== false && $executePreparedStatement !== false)
-      {
-        return
-        [
-          'success' => true,
-          'account' => [
-            'password' => [
-              'updated' => true
+      
+      $prepareStatement = pg_prepare($dbconn, "get_old_password", 'SELECT password FROM users WHERE username = $1');
+      $executePreparedStatement = pg_execute($dbconn, "get_old_password", $username);
+      $oldPasswordDB = pg_fetch_array($executePreparedStatement);
+
+      if(password_verify($oldPassword, $oldPasswordDB[0])){ 
+
+      	$prepareStatement = pg_prepare($dbconn, "update_password_ovr", "UPDATE users SET password = $1 WHERE username = $2");
+      	$old_pass = password_hash($oldPassword, PASSWORD_BCRYPT);
+      	$executePreparedStatement = pg_execute($dbconn, "update_password_ovr", array($this->newPassword, $username));
+      	if($prepareStatement !== false && $executePreparedStatement !== false)
+      	{
+        	return
+        	[
+        	  'success' => true,
+        	  'account' => [
+        	    'password' => [
+        	      'updated' => true
+            	]
             ]
-          ]
-        ];
-      }
-      else
-      {
-        return
-        [
-          'success' => false,
-          'account' => [
-            'password' => [
-              'updated' => false
-            ]
-          ]
-        ];
-        $this->sentry_instance->log_error('Couldnt update the password (OVERRIDE) of user w/ username of ' . $username .  ' Time: ' . gmdate("Y-m-d H:i:s", time()));
-      }
-      unset($username, $oldPassword, $newRawPassword, $override);
-    }
-  }
+        	];
+      	}
+      	else
+      	{
+      	  return
+        	[
+          	'success' => false,
+          	'account' => [
+            	'password' => [
+              	'updated' => false
+            	]
+          	]
+        	];
+        	$this->sentry_instance->log_error('Couldnt update the password (OVERRIDE) of user w/ username of ' . $username .  ' Time: ' . gmdate("Y-m-d H:i:s", time()));
+      	}
+      	unset($username, $oldPassword, $newRawPassword, $override);
+    	}
+  	}
 }
 
 ?>
