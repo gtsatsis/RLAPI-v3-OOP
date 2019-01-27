@@ -99,7 +99,6 @@ class Apikeys
         [
         'success' => true,
         'apikey' => [
-          'apikey' => $apikey,
           'name' => $newFriendlyName
         ]
       ];
