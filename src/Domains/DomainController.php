@@ -1,6 +1,6 @@
 <?php
 namespace RLME\Domains;
-include_once '../vendor/autoload.php';
+include_once '../../vendor/autoload.php';
 class DomainController
 {
 
@@ -20,8 +20,7 @@ class DomainController
 
   public function __construct()
   {
-    include '../inc/development_db_password.inc.php';
-    $dbconn = pg_connect("host=localhost port=5432 dbname=rlapi_devel user=rlapi_devel password=" . $dbPass); //Note, $dbPass is defined in development_db_password.inc.php
+    include '../../inc/development_db_password.inc.php';
     $this->sentry_instance = new SentryInstance();
   }
 

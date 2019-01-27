@@ -1,6 +1,6 @@
 <?php
 
-include_once '../vendor/autoload.php';
+include_once '../../vendor/autoload.php';
 use RLME\Utils\Sentry;
 
 class DomainRequest
@@ -12,7 +12,7 @@ class DomainRequest
 
     public function __construct($domain)
     {
-        include_once '../inc/development_domainReq_password.php';
+        include_once '../../inc/development_domainReq_password.php';
         $this->domain = htmlentities($domain);
         $this->sentry_instance = new SentryInstance();
         $this->api_key = $d_apikey;
