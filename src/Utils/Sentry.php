@@ -16,16 +16,14 @@ class SentryInstance
         include '../../inc/development_sentry_dsn.inc.php';
         $client = new Raven_Client($dsn);
         $errorHandler = new Raven_ErrorHandler($client);
-        $this->client = $client;
-        $this->errorHandler = $errorHandler;
     }
     public function log_error(string $error)
     {
         // @name log_error
         // @param $error <string> error
 
-        $this->client->captureMessage($error);
-        return $this->client->getlastEventId();
+        $client->captureMessage($error);
+        return client->getlastEventId();
     }
 }
 
