@@ -14,6 +14,7 @@ class Getters
   public $userid;
   public $token;
   public $apikeys;
+  public $sentry_instance;
 
   public function __construct(string $username,string $password = null)
 
