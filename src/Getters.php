@@ -19,7 +19,6 @@ class Getters
 
   {
     include '../inc/development_db_password.inc.php';
-    $dbconn = pg_connect("host=localhost port=5432 dbname=rlapi_devel user=rlapi_devel password=" . $dbPass); //Note, $dbPass is defined in development_db_password.inc.php
     $this->sentry_instance = new SentryInstance();
   }
 
