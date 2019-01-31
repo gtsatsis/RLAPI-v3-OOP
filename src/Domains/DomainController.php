@@ -1,14 +1,14 @@
 <?php
-namespace RLME\Domains;
+namespace RLAPI\Domains;
 include_once '../../vendor/autoload.php';
 class DomainController
 {
 
   use Ramsey\Uuid\Uuid;
   use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
-  use RLME\Utils\Sentry;
-  use RLME\Domains\ExternalAPIFunctions;
-  use RLME\Models\User;
+  use RLAPI\Utils\Sentry;
+  use RLAPI\Domains\ExternalAPIFunctions;
+  use RLAPI\Models\User;
 
   public $userid;
   public $username;

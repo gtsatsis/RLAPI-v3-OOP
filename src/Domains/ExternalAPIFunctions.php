@@ -1,7 +1,8 @@
 <?php
+namespace RLAPI\Domains;
 
 include_once '../../vendor/autoload.php';
-use RLME\Utils\Sentry;
+use RLAPI\Utils\Sentry;
 
 class DomainRequest
 {
