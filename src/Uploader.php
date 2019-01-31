@@ -40,9 +40,33 @@ class Uploader
           'error_message' => 'Your POST request did not include a file in the files[] parameter'
         ]
       ];
-    }
+    } 
+  }
 
+  public function generateFilename(){
+    // Generate a random name
+    $filename = substr(str_shuffle(str_repeat("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", 6)),0,6);
     
+    return $filename;
+  }
+
+  public function filenameIsUnique($filename){
+    $unique = false;
+
+    while($unique == false){
+      $preparedStatement = pg_prepare($dbconn, "check_if_filename_is_unique", "SELECT filename FROM logs WHERE filename ILIKE '%$1%'");
+      $executePreparedStatement = pg_execute($dbconn, "check_if_filename_is_unique", array($filename));
+      $list = pg_fetch_array($executePreparedStatement);
+      
+      if(!empty($list)){
+        $this->generateFilename();
+        $unique = false;
+      }else{
+        $unique = true;
+        return true;
+      }
+
+    }
   }
 }
 
