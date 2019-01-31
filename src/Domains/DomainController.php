@@ -35,7 +35,7 @@ class DomainController
 
         $domainid = Uuid::uuid4()->toString();
             
-        $prepareStatement = pg_prepare($dbconn, "add_domain", "INSERT INTO domains ('id', 'user_id', 'domainname', 'validated', 'validationhash', 'official', 'type', 'bucket', 'expirydate') VALUES ($1, $2, $3, false, $4, false, 'public', 'owoapi', $5)");
+        $prepareStatement = pg_prepare($dbconn, "add_domain", "INSERT INTO domains ('id', 'user_id', 'domainname', 'validated', 'validationhash', 'official', 'visibility', 'bucket', 'expirydate') VALUES ($1, $2, $3, false, $4, false, 'public', 'owoapi', $5)");
         $executePreparedStatement = pg_execute($dbconn, "add_domain", array($domainid, $userid, $domainname, $validationHash, $expiryDate));
         if($prepareStatement !== false && $executePreparedStatement !== false)
         {
@@ -147,6 +147,51 @@ class DomainController
                 'error_code' => 302882
             ];
             $this->sentry_instance->log_error('Error upon visibility (' . $visibility . ') change. Time:' . gmdate("Y-m-d H:i:s", time()));
+      }
+    }
+
+    public function updateExpiryDate(string $domainname, bool $override=false, bool $expiryDate){
+      if($override == true){
+        $prepareStatement = pg_prepare($dbconn, "set_domain_expiry_date", "UPDATE domains SET expirydate = $1 WHERE domainname = $2");
+        $executePreparedStatement = pg_execute($dbconn, "set_domain_expiry_date", array($expiryDate, $domainname));
+        if($prepareStatement && $executePreparedStatement){
+          return
+              [
+                  'success' => true,
+                  'domain' => [
+                      'expiry_date' => $expiryDate
+                  ]
+              ];
+        }else{
+          return
+              [
+                  'success' => false,
+                  'error_code' => 302882
+              ];
+              $this->sentry_instance->log_error('Error upon expiry date change. Time:' . gmdate("Y-m-d H:i:s", time()));
+        }
+      }else{
+        $dr = new DomainRequest;
+        $expiryDate = $dr->getExpirationDate($domainname);
+
+        $prepareStatement = pg_prepare($dbconn, "set_domain_expiry_date", "UPDATE domains SET expirydate = $1 WHERE domainname = $2");
+        $executePreparedStatement = pg_execute($dbconn, "set_domain_expiry_date", array($expiryDate, $domainname));
+        if($prepareStatement && $executePreparedStatement){
+          return
+              [
+                  'success' => true,
+                  'domain' => [
+                      'expiry_date' => $expiryDate
+                  ]
+              ];
+        }else{
+          return
+              [
+                  'success' => false,
+                  'error_code' => 302882
+              ];
+              $this->sentry_instance->log_error('Error upon expiry date change. Time:' . gmdate("Y-m-d H:i:s", time()));
+        }
       }
     }
 }
