@@ -1,7 +1,7 @@
 <?php
 namespace RLME;
 
-include_once '../../vendor/autoload.php';
+include_once '../vendor/autoload.php';
 
 use RLME\Utils\Sentry;
 use RLME\Models\User;
