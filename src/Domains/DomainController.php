@@ -25,7 +25,7 @@ class DomainController
     $this->sentry_instance = new SentryInstance();
   }
 
-    public function addDomain($userid, $domainname){
+    public function addDomain(string $userid, string $domainname){
         $dr = new DomainRequest;
 
         $domainname = $domainname;
@@ -57,7 +57,7 @@ class DomainController
             $this->sentry_instance->log_error('There was a domain addition oopsie. Check logs (ln 55) Time: ' . gmdate("Y-m-d H:i:s", time()));
         }
     }   
-    public function removeDomain($domainname){
+    public function removeDomain(string $domainname){
         $domainname = htmlspecialchars($domainname);
         $validationHash = md5($domainname);
             
@@ -128,4 +128,25 @@ class DomainController
       }
     }
 
+    public function setDomainVisibility(string $domainname, string $visibility){
+      $prepareStatement = pg_prepare($dbconn, "set_domain_visibility", "UPDATE domains SET visibility = $1 WHERE domainname = $2");
+      $executePreparedStatement = pg_execute($dbconn, "set_domain_visibility", array($visibility, $domainname));
+
+      if($prepareStatement && $executePreparedStatement){
+        return
+            [
+                'success' => true,
+                'domain' => [
+                    'visibility' => $visibility
+                ]
+            ];
+      }else{
+        return
+            [
+                'success' => false,
+                'error_code' => 302882
+            ];
+            $this->sentry_instance->log_error('Error upon visibility (' . $visibility . ') change. Time:' . gmdate("Y-m-d H:i:s", time()));
+      }
+    }
 }
