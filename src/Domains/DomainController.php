@@ -84,9 +84,9 @@ class DomainController
         }
     }
 
-    public function setDomainBucket($domainid, $bucket){
-      $prepareStatement = pg_prepare($dbconn, "change_domain_bucket", "UPDATE domains SET bucket = $1 WHERE id = $2");
-      $executePreparedStatement = pg_execute($dbconn, "change_domain_bucket", array($bucket, $domainid));
+    public function setDomainBucket(string $domainname, string $bucket){
+      $prepareStatement = pg_prepare($dbconn, "change_domain_bucket", "UPDATE domains SET bucket = $1 WHERE domainname = $2");
+      $executePreparedStatement = pg_execute($dbconn, "change_domain_bucket", array($bucket, $domainname));
 
       if($prepareStatement && $executePreparedStatement){
         return
@@ -104,6 +104,28 @@ class DomainController
             ];
             $this->sentry_instance->log_error('Error upon bucket change. Time:' . gmdate("Y-m-d H:i:s", time()));
       }
-    } 
+    }
+
+    public function setDomainOfficialStatus(string $domainname, bool $officialStatus) {
+      $prepareStatement = pg_prepare($dbconn, "set_official_status", "UPDATE domains SET official = $1 WHERE domainname = $2");
+      $executePreparedStatement = pg_execute($dbconn, "set_official_status", array($officialStatus, $domainname));
+
+      if($prepareStatement && $executePreparedStatement){
+        return
+            [
+                'success' => true,
+                'domain' => [
+                    'official' => $officialStatus
+                ]
+            ];
+      }else{
+        return
+            [
+                'success' => false,
+                'error_code' => 302882
+            ];
+            $this->sentry_instance->log_error('Error upon official status change. Time:' . gmdate("Y-m-d H:i:s", time()));
+      }
+    }
 
 }
