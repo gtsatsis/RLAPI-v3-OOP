@@ -8,6 +8,6 @@ Found a security issue? Want to make sure it's patched? Contact us via our [Hack
 
 ### Original Development Team
 
-- gtsatsis
-- Sxribe
-- SamuelCSimao
+- [gtsatsis](https://github.com/gtsatsis)
+- [Sxribe](https://github.com/Sxribe)
+- [SamuelCSimao](https://github.com/samueldcs)
