@@ -1,11 +1,11 @@
 <?php
-namespace RLAPI\Domains;
+namespace App\Domains;
 
-include_once '../../vendor/autoload.php';
-use RLAPI\Utils\Sentry;
+require_once __DIR__ . '/../../vendor/autoload.php';
 
-class DomainRequest
-{
+use App\Utils\Sentry;
+
+class ExternalAPIFunctions {
     // nts: https://whoisapi.whoisxmlapi.com/products
     
     public $api_key;
@@ -16,7 +16,7 @@ class DomainRequest
     {
         include_once '../../inc/development_domainReq_password.php';
         $this->domain = $domain;
-        $this->sentry_instance = new SentryInstance();
+        $this->sentry_instance = new Sentry();
         $this->api_key = $d_apikey;
     }
 

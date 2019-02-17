@@ -1,5 +1,19 @@
-# Exclude /vendor
-/vendor
-/inc/development_db_password.inc.php
-/inc/development_sentry_dsn.inc.php
-db cheatsheet.txt
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/public/bundles/
+/var/
+/vendor/
+/.env
+###< symfony/framework-bundle ###
+
+###> symfony/phpunit-bridge ###
+.phpunit
+/phpunit.xml
+###< symfony/phpunit-bridge ###
+
+###> symfony/web-server-bundle ###
+/.web-server-pid
+###< symfony/web-server-bundle ###

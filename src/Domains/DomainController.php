@@ -1,14 +1,14 @@
 <?php
-namespace RLAPI\Domains;
-include_once '../../vendor/autoload.php';
+namespace App\Domains;
+require_once __DIR__ . '/../../vendor/autoload.php';
 class DomainController
 {
 
   use Ramsey\Uuid\Uuid;
   use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
-  use RLAPI\Utils\Sentry;
-  use RLAPI\Domains\ExternalAPIFunctions;
-  use RLAPI\Models\User;
+  use App\Utils\Sentry;
+  use App\Domains\ExternalAPIFunctions;
+  use App\Models\User;
 
   public $userid;
   public $username;

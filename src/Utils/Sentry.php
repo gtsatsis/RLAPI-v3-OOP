@@ -1,5 +1,5 @@
 <?php
-namespace RLAPI\Utils;
+namespace App\Utils;
 
 /*
 * @name SentrySys.php
@@ -8,13 +8,19 @@ namespace RLAPI\Utils;
 * @date 1/2/2019
 */
 
-require_once '../../vendor/autoload.php';
-class SentryInstance
+use Symfony\Component\Dotenv\Dotenv;
+
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+class Sentry
 {
     public function __construct()
     {
-        include '../../inc/development_sentry_dsn.inc.php';
-        $client = new Raven_Client($dsn);
+        /* Load the env file */
+        $dotenv = new Dotenv();
+        $dotenv->load(__DIR__.'/../../.env');
+        
+        $client = new Raven_Client(getenv('SENTRY_DSN'));
         $errorHandler = new Raven_ErrorHandler($client);
     }
     public function log_error(string $error)
@@ -23,7 +29,7 @@ class SentryInstance
         // @param $error <string> error
 
         $client->captureMessage($error);
-        return client->getlastEventId();
+        return $client->getlastEventId();
     }
 }
 
