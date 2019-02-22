@@ -25,7 +25,7 @@ class UserController extends AbstractController {
 	public function create_user(Request $request){
 		$users = new User();
 
-		if($request->request->has('username') && $request->request->has('password') && $request->query->has('email')){
+		if($request->request->has('username') && $request->request->has('password') && $request->request->has('email')){
 			$createUser = $users->create_user($request->request->get('username'), $request->request->get('password'), $request->request->get('email'));
 
 			return new Response(json_encode($createUser));

@@ -7,7 +7,7 @@ use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
 use Symfony\Component\Dotenv\Dotenv;
 use App\Utils\Auth;
 
-class Apikeys {
+class User {
 
 	private $dbconn;
 	private $authentication;
@@ -43,7 +43,7 @@ class Apikeys {
 				'success' => true,
 				'status' => 'created',
 				'account' => [
-					'id' => $userid,
+					'id' => $user_id,
 					'username' => $username,
 					'email' => $email
 				]
@@ -65,12 +65,12 @@ class Apikeys {
 
 			/* User Deletion */
 			pg_prepare($this->dbconn, "delete_user", "DELETE FROM users WHERE id = $1 AND email = $2");
-			$execute_prepared_statement = pg_execute($this->dbconn, "delete_user", array($id, $email));
+			$execute_prepared_statement = pg_execute($this->dbconn, "delete_user", array($user_id, $email));
 			if($execute_prepared_statement){
 			
 				/* Api key deletion */
 				pg_prepare($this->dbconn, "delete_user_api_keys", "DELETE FROM tokens WHERE user_id = $1");
-				$execute_prepared_statement = pg_execute($this->dbconn, "delete_user_api_keys", array($id));
+				$execute_prepared_statement = pg_execute($this->dbconn, "delete_user_api_keys", array($user_id));
 
 				if($execute_prepared_statement){
 
@@ -104,12 +104,12 @@ class Apikeys {
 
 	/* Begin User Set Email Function */
 
-	public function user_set_email(string $id, string $user_new_email, string $password){
+	public function user_set_email(string $user_id, string $user_new_email, string $password){
 
 		if($this->authentication->validate_password($user_id, $password)){
 
 			pg_prepare($this->dbconn, "update_email", "UPDATE users SET email = $1 WHERE id = $2");
-			$execute_prepared_statement = pg_execute($this->dbconn, "update_email", array($user_new_email, $id));
+			$execute_prepared_statement = pg_execute($this->dbconn, "update_email", array($user_new_email, $user_id));
 
 			if($execute_prepared_statement){
 
@@ -149,7 +149,7 @@ class Apikeys {
 		if($override=true){
 
 			pg_prepare($this->dbconn, "update_password", "UPDATE users SET password = $1 WHERE id = $2");
-			$execute_prepared_statement = pg_execute($this->dbconn, "update_password_ovr", array(password_hash($new_password, PASSWORD_BCRYPT), $id));
+			$execute_prepared_statement = pg_execute($this->dbconn, "update_password_ovr", array(password_hash($new_password, PASSWORD_BCRYPT), $user_id));
 
 			if($execute_prepared_statement){
 
@@ -170,7 +170,7 @@ class Apikeys {
 			if($this->authentication->validate_password($user_id, $old_password)){
 
 				pg_prepare($this->dbconn, "update_password", "UPDATE users SET password = $1 WHERE id = $2");
-				$execute_prepared_statement = pg_execute($this->dbconn, "update_password_ovr", array(password_hash($new_password, PASSWORD_BCRYPT), $id));
+				$execute_prepared_statement = pg_execute($this->dbconn, "update_password_ovr", array(password_hash($new_password, PASSWORD_BCRYPT), $user_id));
 
 				if($execute_prepared_statement){
 
