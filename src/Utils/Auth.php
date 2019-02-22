@@ -24,7 +24,7 @@ class Auth {
 	public function validate_password($user_id, $password){
 
 		pg_prepare($this->dbconn, "get_password", 'SELECT password FROM users WHERE id = $1');
-		$execute_prepared_statement = pg_execute($this->dbconn, "get_password", array($id));
+		$execute_prepared_statement = pg_execute($this->dbconn, "get_password", array($user_id));
 		$password_DB = pg_fetch_array($execute_prepared_statement);
 
 		if(password_verify($password, $password_DB[0])){

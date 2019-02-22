@@ -142,21 +142,25 @@ class Apikeys {
 
 		if($this->authentication->validate_password($user_id, $password)){
 
-			$new_api_key = $this->generate_api_key;
+			$get_api_key_exists = $this->get_api_key_exists($api_key);
 
-			pg_prepare($this->dbconn, "regen_api_key", "UPDATE tokens SET token = $1 WHERE token = $2 AND user_id = $3");
-			$execute_prepared_statement = pg_execute($this->dbconn, "regen_api_key", array($new_api_key, $api_key, $user_id));
+			if($api_key == $get_api_key_exists){
+				$new_api_key = $this->generate_api_key();
 
-			if($execute_prepared_statement){
+				pg_prepare($this->dbconn, "regen_api_key", "UPDATE tokens SET token = $1 WHERE token = $2 AND user_id = $3");
+				$execute_prepared_statement = pg_execute($this->dbconn, "regen_api_key", array($new_api_key, $api_key, $user_id));
 
-				return [
-					'success' => true,
-					'api_key' => [
-						'updated' => true,
-						'api_key' => $new_api_key
-					]
-				];
+				if($execute_prepared_statement){
 
+					return [
+						'success' => true,
+						'api_key' => [
+							'updated' => true,
+							'api_key' => $new_api_key
+						]
+					];
+
+				}
 			}
 
 		}else{
@@ -195,6 +199,16 @@ class Apikeys {
 	}
 
 	/* End API Key Generation Function */
+
+	/* Begin Get Api Key Exists Function */
+
+	public function get_api_key_exists($api_key){
+		pg_prepare($this->dbconn, "api_key_exists", "SELECT token FROM tokens WHERE token = $1");
+		$execute_prepared_statement = pg_execute($this->dbconn, "api_key_exists", array($api_key));
+		$api_key_exists = pg_fetch_array($execute_prepared_statement);
+
+		return $api_key_exists[0];
+	}
 
 }
 ?>

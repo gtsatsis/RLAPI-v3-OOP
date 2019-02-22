@@ -47,7 +47,7 @@ class ApiKeysController extends AbstractController {
 		if($request->request->has('password')){
 			$delete_api_key = $api_keys->delete_user_api_key($id, $api_key, $request->request->get('password'));
 
-			return new Response($delete_api_key);
+			return new Response(json_encode($delete_api_key));
 		}else{
 			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
 		}
@@ -63,7 +63,10 @@ class ApiKeysController extends AbstractController {
 		$api_keys = new Apikeys();
 
 		if($request->request->has('password') && $request->request->has('api_key_name')){
-			$api_keys->rename_user_api_key($id, $api_key, $request->request->get('api_key_name'), $request->request->get('password'));
+			$rename_api_key = $api_keys->rename_user_api_key($id, $api_key, $request->request->get('api_key_name'), $request->request->get('password'));
+
+			return new Response(json_encode($rename_api_key));
+
 		}else{
 			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
 		}
@@ -80,7 +83,9 @@ class ApiKeysController extends AbstractController {
 
 		if($request->request->has('password')){
 
-			$api_keys->regenerate_user_api_key($id, $api_key, $request->request->get('password'));
+			$regen_api_key = $api_keys->regenerate_user_api_key($id, $api_key, $request->request->get('password'));
+
+			return new Response(json_encode($regen_api_key));
 
 		}else{
 			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
