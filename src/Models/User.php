@@ -7,7 +7,7 @@ use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
 use Symfony\Component\Dotenv\Dotenv;
 use App\Utils\Auth;
 
-class Apikeys {
+class Users {
 
 	private $dbconn;
 	private $authentication;
