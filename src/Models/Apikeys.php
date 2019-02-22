@@ -25,106 +25,63 @@ class Apikeys {
 
 	}
 
-	/* Begin User Creation Function */
+	/* Begin API Key Creation Function */
 
-	public function create_user(string $username, string $password, string $email){
-		$password = password_hash($password, PASSWORD_BCRYPT);
-
-		$user_id = Uuid::uuid4();
-		$user_id = $user_id->toString();
-
-		pg_prepare($this->dbconn, "create_user", "INSERT INTO users (id, username, password, email, tier, is_admin, is_blocked) VALUES ($1, $2, $3, $4, 'free', false, false)");
-
-		$execute_prepared_statement = pg_execute($this->dbconn, "create_user", array($user_id, $username, $password, $email));
-
-		if($execute_prepared_statement){
-
-			return [
-				'success' => true,
-				'status' => 'created',
-				'account' => [
-					'id' => $userid,
-					'username' => $username,
-					'email' => $email
-				]
-			];
-
-		}else{
-
-			throw new \Exception("Error Processing create_user Request");
-		
-		}
-	}
-
-	/* End User Creation Function */
-
-	/* Begin User Deletion Function */
-
-	public function delete_user(string $user_id, string $email, string $password){
-		if($this->authentication->validate_password($user_id, $password)){
-
-			/* User Deletion */
-			pg_prepare($this->dbconn, "delete_user", "DELETE FROM users WHERE id = $1 AND email = $2");
-			$execute_prepared_statement = pg_execute($this->dbconn, "delete_user", array($user_id, $email));
-			if($execute_prepared_statement){
-			
-				/* Api key deletion */
-				pg_prepare($this->dbconn, "delete_user_api_keys", "DELETE FROM tokens WHERE user_id = $1");
-				$execute_prepared_statement = pg_execute($this->dbconn, "delete_user_api_keys", array($user_id));
-
-				if($execute_prepared_statement){
-
-					return [
-						'success' => true
-					];
-				
-				}else{
-
-					throw new \Exception("Error Processing delete_user Request: Apikeys Deletion");
-				
-				}
-			}else{
-
-					throw new \Exception("Error Processing delete_user Request: Userdata Deletion");
-			
-			}
-
-		}else{
-
-			return [
-				'success' => false,
-				'error_code' => 1002,
-				'error_message' => 'Invalid user ID or Password'
-			];
-
-		}
-	}
-
-	/* End User Deletion Function */
-
-	/* Begin User Set Email Function */
-
-	public function user_set_email(string $user_id, string $user_new_email, string $password){
+	public function create_user_api_key(string $user_id, string $api_key_name, string $password){
 
 		if($this->authentication->validate_password($user_id, $password)){
 
-			pg_prepare($this->dbconn, "update_email", "UPDATE users SET email = $1 WHERE id = $2");
-			$execute_prepared_statement = pg_execute($this->dbconn, "update_email", array($user_new_email, $user_id));
+			$api_key = $this->generate_api_key();
+
+			pg_prepare($this->dbconn, "insert_api_key", "INSERT INTO tokens (user_id, token, name) VALUES ($1, $2, $3)");
+			$execute_prepared_statement = pg_execute($this->dbconn, "insert_api_key", array($user_id, $api_key, $api_key_name));
 
 			if($execute_prepared_statement){
 
 				return [
 					'success' => true,
-					'account' => [
-						'updated' => [
-							'email' => true
-						]
+					'api_key' => [
+						'created' => true,
+						'key' => $api_key
 					]
 				];
 
 			}else{
+				throw new \Exception('Error Processing create_user_api_key Request');
+			}
 
-				throw new \Exception("Error Processing user_set_email Request");
+		}else{
+
+			return [
+				'success' => false,
+				'error_code' => 1002,
+				'error_message' => 'Invalid user ID or Password'
+			];
+
+		}
+
+	}
+
+	/* End API Key Creation Function */
+
+	/* Begin API Key Deletion Function */
+
+	public function delete_user_api_key(string $user_id, string $api_key, string $password){
+
+		if($this->authentication->validate_password($user_id, $password)){
+
+			pg_prepare($this->dbconn, "delete_api_key", "DELETE FROM tokens WHERE user_id = $1 AND token = $2");
+			$execute_prepared_statement = pg_execute($this->dbconn, "delete_api_key", array($user_id, $api_key));
+
+			if($execute_prepared_statement){
+
+				return [
+					'success' => true
+				];
+
+			}else{
+
+				throw new \Exception('Error Processing delete_user_api_key Request');
 			
 			}
 
@@ -140,131 +97,104 @@ class Apikeys {
 
 	}
 
-	/* End User Set Email Function */
+	/* End API Key Deletion Function */
 
-	/* Begin User Set Password Function */
+	/* Begin API Key Rename Function */
 
-	public function user_set_password($user_id, $old_password="", $new_password, $override=false){
+	public function rename_user_api_key(string $user_id, string $api_key, string $api_key_name, string $password){
 
-		if($override=true){
+		if($this->authentication->validate_password($user_id, $password)){
 
-			pg_prepare($this->dbconn, "update_password", "UPDATE users SET password = $1 WHERE id = $2");
-			$execute_prepared_statement = pg_execute($this->dbconn, "update_password_ovr", array(password_hash($new_password, PASSWORD_BCRYPT), $user_id));
+			pg_prepare($this->dbconn, "rename_api_key", "UPDATE tokens SET name = $1 WHERE token = $2");
+			$execute_prepared_statement = pg_execute($this->dbconn, "rename_api_key", array($api_key_name, $api_key));
 
 			if($execute_prepared_statement){
 
-					return [
-						'success' => true,
-						'account' => [
-							'updated' => [
-								'password' => true
-							]
-						]
-					];
-
-			}else{
-				throw new \Exception("Error Processing user_set_password Request: Override");
-			}
-
-		}else{
-			if($this->authentication->validate_password($user_id, $old_password)){
-
-				pg_prepare($this->dbconn, "update_password", "UPDATE users SET password = $1 WHERE id = $2");
-				$execute_prepared_statement = pg_execute($this->dbconn, "update_password_ovr", array(password_hash($new_password, PASSWORD_BCRYPT), $user_id));
-
-				if($execute_prepared_statement){
-
-					return [
-						'success' => true,
-						'account' => [
-							'updated' => [
-								'password' => true
-							]
-						]
-					];
-
-				}else{
-					throw new \Exception("Error Processing user_set_password Request");
-				}
-
-			}else{
-
 				return [
-					'success' => false,
-					'error_code' => 1002,
-					'error_message' => 'Invalid user ID or Password'
+					'success' => true,
+					'api_key' => [
+						'name' => $api_key_name
+					]
 				];
 
-			}
-		}
-
-	}
-
-	/* End User Set Password Function */
-
-	/* Begin Upload Authentication Function */
-
-	public function upload_authentication($api_key){
-
-		$prepareStatement = pg_prepare($this->dbconn, "get_user_by_api_key_2", "SELECT * FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1 LIMIT 1)");
-		$executePreparedStatement = pg_execute($this->dbconn, "get_user_by_api_key_2", array($api_key));
-
-		$user = pg_fetch_array($executePreparedStatement);
-
-		if($user != null){
-			
-			if($user['is_blocked'] == false || !empty($user['is_blocked'])){
-				
-				return true;
-			
 			}else{
 
-				return [
-					'success' => false,
-					'error_message' => 'User banned.'
-				];
-			
+				throw new \Exception('Error Processing rename_user_api_key Request');
+
 			}
-		
-		}else{
 
-			throw new \Exception('Userdata not found. Api key: ' . $api_key);
-		
-		}
-	}
-
-	/* End Upload Authentication Function */
-
-	/* Begin Get User By API Key Function */
-
-	public function get_user_by_api_key($api_key){
-
-		$this->prepared = false;
-		
-		if($this->prepared == false){
-
-			$prepareStatement = pg_prepare($this->dbconn, "get_user_by_api_key", "SELECT * FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1 LIMIT 1)");
-			$this->prepared = true;
-		
-		}
-
-		$executePreparedStatement = pg_execute($this->dbconn, "get_user_by_api_key", array($api_key));
-
-		if($executePreparedStatement){
-
-			return pg_fetch_array($executePreparedStatement);
-		
 		}else{
 
 			return [
 				'success' => false,
-				'error_message' => 'No data found'
+				'error_code' => 1002,
+				'error_message' => 'Invalid user ID or Password'
 			];
-		
-		}
 
-		/* End Get User By API Key Function */
+		}
 	}
+
+	/* End API Key Rename Function */
+
+	/* Begin API Key Regeneration Function */
+
+	public function regenerate_user_api_key(string $user_id, string $api_key, string $password){
+
+		if($this->authentication->validate_password($user_id, $password)){
+
+			$new_api_key = $this->generate_api_key;
+
+			pg_prepare($this->dbconn, "regen_api_key", "UPDATE tokens SET token = $1 WHERE token = $2 AND user_id = $3");
+			$execute_prepared_statement = pg_execute($this->dbconn, "regen_api_key", array($new_api_key, $api_key, $user_id));
+
+			if($execute_prepared_statement){
+
+				return [
+					'success' => true,
+					'api_key' => [
+						'updated' => true,
+						'api_key' => $new_api_key
+					]
+				];
+
+			}
+
+		}else{
+
+			return [
+				'success' => false,
+				'error_code' => 1002,
+				'error_message' => 'Invalid user ID or Password'
+			];
+			
+		}
+		
+	}
+
+	/* End API Key Regeneration Function */
+
+	/* Begin API Key Generation Function */
+
+	public function generate_api_key(){
+		$unique = false;
+			while ($unique == false){
+		
+				$api_key = Uuid::uuid4();
+				$api_key = $api_key->toString();
+
+				pg_prepare($this->dbconn, "check_if_api_key_exists", "SELECT * FROM tokens WHERE token = $1");
+				$execute_prepared_statement = pg_execute($this->dbconn, "check_if_api_key_exists", array($api_key));
+				$number_of_rows = pg_num_rows($execute_prepared_statement);
+		
+				if($number_of_rows == 0){
+					$unique = true;
+				}
+			}
+
+			return $api_key;
+	}
+
+	/* End API Key Generation Function */
 
 }
 ?>
