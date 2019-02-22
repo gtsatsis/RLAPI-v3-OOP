@@ -25,8 +25,8 @@ class UserController extends AbstractController {
 	public function create_user(Request $request){
 		$users = new User();
 
-		if($request->query->has('username') && $request->query->has('password') && $request->query->has('password')){
-			$createUser = $users->createUser($request->query->get('username'), $request->query->get('password'), $request->query->get('email'));
+		if($request->request->has('username') && $request->request->has('password') && $request->query->has('email')){
+			$createUser = $users->create_user($request->request->get('username'), $request->request->get('password'), $request->request->get('email'));
 
 			return new Response(json_encode($createUser));
 		}else{
@@ -44,7 +44,7 @@ class UserController extends AbstractController {
 		if($request->request->has('email') && $request->request->has('password')){
 			$users = new User();
 
-			$deleteUser = $users->deleteUser($id, $request->request->get('email'), $request->request->get('password'));
+			$deleteUser = $users->delete_user($id, $request->request->get('email'), $request->request->get('password'));
 
 			return new Response(json_encode($deleteUser));
 		}else{
@@ -58,7 +58,7 @@ class UserController extends AbstractController {
      * @Route("/users/{id}/set_tier", name="set_user_tier")
      */	
 
-	public function set_user_tier(Request $request, $id){
+	/*public function set_user_tier(Request $request, $id){
 		$users = new User();
 
 		if($request->request->has('tier')){
@@ -69,6 +69,10 @@ class UserController extends AbstractController {
 			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
 		}
 	}
+
+	Comment :REMOVED UNTIL FURTHER NOTICE
+
+	*/ 
 
 	/**
      * Matches /users/{id}/email exactly
@@ -81,7 +85,7 @@ class UserController extends AbstractController {
 
 		if($request->request->has('password') && $request->request->has('newEmail')){
 
-			$users->setUserEmail($id, $request->request->get('newEmail'), $request->request->get('password'));
+			$users->user_set_email($id, $request->request->get('newEmail'), $request->request->get('password'));
 
 		}else{
 			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
@@ -99,7 +103,7 @@ class UserController extends AbstractController {
 		$users = new User();
 
 		if($request->request->has('password') && $request->request->has('newPassword')){
-			$updatePassword = $users->setNewPassword($id, $request->request->get('password'), $request->request->get('newPassword'));
+			$updatePassword = $users->user_set_password($id, $request->request->get('password'), $request->request->get('newPassword'));
 
 			return new Response(json_encode($updatePassword));
 		}else{

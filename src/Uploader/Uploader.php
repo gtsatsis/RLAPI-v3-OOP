@@ -2,6 +2,8 @@
 namespace App\Uploader;
 
 use App\Models\User;
+use App\Utils\FileUtils;
+
 use \Ramsey\Uuid\Uuid;
 use \Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
 use Symfony\Component\Dotenv\Dotenv;
@@ -14,7 +16,7 @@ class Uploader {
 	private $s3;
 	private $bucket;
 
-	public function __construct($bucket='owoapi'){
+	public function __construct(){
 		/* Load the env file */
 		$dotenv = new Dotenv();
 		$dotenv->load(__DIR__.'/../../.env');
@@ -32,26 +34,56 @@ class Uploader {
         	]
     	);
 
-    	$this->bucket = $bucket;
+    	$this->bucket = getenv('S3_BUCKET');
 
 	}
 
 	public function Upload($api_key, $file){
+		$users = new User();
 
-
-		$authenticate = true;
+		$authenticate = $users->upload_authentication($api_key);
 		if($authenticate){
 
-			//$util->logObject(); // TODO: Create the object logging util
-			$upload = $this->uploadToS3('oof.lol', $file);
+			$fileUtils = new FileUtils();
+
+			$extension = pathinfo(implode('', $file['name']), PATHINFO_EXTENSION);
+
+			$file_name = $fileUtils->generateFileName($extension, 10);
+			$file_name_is_unique = false;
+
+			while($file_name_is_unique == false){
+				if($fileUtils->isUnique($file_name, getenv('S3_ENDPOINT').'/'.$this->bucket.'/')){
+					$file_name_is_unique = true;
+				}else{
+					$file_name_is_unique = false;
+					$file_name = $fileUtils->generateFileName($extension);
+				}
+			}
+
+			$file_md5_hash = md5_file(implode('', $file['tmp_name']));
+			$file_sha1_hash = sha1_file(implode('', $file['tmp_name']));
+			$file_original_name = implode('', $file['name']);
+
+			$fileUtils->log_object($api_key, $file_name, $file_original_name, $file_md5_hash, $file_sha1_hash); // TODO: Create the object logging util
+
+			if(move_uploaded_file(implode('', $file['tmp_name']), getenv('TMP_STORE').$file_name)){
+				$file_loc = getenv('TMP_STORE').$file_name;
+			}else{
+				throw new \Exception('Unable to move uploaded file.');
+			}
+
+			$upload = $this->uploadToS3($file_name, $file_loc);
+
 			if($upload){
 				$response = [
 					'success' => true,
 					'files' => [
-						'url' => implode('', $file['name']),
-						'name' => implode('', $file['name']),
-						'hash_md5' => md5_file(implode('', $file['tmp_name'])),
-						'hash_sha1' => sha1_file(implode('', $file['tmp_name']))
+							[
+								'url' => $file_name,
+								'name' => $file_original_name,
+								'hash_md5' => $file_md5_hash,
+								'hash_sha1' => $file_sha1_hash
+							]
 					]
 				];
 			}else{
@@ -66,17 +98,19 @@ class Uploader {
 				'error_message' => 'Invalid Credentials'
 			];
 		}
+
+		unlink(getenv('TMP_STORE').$file_name);
 		return $response;
 
 	}
 
-	public function uploadToS3($file_name, $file){
+	public function uploadToS3($file_name, $file_loc){
 
 		$putObject = $this->s3->putObject(
 			[
 				'Bucket' => $this->bucket, // Bucket name
 				'Key'    => $file_name, // Key = File name (on the server)
-				'SourceFile'   => implode('', $file['tmp_name']), // The file to be put
+				'SourceFile' => $file_loc, // The file to be put
 				'ACL'    => 'public-read' // Access Control List set to public read
             ]
 		);

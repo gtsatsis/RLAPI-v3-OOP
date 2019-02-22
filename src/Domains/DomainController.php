@@ -6,23 +6,13 @@ class DomainController
 
   use Ramsey\Uuid\Uuid;
   use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
-  use App\Utils\Sentry;
   use App\Domains\ExternalAPIFunctions;
   use App\Models\User;
 
-  public $userid;
-  public $username;
-  public $password;
-  public $domainName;
-  public $domainDetails;
-  public $is_admin;
-  public $user_obj;
-  public $sentry_instance;
 
   public function __construct()
   {
-    include '../../inc/development_db_password.inc.php';
-    $this->sentry_instance = new SentryInstance();
+    
   }
 
     public function addDomain(string $userid, string $domainname){

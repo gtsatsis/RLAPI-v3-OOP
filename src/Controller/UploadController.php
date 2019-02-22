@@ -63,12 +63,14 @@ class UploadController extends AbstractController {
 				return new Response(json_encode($uploadFile));
 
 			}else{
-
+				return new Response(json_encode([
+					'success' => false,
+					'error_message' => 'no_auth_method_provided'
+				]));
 			}
 
 		}else{
 
-			//throw new \Exception('To use the API, you must either add an API key via a query parameter, or via trailing slash.');
 			return new Response('To use the API, you must either add an API key via a query parameter, or via trailing slash.');
 		
 		}

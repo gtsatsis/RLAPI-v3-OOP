@@ -1,280 +1,270 @@
 <?php
 namespace App\Models;
-
 require_once __DIR__ . '/../../vendor/autoload.php';
- 
-use \Ramsey\Uuid\Uuid;
-use \Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
-use Symfony\Component\Dotenv\Dotenv;
 
-class User
-{
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
+use Symfony\Component\Dotenv\Dotenv;
+use App\Utils\Auth;
+
+class Apikeys {
 
 	private $dbconn;
+	private $authentication;
 
-	public function __construct()
-	{
-	/* Load the env file */
-	$dotenv = new Dotenv();
-	$dotenv->load(__DIR__.'/../../.env');
+	public function __construct(){
 
-	/* Connect to database */
-	$this->dbconn = pg_connect("host=" . getenv('DB_HOST') . " port=5432 dbname=" . getenv('DB_NAME') . " user=" . getenv('DB_USERNAME') . " password=" . getenv('DB_PASSWORD'));
+		/* Load the env file */
+		$dotenv = new Dotenv();
+		$dotenv->load(__DIR__.'/../../.env');
 
-	//$this->sentry_instance = new Sentry();
+		/* Connect to database */
+		$this->dbconn = pg_connect("host=" . getenv('DB_HOST') . " port=5432 dbname=" . getenv('DB_NAME') . " user=" . getenv('DB_USERNAME') . " password=" . getenv('DB_PASSWORD'));
+
+		$this->authentication = new Auth();
+
 	}
 
-	/* Functions Related to creating and deleting users */
+	/* Begin User Creation Function */
 
-	public function createUser(string $username, string $password, string $email)
-	{
-	// Encrypt Password
-	$encPassword = password_hash($password, PASSWORD_BCRYPT);
-	unset($password); // We dont want to store the password in the code
+	public function create_user(string $username, string $password, string $email){
+		$password = password_hash($password, PASSWORD_BCRYPT);
 
-	// Create User ID
-	$userid = Uuid::uuid4();
-	$userid = $userid->toString();
+		$user_id = Uuid::uuid4();
+		$user_id = $user_id->toString();
 
-	// Add the user to DB
-	$preparedStatement = pg_prepare($this->dbconn, "create_user", "INSERT INTO users (id, username, password, email, tier, is_admin, is_blocked) VALUES ($1, $2, $3, $4, 'free', false, false)");
-	$executePreparedStatement =	pg_execute($this->dbconn, "create_user", array($userid, $username, $encPassword, $email));
+		pg_prepare($this->dbconn, "create_user", "INSERT INTO users (id, username, password, email, tier, is_admin, is_blocked) VALUES ($1, $2, $3, $4, 'free', false, false)");
 
-	if(pg_result_status($executePreparedStatement) == 1 || pg_result_status($executePreparedStatement) == 6)
-	{
-		return 
-		[
-			'success' => true,
-			'status' => 'created',
-			'account' => [
-			'id' => $userid,
-			'username' => $username,
-			'email' => $email
-			]
-		];
-	}
-	else
-	{
-		return
-		[
-			'success' => false,
-			'message' => 'Something went horribly wrong while inserting the user into the database! Check the logs!'
-		];
+		$execute_prepared_statement = pg_execute($this->dbconn, "create_user", array($user_id, $username, $password, $email));
 
-		$this->log_error('Something went horribly wrong while inserting the user into the database! Check the logs! Time: ' . gmdate("Y-m-d H:i:s", time()));
-	}
+		if($execute_prepared_statement){
+
+			return [
+				'success' => true,
+				'status' => 'created',
+				'account' => [
+					'id' => $userid,
+					'username' => $username,
+					'email' => $email
+				]
+			];
+
+		}else{
+
+			throw new \Exception("Error Processing create_user Request");
+		
+		}
 	}
 
-	public function deleteUser(string $id, string $email, string $password)
-	{
+	/* End User Creation Function */
 
-	$prepareStatement = pg_prepare($this->dbconn, "get_old_password", 'SELECT password FROM users WHERE id = $1');
-	$executePreparedStatement = pg_execute($this->dbconn, "get_old_password", array($id));
-	$passwordDB = pg_fetch_array($executePreparedStatement);
+	/* Begin User Deletion Function */
 
-	if(password_verify($password, $passwordDB[0])){
+	public function delete_user(string $user_id, string $email, string $password){
+		if($this->authentication->validate_password($user_id, $password)){
 
-		$preparedStatement = pg_prepare($this->dbconn, "delete_user", "DELETE FROM users WHERE id = $1 AND email = $2");
-		$executePreparedStatement = pg_execute($this->dbconn, "delete_user", array($id, $email));
+			/* User Deletion */
+			pg_prepare($this->dbconn, "delete_user", "DELETE FROM users WHERE id = $1 AND email = $2");
+			$execute_prepared_statement = pg_execute($this->dbconn, "delete_user", array($id, $email));
+			if($execute_prepared_statement){
+			
+				/* Api key deletion */
+				pg_prepare($this->dbconn, "delete_user_api_keys", "DELETE FROM tokens WHERE user_id = $1");
+				$execute_prepared_statement = pg_execute($this->dbconn, "delete_user_api_keys", array($id));
 
-		$prepareStatementApiKeys = pg_prepare($this->dbconn, "delete_user_api_keys", "DELETE FROM tokens WHERE user_id = $1");
-		$executePreparedStatementApiKeys = pg_execute($this->dbconn, "delete_user_api_keys", array($id));
+				if($execute_prepared_statement){
 
-		if(pg_result_status($executePreparedStatement) == 1 || pg_result_status($executePreparedStatement) == 6 && pg_result_status($executePreparedStatementApiKeys) == 1 || pg_result_status($executePreparedStatementApiKeys) == 6)
-		{
-				return
-			[
+					return [
+						'success' => true
+					];
+				
+				}else{
+
+					throw new \Exception("Error Processing delete_user Request: Apikeys Deletion");
+				
+				}
+			}else{
+
+					throw new \Exception("Error Processing delete_user Request: Userdata Deletion");
+			
+			}
+
+		}else{
+
+			return [
+				'success' => false,
+				'error_code' => 1002,
+				'error_message' => 'Invalid user ID or Password'
+			];
+
+		}
+	}
+
+	/* End User Deletion Function */
+
+	/* Begin User Set Email Function */
+
+	public function user_set_email(string $id, string $user_new_email, string $password){
+
+		if($this->authentication->validate_password($user_id, $password)){
+
+			pg_prepare($this->dbconn, "update_email", "UPDATE users SET email = $1 WHERE id = $2");
+			$execute_prepared_statement = pg_execute($this->dbconn, "update_email", array($user_new_email, $id));
+
+			if($execute_prepared_statement){
+
+				return [
 					'success' => true,
 					'account' => [
-					'deleted' => true
+						'updated' => [
+							'email' => true
+						]
 					]
 				];
+
+			}else{
+
+				throw new \Exception("Error Processing user_set_email Request");
+			
 			}
-			else
-			{
-			return
-			[
-					'success' => false,
-					'message' => 'Something went horribly wrong while deleting the user from the database! Check the logs!'
-			];
 
-		$this->log_error('Something went horribly wrong while deleting the user from the database! Check the logs! Time: ' . gmdate("Y-m-d H:i:s", time()));
-		}
-	}else{
-		return [
-			'success' => false,
-			'error_code' => 4002112,
-			'error_message' => 'Wrong Password'
-		];
-	}
-}
-
-	 /* Other user-related functions */
-
-	public function setUserTier(string $id, string $tier)
-	{
-	$preparedStatement = pg_prepare($this->dbconn, "update_tier", "UPDATE users SET tier = $1 WHERE id = $2");
-	$executePreparedStatement =	pg_execute($this->dbconn, "update_tier", array($tier, $id));
-
-	if($prepareStatement !== false && $executePreparedStatement !== false)
-	{
-		return
-		[
-		'success' => true,
-		'account' => [
-			'tier' => [
-			'updated' => true
-			]
-		]
-		];
-	}
-	else
-	{
-		return
-		[
-		'success' => false,
-		'account' => [
-			'tier' => [
-			'updated' => false
-			]
-		]
-		];
-		$this->log_error('Couldnt update the tier of user ' . $id .	' Time: ' . gmdate("Y-m-d H:i:s", time()));
-	}
-	}
-
-	public function setUserEmail(string $id, string $newUserEmail, $password)
-	{
-
-		$prepareStatement = pg_prepare($this->dbconn, "get_old_password", 'SELECT password FROM users WHERE id = $1');
-	$executePreparedStatement = pg_execute($this->dbconn, "get_old_password", array($id));
-	$passwordDB = pg_fetch_array($executePreparedStatement);
-
-	if(password_verify($password, $passwordDB[0])){
-
-		$prepareStatement = pg_prepare($this->dbconn, "update_email", "UPDATE users SET email = $1 WHERE id = $2");
-		$executePreparedStatement = pg_execute($this->dbconn, "update_email", array($newUserEmail, $id));
-
-		if($prepareStatement !== false && $executePreparedStatement !== false)
-			{
-					return
-					[
-					'success' => true,
-					'account' => [
-							'email' => [
-						'updated' => true
-							]
-					]
-					];
-			}
-			else
-			{
-				return
-						[
-						'success' => false,
-						'account' => [
-								'email' => [
-								'updated' => false
-								]
-						]
-						];
-					$this->log_error('Couldnt update the email of user w/ username of ' . $userName .	' Time: ' . gmdate("Y-m-d H:i:s", time()));
-			}
-		}
-	}
-
-	public function setNewPassword($id, $oldPassword="", $newRawPassword, $override=false)
-	{
-	if ($override == true)
-	{
-		unset($oldPassword); //we dont need this anymore
-		$newPassword = password_hash($newRawPassword, PASSWORD_BCRYPT);
-		unset($newRawPassword); // we dont keep this
-		$prepareStatement = pg_prepare($this->dbconn, "update_password_ovr", "UPDATE users SET password = $1 WHERE id = $2");
-		$executePreparedStatement = pg_execute($this->dbconn, "update_password_ovr", array($newPassword, $id));
-		if($prepareStatement !== false && $executePreparedStatement !== false)
-		{
-		return
-		[
-			'success' => true,
-			'account' => [
-			'password' => [
-				'updated' => true
-			]
-			]
-		];
-		}
-		else
-		{
-		return
-		[
-			'success' => false,
-			'account' => [
-			'password' => [
-				'updated' => false
-			]
-			]
-		];
-		$this->log_error('Couldnt update the password (OVERRIDE) of user w/ username of ' . $username .	' Time: ' . gmdate("Y-m-d H:i:s", time()));
-		}
-	}
-	elseif($override == false)
-	{
-		$newPassword = password_hash($newRawPassword, PASSWORD_BCRYPT);
-		unset($newRawPassword); // we dont keep this
-		
-		$prepareStatement = pg_prepare($this->dbconn, "get_old_password", 'SELECT password FROM users WHERE id = $1');
-		$executePreparedStatement = pg_execute($this->dbconn, "get_old_password", array($id));
-		$oldPasswordDB = pg_fetch_array($executePreparedStatement);
-
-		if(password_verify($oldPassword, $oldPasswordDB[0])){ 
-
-			$prepareStatement = pg_prepare($this->dbconn, "update_password_ovr", "UPDATE users SET password = $1 WHERE id = $2");
-			$old_pass = password_hash($oldPassword, PASSWORD_BCRYPT);
-			$executePreparedStatement = pg_execute($this->dbconn, "update_password_ovr", array($newPassword, $id));
-			if($prepareStatement !== false && $executePreparedStatement !== false)
-			{
-			return
-			[
-				'success' => true,
-				'account' => [
-				'password' => [
-					'updated' => true
-				]
-			]
-			];
-			}
-			else
-			{
-				return
-			[
-				'success' => false,
-				'account' => [
-				'password' => [
-					'updated' => false
-				]
-				]
-			];
-			$this->log_error('Couldnt update the password (OVERRIDE) of user w/ username of ' . $username .	' Time: ' . gmdate("Y-m-d H:i:s", time()));
-			}
-			unset($username, $oldPassword, $newRawPassword, $override);
 		}else{
-		return
-			[
-			'success' => false,
-			'error_code' => 4002112,
-			'error_message' => 'Wrong Password',
-			'account' => [
-				'password' => [
-				'updated' => false
-				]
-			]
+
+			return [
+				'success' => false,
+				'error_code' => 1002,
+				'error_message' => 'Invalid user ID or Password'
 			];
+
 		}
-		}
-}
-	public function log_error($error){
-	return $error;
+
 	}
+
+	/* End User Set Email Function */
+
+	/* Begin User Set Password Function */
+
+	public function user_set_password($user_id, $old_password="", $new_password, $override=false){
+
+		if($override=true){
+
+			pg_prepare($this->dbconn, "update_password", "UPDATE users SET password = $1 WHERE id = $2");
+			$execute_prepared_statement = pg_execute($this->dbconn, "update_password_ovr", array(password_hash($new_password, PASSWORD_BCRYPT), $id));
+
+			if($execute_prepared_statement){
+
+					return [
+						'success' => true,
+						'account' => [
+							'updated' => [
+								'password' => true
+							]
+						]
+					];
+
+			}else{
+				throw new \Exception("Error Processing user_set_password Request: Override");
+			}
+
+		}else{
+			if($this->authentication->validate_password($user_id, $old_password)){
+
+				pg_prepare($this->dbconn, "update_password", "UPDATE users SET password = $1 WHERE id = $2");
+				$execute_prepared_statement = pg_execute($this->dbconn, "update_password_ovr", array(password_hash($new_password, PASSWORD_BCRYPT), $id));
+
+				if($execute_prepared_statement){
+
+					return [
+						'success' => true,
+						'account' => [
+							'updated' => [
+								'password' => true
+							]
+						]
+					];
+
+				}else{
+					throw new \Exception("Error Processing user_set_password Request");
+				}
+
+			}else{
+
+				return [
+					'success' => false,
+					'error_code' => 1002,
+					'error_message' => 'Invalid user ID or Password'
+				];
+
+			}
+		}
+
+	}
+
+	/* End User Set Password Function */
+
+	/* Begin Upload Authentication Function */
+
+	public function upload_authentication($api_key){
+
+		$prepareStatement = pg_prepare($this->dbconn, "get_user_by_api_key_2", "SELECT * FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1 LIMIT 1)");
+		$executePreparedStatement = pg_execute($this->dbconn, "get_user_by_api_key_2", array($api_key));
+
+		$user = pg_fetch_array($executePreparedStatement);
+
+		if($user != null){
+			
+			if($user['is_blocked'] == false || !empty($user['is_blocked'])){
+				
+				return true;
+			
+			}else{
+
+				return [
+					'success' => false,
+					'error_message' => 'User banned.'
+				];
+			
+			}
+		
+		}else{
+
+			throw new \Exception('Userdata not found. Api key: ' . $api_key);
+		
+		}
+	}
+
+	/* End Upload Authentication Function */
+
+	/* Begin Get User By API Key Function */
+
+	public function get_user_by_api_key($api_key){
+
+		$this->prepared = false;
+		
+		if($this->prepared == false){
+
+			$prepareStatement = pg_prepare($this->dbconn, "get_user_by_api_key", "SELECT * FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1 LIMIT 1)");
+			$this->prepared = true;
+		
+		}
+
+		$executePreparedStatement = pg_execute($this->dbconn, "get_user_by_api_key", array($api_key));
+
+		if($executePreparedStatement){
+
+			return pg_fetch_array($executePreparedStatement);
+		
+		}else{
+
+			return [
+				'success' => false,
+				'error_message' => 'No data found'
+			];
+		
+		}
+
+		/* End Get User By API Key Function */
+	}
+
 }
 ?>
