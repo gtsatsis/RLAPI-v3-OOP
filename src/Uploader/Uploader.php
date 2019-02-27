@@ -43,83 +43,95 @@ class Uploader {
 
 	public function Upload($api_key, $file){
 
+		$file_name = null;
+
 		$authenticate = $this->authentication->upload_authentication($api_key);
 		
 		if($authenticate){
+			if($this->authentication->maximum_filesize_assessment($api_key, implode('', $file['size']))){
+				$fileUtils = new FileUtils();
 
-			$fileUtils = new FileUtils();
+				$extension = pathinfo(implode('', $file['name']), PATHINFO_EXTENSION);
 
-			$extension = pathinfo(implode('', $file['name']), PATHINFO_EXTENSION);
+				$file_name = $fileUtils->generateFileName($extension, 10);
+				$file_name_is_unique = false;
 
-			$file_name = $fileUtils->generateFileName($extension, 10);
-			$file_name_is_unique = false;
+				while($file_name_is_unique == false){
 
-			while($file_name_is_unique == false){
+					if($fileUtils->isUnique($file_name, getenv('S3_ENDPOINT').'/'.$this->bucket.'/')){
 
-				if($fileUtils->isUnique($file_name, getenv('S3_ENDPOINT').'/'.$this->bucket.'/')){
+						$file_name_is_unique = true;
+					
+					}else{
 
-					$file_name_is_unique = true;
-				
-				}else{
-
-					$file_name_is_unique = false;
-					$file_name = $fileUtils->generateFileName($extension);
+						$file_name_is_unique = false;
+						$file_name = $fileUtils->generateFileName($extension);
+					
+					}
 				
 				}
-			
-			}
 
-			$file_md5_hash = md5_file(implode('', $file['tmp_name']));
-			$file_sha1_hash = sha1_file(implode('', $file['tmp_name']));
-			$file_original_name = implode('', $file['name']);
+				$file_md5_hash = md5_file(implode('', $file['tmp_name']));
+				$file_sha1_hash = sha1_file(implode('', $file['tmp_name']));
+				$file_original_name = implode('', $file['name']);
 
-			$fileUtils->log_object($api_key, $file_name, $file_original_name, $file_md5_hash, $file_sha1_hash); // TODO: Create the object logging util
+				$fileUtils->log_object($api_key, $file_name, $file_original_name, $file_md5_hash, $file_sha1_hash); // TODO: Create the object logging util
 
-			if(move_uploaded_file(implode('', $file['tmp_name']), getenv('TMP_STORE').$file_name)){
+				if(move_uploaded_file(implode('', $file['tmp_name']), getenv('TMP_STORE').$file_name)){
 			
-				$file_loc = getenv('TMP_STORE').$file_name;
+					$file_loc = getenv('TMP_STORE').$file_name;
 			
-			}else{
+				}else{
 			
-				throw new \Exception('Unable to move uploaded file.');
+					throw new \Exception('Unable to move uploaded file.');
 			
-			}
+				}
 
-			$upload = $this->uploadToS3($file_name, $file_loc);
+				$upload = $this->uploadToS3($file_name, $file_loc);
 
-			if($upload){
+				if($upload){
 			
-				$response = [
-					'success' => true,
-					'files' => [
-							[
-								'url' => $file_name,
-								'name' => $file_original_name,
-								'hash_md5' => $file_md5_hash,
-								'hash_sha1' => $file_sha1_hash
-							]
-					]
-				];
+					$response = [
+						'success' => true,
+						'files' => [
+								[
+									'url' => $file_name,
+									'name' => $file_original_name,
+									'hash_md5' => $file_md5_hash,
+									'hash_sha1' => $file_sha1_hash
+								]
+						]
+					];
+				
+				}else{
 			
-			}else{
+					$response = [
+						'success' => false,
+						'error_code' => 403408
+					];
 			
-				$response = [
-					'success' => false,
-					'error_code' => 403408
-				];
-			
-			}
-		
+				}
 		}else{
-		
 			$response = [
 				'success' => false,
-				'error_message' => 'Invalid Credentials'
+				'error_code' => 1010,
+				'error_message' => 'Maximum Allowed Filesize Exceeded'
 			];
-		
 		}
+			}else{
+		
+				$response = [
+					'success' => false,
+					'error_message' => 'Invalid Credentials'
+				];
+		
+			}
 
-		unlink(getenv('TMP_STORE').$file_name);
+		if($file_name != null){
+			unlink(getenv('TMP_STORE').$file_name);
+		}else{
+			unlink(implode('', $file['tmp_name']))
+		}
 		
 		return $response;
 

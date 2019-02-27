@@ -39,6 +39,46 @@ class Auth {
 
 	}
 
+	public function maximum_filesize_assessment(string $api_key, string $file_size){
+
+		pg_prepare($this->dbconn, "get_user_tier", "SELECT tier FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1)");
+		$execute_prepared_statement = pg_execute($this->dbconn, "get_user_tier", array($api_key));
+
+		if($execute_prepared_statement){
+
+			$user_tier = pg_fetch_array($execute_prepared_statement);
+			$tier = $user_tier[0];
+
+			pg_prepare($this->dbconn, "get_tier_from_tiers", "SELECT * FROM tiers WHERE tier = $1");
+			$execute_prepared_statement = pg_execute($this->dbconn, "get_tier_from_tiers", array($tier));
+
+			if($execute_prepared_statement){
+
+				$tier_info = pg_fetch_array($execute_prepared_statement);
+				$max_allowed_file_size = $tier_info['maximum_filesize'];
+
+				if($file_size > $max_allowed_file_size){
+
+					return false;
+
+				}else{
+					return true;
+				}
+
+			}else{
+
+				throw new \Exception('Failed to get tier from tiers');
+			
+			}
+
+		}else{
+
+			throw new \Exception('Uh.. no idea how this fucking shit happened... It should only be called if the upload auth passed... nanitf');
+		
+		}
+
+	}
+
 	public function bucket_allowance(string $user_id){
 
 		pg_prepare($this->dbconn, "get_bucket_allowance", "SELECT private_domains FROM tiers WHERE tier = (SELECT tier FROM users WHERE id = $1)");
@@ -79,9 +119,9 @@ class Auth {
 	public function upload_authentication(string $api_key){
 
 		$prepareStatement = pg_prepare($this->dbconn, "get_user_by_api_key_2", "SELECT * FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1 LIMIT 1)");
-		$executePreparedStatement = pg_execute($this->dbconn, "get_user_by_api_key_2", array($api_key));
+		$execute_prepared_statement = pg_execute($this->dbconn, "get_user_by_api_key_2", array($api_key));
 
-		$user = pg_fetch_array($executePreparedStatement);
+		$user = pg_fetch_array($execute_prepared_statement);
 
 		if($user != null){
 			
