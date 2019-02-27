@@ -210,6 +210,36 @@ class User {
 
 	/* End User Set Password Function */
 
+	/* Begin User Set Tier Function */
+
+	public function user_set_tier(string $user_id, string $user_tier, string $api_key){
+
+		if($this->authentication->api_key_is_admin($api_key)){
+
+			pg_prepare($this->dbconn, "set_user_tier", "UPDATE users SET tier = $1 WHERE id = $2");
+			$execute_prepared_statement = pg_execute($this->dbconn, "set_user_tier", array($user_tier, $user_id));
+
+			if($execute_prepared_statement){
+				return [
+					'success' => true,
+					'account' => [
+						'id' => $user_id,
+						'tier' => $user_tier
+					]
+				];
+			}
+
+		}else{
+			return [
+				'success' => false,
+				'error_code' => 1009,
+				'error_message' => 'Insufficient Permissions'
+			];
+		}
+
+	}
+
+	/* End User Set Tier Function */
 
 	/* Begin User Send Email Verify Function */
 

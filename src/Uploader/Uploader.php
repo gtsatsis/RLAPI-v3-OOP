@@ -18,7 +18,7 @@ class Uploader {
 	private $bucket;
 	private $authentication;
 
-	public function __construct(){
+	public function __construct($bucket=null){
 		/* Load the env file */
 		$dotenv = new Dotenv();
 		$dotenv->load(__DIR__.'/../../.env');
@@ -35,8 +35,16 @@ class Uploader {
 				'use_path_style_endpoint' => true // Minio Compatible (https://minio.io)
         	]
     	);
+		if($bucket=null){
 
-    	$this->bucket = getenv('S3_BUCKET');
+    		$this->bucket = getenv('S3_BUCKET');
+		
+		}else{
+		
+			$this->bucket = $bucket;
+		
+		}
+    	
     	$this->authentication = new Auth();
 
 	}

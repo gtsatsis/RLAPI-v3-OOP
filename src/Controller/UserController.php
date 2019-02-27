@@ -58,22 +58,18 @@ class UserController extends AbstractController {
      * @Route("/users/{id}/set_tier", name="set_user_tier")
      */	
 
-	/*public function set_user_tier(Request $request, $id){
+	public function set_user_tier(Request $request, $id){
 		$users = new User();
 
-		if($request->request->has('tier')){
-			$setTier = $users->setUserTier($id, $request->request->get('tier'));
+		if($request->request->has('tier') && $request->request->has('api_key')){
+			$setTier = $users->user_set_tier($id, $request->request->get('tier'), $request->request->get('api_key'));
 
 			return new Response(json_encode($setTier));
 		}else{
 			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
 		}
 	}
-
-	Comment :REMOVED UNTIL FURTHER NOTICE
-
-	*/ 
-
+	
 	/**
      * Matches /users/{id}/email exactly
      *
