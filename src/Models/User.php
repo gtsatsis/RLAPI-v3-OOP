@@ -5,7 +5,9 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
 use Symfony\Component\Dotenv\Dotenv;
+
 use App\Utils\Auth;
+use App\Utils\Mailer;
 
 class User {
 
@@ -33,21 +35,27 @@ class User {
 		$user_id = Uuid::uuid4();
 		$user_id = $user_id->toString();
 
-		pg_prepare($this->dbconn, "create_user", "INSERT INTO users (id, username, password, email, tier, is_admin, is_blocked) VALUES ($1, $2, $3, $4, 'free', false, false)");
+		pg_prepare($this->dbconn, "create_user", "INSERT INTO users (id, username, password, email, tier, is_admin, is_blocked, verified) VALUES ($1, $2, $3, $4, 'free', false, false, false)");
 
 		$execute_prepared_statement = pg_execute($this->dbconn, "create_user", array($user_id, $username, $password, $email));
 
 		if($execute_prepared_statement){
+				
+			$send_verification_email = $this->user_send_verify_email($email, $user_id, $username);
 
-			return [
-				'success' => true,
-				'status' => 'created',
-				'account' => [
-					'id' => $user_id,
-					'username' => $username,
-					'email' => $email
-				]
-			];
+			if($send_verification_email){
+			
+				return [
+					'success' => true,
+					'status' => 'created',
+					'account' => [
+						'id' => $user_id,
+						'username' => $username,
+						'email' => $email
+					]
+				];
+
+		}
 
 		}else{
 
@@ -144,7 +152,7 @@ class User {
 
 	/* Begin User Set Password Function */
 
-	public function user_set_password($user_id, $old_password="", $new_password, $override=false){
+	public function user_set_password(string $user_id, string $old_password="", string $new_password, bool $override=false){
 
 		if($override=true){
 
@@ -202,42 +210,81 @@ class User {
 
 	/* End User Set Password Function */
 
-	/* Begin Upload Authentication Function */
 
-	public function upload_authentication($api_key){
+	/* Begin User Send Email Verify Function */
 
-		$prepareStatement = pg_prepare($this->dbconn, "get_user_by_api_key_2", "SELECT * FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1 LIMIT 1)");
-		$executePreparedStatement = pg_execute($this->dbconn, "get_user_by_api_key_2", array($api_key));
+	public function user_send_verify_email(string $user_email, string $user_id, string $username){
 
-		$user = pg_fetch_array($executePreparedStatement);
+		$Mailer = new Mailer();
 
-		if($user != null){
-			
-			if($user['is_blocked'] == false || !empty($user['is_blocked'])){
-				
-				return true;
-			
-			}else{
+		$verification_id = Uuid::uuid4();
+		$verification_id = $verification_id->toString();
 
-				return [
-					'success' => false,
-					'error_message' => 'User banned.'
-				];
-			
-			}
-		
+		pg_prepare($this->dbconn, "verification_created", "INSERT INTO verification_emails (user_id, verification_id, email, used) VALUES ($1, $2, $3, false)");
+
+		$execute_prepared_statement = pg_execute($this->dbconn, "verification_created", array($user_id, $verification_id, $user_email));
+
+		if($execute_prepared_statement){
+
+			$Mailer->send_verification_email($user_email, $username, $verification_id);
+
+			return true;
+
 		}else{
 
-			throw new \Exception('Userdata not found. Api key: ' . $api_key);
-		
+			throw new Exception("Error Processing user_send_verify_email Request");
+			
 		}
+
 	}
 
-	/* End Upload Authentication Function */
+	/* End User Send Email Verify Function */
+
+	/* Begin User Email Verify Function */
+
+	public function user_verify_email($user_id, $verification_id){
+
+		pg_prepare($this->dbconn, "verify_email_fetch", "SELECT * FROM verification_emails WHERE verification_id = $1 AND user_id = $2");
+		$execute_prepared_statement = pg_execute($this->dbconn, "verify_email_fetch", array($verification_id, $user_id));
+
+		if($execute_prepared_statement){
+			$verification_fetch = pg_fetch_array($execute_prepared_statement);
+
+			if($verification_fetch != null){
+
+				pg_prepare($this->dbconn, "verify_email", "UPDATE users SET verified = true WHERE user_id = $1 AND email = $2");
+				$execute_prepared_statement = pg_execute($this->dbconn, "verify_email", array($verification_fetch['user_id'], $verification_fetch['email']));
+
+				if($execute_prepared_statement){
+
+					return [
+						'success' => true,
+						'email' => [
+							'verified' => true
+						]
+					];
+
+				}else{
+					throw new Exception("Error Processing user_verify_email Request: verify_email/exec");
+					
+				}
+
+			}else{
+				throw new Exception("Error Processing user_verify_email Request: fetch_array");
+				
+			}
+		}else{
+			throw new Exception("Error Processing user_verify_email Request: execute_prepared_statement");
+			
+		}
+
+	}
+
+	/* End User Email Verify Function */
 
 	/* Begin Get User By API Key Function */
 
-	public function get_user_by_api_key($api_key){
+	public function get_user_by_api_key(string $api_key){
 
 		$this->prepared = false;
 		
@@ -248,11 +295,11 @@ class User {
 		
 		}
 
-		$executePreparedStatement = pg_execute($this->dbconn, "get_user_by_api_key", array($api_key));
+		$execute_prepared_statement = pg_execute($this->dbconn, "get_user_by_api_key", array($api_key));
 
-		if($executePreparedStatement){
+		if($execute_prepared_statement){
 
-			return pg_fetch_array($executePreparedStatement);
+			return pg_fetch_array($execute_prepared_statement);
 		
 		}else{
 

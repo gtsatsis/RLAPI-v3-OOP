@@ -40,7 +40,7 @@ class UserController extends AbstractController {
      * @Route("/users/{id}/delete", name="delete_user")
      */
 
-	public function delete_user(Request $request, $id, $password){
+	public function delete_user(Request $request, $id){
 		if($request->request->has('email') && $request->request->has('password')){
 			$users = new User();
 
@@ -110,6 +110,20 @@ class UserController extends AbstractController {
 			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
 		}
 	}
+
+	/**
+     * Matches /users/{id}/verify_email/{verification_id} exactly
+     *
+     * @Route("/users/{id}/verify_email/{verification_id}", name="set_user_password")
+     */	
+
+	public function verify_user_email($id, $verification_id){
+		$users = new User();
+
+		$verify_email = $users->user_verify_email($id, $verification_id);
+		
+		return new Response(json_encode($verify_email));
+	}	
 
 }
 

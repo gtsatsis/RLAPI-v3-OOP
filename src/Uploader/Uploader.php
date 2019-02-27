@@ -3,6 +3,7 @@ namespace App\Uploader;
 
 use App\Models\User;
 use App\Utils\FileUtils;
+use App\Utils\Auth;
 
 use \Ramsey\Uuid\Uuid;
 use \Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
@@ -15,6 +16,7 @@ class Uploader {
 	private $dbconn;
 	private $s3;
 	private $bucket;
+	private $authentication;
 
 	public function __construct(){
 		/* Load the env file */
@@ -35,13 +37,14 @@ class Uploader {
     	);
 
     	$this->bucket = getenv('S3_BUCKET');
+    	$this->authentication = new Auth();
 
 	}
 
 	public function Upload($api_key, $file){
-		$users = new User();
 
-		$authenticate = $users->upload_authentication($api_key);
+		$authenticate = $this->authentication->upload_authentication($api_key);
+		
 		if($authenticate){
 
 			$fileUtils = new FileUtils();
@@ -52,12 +55,18 @@ class Uploader {
 			$file_name_is_unique = false;
 
 			while($file_name_is_unique == false){
+
 				if($fileUtils->isUnique($file_name, getenv('S3_ENDPOINT').'/'.$this->bucket.'/')){
+
 					$file_name_is_unique = true;
+				
 				}else{
+
 					$file_name_is_unique = false;
 					$file_name = $fileUtils->generateFileName($extension);
+				
 				}
+			
 			}
 
 			$file_md5_hash = md5_file(implode('', $file['tmp_name']));
@@ -67,14 +76,19 @@ class Uploader {
 			$fileUtils->log_object($api_key, $file_name, $file_original_name, $file_md5_hash, $file_sha1_hash); // TODO: Create the object logging util
 
 			if(move_uploaded_file(implode('', $file['tmp_name']), getenv('TMP_STORE').$file_name)){
+			
 				$file_loc = getenv('TMP_STORE').$file_name;
+			
 			}else{
+			
 				throw new \Exception('Unable to move uploaded file.');
+			
 			}
 
 			$upload = $this->uploadToS3($file_name, $file_loc);
 
 			if($upload){
+			
 				$response = [
 					'success' => true,
 					'files' => [
@@ -86,20 +100,27 @@ class Uploader {
 							]
 					]
 				];
+			
 			}else{
+			
 				$response = [
 					'success' => false,
 					'error_code' => 403408
 				];
+			
 			}
+		
 		}else{
+		
 			$response = [
 				'success' => false,
 				'error_message' => 'Invalid Credentials'
 			];
+		
 		}
 
 		unlink(getenv('TMP_STORE').$file_name);
+		
 		return $response;
 
 	}
@@ -116,10 +137,18 @@ class Uploader {
 		);
 
         if($putObject){
+        
         	return true;
+        
         }else{
+        
         	throw new \Exception('Something went wrong while uploading to the s3 bucket.');
+        
         }
+
+	}
+
+	public function filesize_determination(){
 
 	}
 
