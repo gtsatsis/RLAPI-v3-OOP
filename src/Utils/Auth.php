@@ -147,6 +147,29 @@ class Auth {
 
 	/* End Upload Authentication Function */
 
+
+	public function api_key_is_admin(string $api_key){
+
+		pg_prepare($this->dbconn, "api_key_is_admin", "SELECT is_admin FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1)");
+		$execute_prepared_statement = pg_execute($this->dbconn, "api_key_is_admin", array($api_key));
+
+		if($execute_prepared_statement){
+			
+			$is_admin = pg_fetch_array($execute_prepared_statement);
+
+			if($is_admin == "f" || empty($is_admin)){
+			
+				return false;
+			
+			}else{
+
+				return true;
+			
+			}
+		}
+
+	}
+
 }
 
 ?>
