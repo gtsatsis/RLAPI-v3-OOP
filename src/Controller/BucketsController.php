@@ -37,6 +37,24 @@ class BucketsController extends AbstractController {
 		}
 	}
 
+	/**
+     * Matches /buckets/{id}/delete exactly
+     *
+     * @Route("/buckets/{id}/delete", name="delete_user_bucket")
+     */
+
+	public function delete_user_bucket(Request $request, $id){
+		$buckets = new Buckets();
+
+		if($request->request->has('bucket_name') && $request->request->has('password')){
+			$deleted_bucket = $buckets->delete_user_bucket($id, $request->request->get('bucket_name'), $request->request->get('password'));
+
+			return new Response(json_encode($deleted_bucket));
+		}else{
+			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+		}
+	}	
+
 }
 
 ?>

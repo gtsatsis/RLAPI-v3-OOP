@@ -23,11 +23,13 @@ class Auth {
 
 	public function validate_password(string $user_id, string $password){
 
-		pg_prepare($this->dbconn, "get_password", 'SELECT password FROM users WHERE id = $1');
-		$execute_prepared_statement = pg_execute($this->dbconn, "get_password", array($user_id));
-		$password_DB = pg_fetch_array($execute_prepared_statement);
+		pg_prepare($this->dbconn, "get_user", 'SELECT * FROM users WHERE id = $1');
+		$execute_prepared_statement = pg_execute($this->dbconn, "get_user", array($user_id));
+		$user = pg_fetch_array($execute_prepared_statement);
 
-		if(password_verify($password, $password_DB[0])){
+
+
+		if(password_verify($password, $user['password']) && $user['verified'] == "t"){
 
 			return true;
 		
@@ -87,10 +89,10 @@ class Auth {
 
 		pg_prepare($this->dbconn, "get_current_buckets", "SELECT COUNT(*) FROM buckets WHERE user_id = $1");
 		$execute_prepared_statement = pg_execute($this->dbconn, "get_current_buckets", array($user_id));
-		$current_buckets = pg_fetch_array($execute_prepared_statement)[0];
+		$current_buckets = pg_fetch_array($execute_prepared_statement);
 
 
-		if($bucket_allowance >= $current_buckets){
+		if($bucket_allowance[0] >= $current_buckets[0]){
 			return false;
 		}else{
 			return true;
@@ -125,17 +127,22 @@ class Auth {
 
 		if($user != null){
 			
-			if($user['is_blocked'] == false || !empty($user['is_blocked'])){
-				
-				return true;
+			if($user['verified'] == "t"){
+
+				if($user['is_blocked'] == "f" || empty($user['is_blocked'])){
+					
+					return true;
 			
+				}else{
+
+					return false;
+			
+				}
+
 			}else{
 
-				return [
-					'success' => false,
-					'error_message' => 'User banned.'
-				];
-			
+				return false;
+
 			}
 		
 		}else{
@@ -166,6 +173,24 @@ class Auth {
 				return true;
 			
 			}
+		}
+
+	}
+
+	public function owns_bucket(string $user_id, $bucket_name){
+
+		pg_prepare($this->dbconn, "owns_bucket", "SELECT COUNT(*) FROM buckets WHERE user_id = $1 AND bucket_name = $2");
+		$execute_prepared_statement = pg_execute($this->dbconn, "owns_bucket", array($user_id, $bucket_name));
+
+		$count = pg_fetch_array($execute_prepared_statement);
+		if($count[0] == 1){
+
+			return true;
+
+		}else{
+
+			return false;
+
 		}
 
 	}

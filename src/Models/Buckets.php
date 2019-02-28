@@ -50,15 +50,15 @@ class Buckets {
 
 					if($create_bucket != null){
 
-						pg_prepare($this->dbconn, "insert_bucket", "INSERT INTO buckets (user_id, bucket_id, bucket_name, allocated_domain) VALUES ($1, $2, $3, $4)");
-						$execute_prepared_statement = pg_execute($this->dbconn, "insert_bucket", array($user_id, $bucket_id, $bucket_name, $allocated_domain));
+						pg_prepare($this->dbconn, "insert_bucket", "INSERT INTO buckets (user_id, bucket_name, allocated_domain) VALUES ($1, $2, $3)");
+						$execute_prepared_statement = pg_execute($this->dbconn, "insert_bucket", array($user_id, $bucket_name, $allocated_domain));
 						
 						if($execute_prepared_statement){
 
 							return [
 								'success' => true,
 								'bucket' => [
-									'location' => $create_bucket->toString()['Location']
+									'location' => $create_bucket->get('Location')
 								]
 							];
 
@@ -103,7 +103,37 @@ class Buckets {
 
 		if($this->authentication->validate_password($user_id, $password)){
 
-			$this->s3->deleteBucket(['Bucket' => $bucket_name]);
+			if($this->authentication->owns_bucket($user_id, $bucket_name)){
+				$delete_bucket = $this->s3->deleteBucket(['Bucket' => $bucket_name]);
+
+				if($delete_bucket != null){
+
+					pg_prepare($this->dbconn, "delete_bucket", "DELETE FROM buckets WHERE bucket_name = $1");
+					$execute_prepared_statement = pg_execute($this->dbconn, "delete_bucket", array($bucket_name));
+
+					if($execute_prepared_statement){	
+					
+						return [
+							'success' => true
+						];
+					
+					}else{
+
+						throw new Exception("Error Processing delete_bucket Request: sql");
+						
+					}
+
+				}
+
+			}else{
+
+				return [
+					'success' => false,
+					'error_code' => 1100,
+					'error_message' => 'You don\'t own this bucket'
+				];
+
+			}
 			
 		}else{
 

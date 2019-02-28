@@ -35,7 +35,8 @@ class Uploader {
 				'use_path_style_endpoint' => true // Minio Compatible (https://minio.io)
         	]
     	);
-		if($bucket=null){
+
+		if($bucket==null){
 
     		$this->bucket = getenv('S3_BUCKET');
 		
@@ -53,9 +54,9 @@ class Uploader {
 
 		$file_name = null;
 
-		$authenticate = $this->authentication->upload_authentication($api_key);
+		$authentication = $this->authentication->upload_authentication($api_key);
 		
-		if($authenticate){
+		if($authentication == true){
 			if($this->authentication->maximum_filesize_assessment($api_key, implode('', $file['size']))){
 				$fileUtils = new FileUtils();
 
@@ -119,26 +120,27 @@ class Uploader {
 					];
 			
 				}
-		}else{
-			$response = [
-				'success' => false,
-				'error_code' => 1010,
-				'error_message' => 'Maximum Allowed Filesize Exceeded'
-			];
-		}
 			}else{
-		
 				$response = [
 					'success' => false,
-					'error_message' => 'Invalid Credentials'
+					'error_code' => 1010,
+					'error_message' => 'Maximum Allowed Filesize Exceeded'
 				];
-		
 			}
+		
+		}else{
+		
+			$response = [
+				'success' => false,
+				'error_message' => 'Invalid Credentials'
+			];
+		
+		}
 
 		if($file_name != null){
 			unlink(getenv('TMP_STORE').$file_name);
 		}else{
-			unlink(implode('', $file['tmp_name']))
+			unlink(implode('', $file['tmp_name']));
 		}
 		
 		return $response;
