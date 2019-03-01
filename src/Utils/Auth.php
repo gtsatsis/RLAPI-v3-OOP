@@ -83,7 +83,7 @@ class Auth {
 
 	public function bucket_allowance(string $user_id){
 
-		pg_prepare($this->dbconn, "get_bucket_allowance", "SELECT private_domains FROM tiers WHERE tier = (SELECT tier FROM users WHERE id = $1)");
+		pg_prepare($this->dbconn, "get_bucket_allowance", "SELECT bucket_limit FROM tiers WHERE tier = (SELECT tier FROM users WHERE id = $1)");
 		$execute_prepared_statement = pg_execute($this->dbconn, "get_bucket_allowance", array($user_id));
 		$bucket_allowance = pg_fetch_array($execute_prepared_statement);
 

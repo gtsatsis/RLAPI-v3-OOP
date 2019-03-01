@@ -53,7 +53,25 @@ class BucketsController extends AbstractController {
 		}else{
 			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
 		}
-	}	
+	}
+
+	/**
+     * Matches /buckets/{id}/assign_domain exactly
+     *
+     * @Route("/buckets/{id}/assign_domain", name="assign_domain_to_bucket")
+     */
+
+	public function assign_domain_to_bucket(Request $request, $id){
+		$buckets = new Buckets();
+
+		if($request->request->has('bucket_name') && $request->request->has('password') && $request->request->has('domain')){
+			$assign_domain = $buckets->assign_domain_to_bucket($id, $request->request->get('password'), $request->request->get('bucket_name'), $request->request->get('domain'));
+
+			return new Response(json_encode($assign_domain));
+		}else{
+			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+		}
+	}
 
 }
 

@@ -147,6 +147,54 @@ class Buckets {
 
 	}
 
+	public function assign_domain_to_bucket(string $user_id, string $password, string $bucket_name, string $domain){
+
+		if($this->authentication->validate_password($user_id, $password)){
+
+			if($this->authentication->owns_bucket($user_id, $bucket_name)){
+
+				pg_prepare($this->dbconn, "assign_domain_to_bucket", "UPDATE buckets SET allocated_domain = $1 WHERE bucket = $2");
+				$execute_prepared_statement = pg_execute($this->dbconn, "assign_domain_to_bucket", array($domain, $bucket_name));
+
+				if($execute_prepared_statement){
+
+					return [
+						'success' => true,
+						'bucket' => [
+							$bucket => [
+								'domain' => $domain
+							]
+						]
+					];
+
+				}else{
+
+				}
+			
+			}else{
+
+				return [
+					'success' => false,
+					'error_code' => 1100,
+					'error_message' => 'You don\'t own this bucket'
+				];
+
+			}
+
+		}else{
+
+			return [
+				'success' => false,
+				'error_code' => 1002,
+				'error_message' => 'Invalid user ID or Password'
+			];
+
+		}
+
+	}
+
+	}
+
 
 
 }
