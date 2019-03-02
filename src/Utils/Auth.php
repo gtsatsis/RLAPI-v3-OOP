@@ -144,6 +144,7 @@ class Auth {
 				if($user['is_blocked'] == "f" || empty($user['is_blocked'])){
 					
 					sqreen_auth_track(true, $user['email']);
+					sqreen_track_upload($user['id']);
 
 					return true;
 			
@@ -227,7 +228,17 @@ class Auth {
 
 		if(getenv('SQREEN_ENABLED')){
 
-			\sqreen\signup_track(['email' => $email]);
+			\sqreen\signup_track(['email' => $identifier]);
+			
+		}
+
+	}
+
+	public function sqreen_track_upload($identifier){
+
+		if(getenv('SQREEN_ENABLED')){
+
+			\sqreen\track('app.ratelimited.rlapi.upload', ['properties' => ['user_id' => $identifier]]);
 			
 		}
 
