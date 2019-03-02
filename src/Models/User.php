@@ -8,6 +8,7 @@ use Symfony\Component\Dotenv\Dotenv;
 
 use App\Utils\Auth;
 use App\Utils\Mailer;
+use App\Utils\SqreenLib;
 
 class User {
 
