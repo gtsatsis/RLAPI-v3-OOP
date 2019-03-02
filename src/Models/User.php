@@ -282,7 +282,9 @@ class User {
 		if($execute_prepared_statement){
 			$verification_fetch = pg_fetch_array($execute_prepared_statement);
 
-				pg_prepare($this->dbconn, "verify_email", "UPDATE users SET verified = true WHERE id = $1 AND email = $2");
+			if(!empty($verification_fetch)){
+
+				pg_prepare($this->dbconn, "verify_email", "UPDATE users SET verified = true WHERE user_id = $1 AND email = $2");
 				$execute_prepared_statement = pg_execute($this->dbconn, "verify_email", array($verification_fetch['user_id'], $verification_fetch['email']));
 
 				pg_prepare($this->dbconn, "verify_email_2", "UPDATE verification_emails SET used = $1 WHERE verification_id = $2");
@@ -301,7 +303,11 @@ class User {
 					throw new \Exception("Error Processing user_verify_email Request: verify_email/exec");
 					
 				}
+
+			}else{
+				throw new \Exception("Error Processing user_verify_email Request: fetch_array");
 				
+			}
 		}else{
 			throw new \Exception("Error Processing user_verify_email Request: execute_prepared_statement");
 			
