@@ -5,10 +5,12 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
 use Symfony\Component\Dotenv\Dotenv;
+use App\Utils\SqreenLib;
 
 class Auth {
 
 	private $dbconn;
+	private $sqreen;
 
 	public function __construct(){
 
@@ -19,41 +21,10 @@ class Auth {
 		/* Connect to database */
 		$this->dbconn = pg_connect("host=" . getenv('DB_HOST') . " port=5432 dbname=" . getenv('DB_NAME') . " user=" . getenv('DB_USERNAME') . " password=" . getenv('DB_PASSWORD'));
 
-	}
-
-
-
-		public function sqreen_auth_track($success, $identifier){
-
-		if(getenv('SQREEN_ENABLED')){
-
-			\sqreen\auth_track($success, ['email' => $identifier]);
-
-		}
+		$this->sqreen = new SqreenLib();
 
 	}
 
-	public function sqreen_signup_track($identifier){
-
-		if(getenv('SQREEN_ENABLED')){
-
-			\sqreen\signup_track(['email' => $identifier]);
-			
-		}
-
-	}
-
-	public function sqreen_track_upload($identifier){
-
-		if(getenv('SQREEN_ENABLED')){
-
-			\sqreen\track('app.ratelimited.rlapi.upload', ['properties' => ['user_id' => $identifier]]);
-			
-		}
-
-	}
-
-	
 
 	public function validate_password(string $user_id, string $password){
 
@@ -65,13 +36,13 @@ class Auth {
 
 		if(password_verify($password, $user['password']) && $user['verified'] == "t"){
 
-			sqreen_auth_track(true, $user['email']);
+			$this->sqreen->sqreen_auth_track(true, $user['email']);
 
 			return true;
 		
 		}else{
 
-			sqreen_auth_track(false, $user['email']);
+			$this->sqreen->sqreen_auth_track(false, $user['email']);
 
 			return false;
 		
@@ -169,14 +140,14 @@ class Auth {
 
 				if($user['is_blocked'] == "f" || empty($user['is_blocked'])){
 					
-					sqreen_auth_track(true, $user['email']);
-					sqreen_track_upload($user['id']);
+					$this->sqreen->sqreen_auth_track(true, $user['email']);
+					$this->sqreen->sqreen_track_upload($user['id']);
 
 					return true;
 			
 				}else{
 
-					sqreen_auth_track(false, $user['email']);
+					$this->sqreen->sqreen_auth_track(false, $user['email']);
 
 					return false;
 			
@@ -184,7 +155,7 @@ class Auth {
 
 			}else{
 
-				sqreen_auth_track(false, $user['email']);
+				$this->sqreen->sqreen_auth_track(false, $user['email']);
 
 				return false;
 
