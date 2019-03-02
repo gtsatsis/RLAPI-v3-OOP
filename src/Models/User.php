@@ -264,7 +264,7 @@ class User {
 
 		}else{
 
-			throw new Exception("Error Processing user_send_verify_email Request");
+			throw new \Exception("Error Processing user_send_verify_email Request");
 			
 		}
 
@@ -300,16 +300,16 @@ class User {
 					];
 
 				}else{
-					throw new Exception("Error Processing user_verify_email Request: verify_email/exec");
+					throw new \Exception("Error Processing user_verify_email Request: verify_email/exec");
 					
 				}
 
 			}else{
-				throw new Exception("Error Processing user_verify_email Request: fetch_array");
+				throw new \Exception("Error Processing user_verify_email Request: fetch_array");
 				
 			}
 		}else{
-			throw new Exception("Error Processing user_verify_email Request: execute_prepared_statement");
+			throw new \Exception("Error Processing user_verify_email Request: execute_prepared_statement");
 			
 		}
 
