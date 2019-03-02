@@ -31,9 +31,21 @@ class Auth {
 
 		if(password_verify($password, $user['password']) && $user['verified'] == "t"){
 
+			if(getenv('SQREEN_ENABLED') == true){
+
+				\sqreen\auth_track(true, ['email' => $user['email']]);
+
+			}
+
 			return true;
 		
 		}else{
+
+			if(getenv('SQREEN_ENABLED') == true){
+
+				\sqreen\auth_track(false, ['email' => $user['email']]);
+
+			}
 
 			return false;
 		
@@ -131,9 +143,21 @@ class Auth {
 
 				if($user['is_blocked'] == "f" || empty($user['is_blocked'])){
 					
+					if(getenv('SQREEN_ENABLED') == true){
+					
+						\sqreen\auth_track(true, ['email' => $user['email']]);
+
+					}
+
 					return true;
 			
 				}else{
+
+					if(getenv('SQREEN_ENABLED') == true){
+
+						\sqreen\auth_track(false, ['email' => $user['email']]);
+
+					}
 
 					return false;
 			
@@ -141,13 +165,19 @@ class Auth {
 
 			}else{
 
+				if(getenv('SQREEN_ENABLED') == true){
+
+					\sqreen\auth_track(false, ['email' => $user['email']]);
+
+				}
+
 				return false;
 
 			}
 		
 		}else{
 
-			throw new \Exception('Userdata not found. Api key: ' . $api_key);
+			return false;
 		
 		}
 	}

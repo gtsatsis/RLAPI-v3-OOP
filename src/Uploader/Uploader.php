@@ -170,11 +170,6 @@ class Uploader {
 
 	}
 
-	public function filesize_determination(){
-
-	}
-
-
 }
 
 ?>
