@@ -43,11 +43,7 @@ class User {
 				
 			$send_verification_email = $this->user_send_verify_email($email, $user_id, $username);
 
-			if(getenv('SQREEN_ENABLED') == true){
-
-				\sqreen\signup_track(['email' => $email]);
-			
-			}
+			$this->authentication->sqreen_signup_track($email);
 
 			if($send_verification_email){
 			

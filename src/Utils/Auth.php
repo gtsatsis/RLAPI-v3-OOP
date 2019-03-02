@@ -143,21 +143,13 @@ class Auth {
 
 				if($user['is_blocked'] == "f" || empty($user['is_blocked'])){
 					
-					if(getenv('SQREEN_ENABLED') == true){
-					
-						\sqreen\auth_track(true, ['email' => $user['email']]);
-
-					}
+					sqreen_auth_track(true, $user['email']);
 
 					return true;
 			
 				}else{
 
-					if(getenv('SQREEN_ENABLED') == true){
-
-						\sqreen\auth_track(false, ['email' => $user['email']]);
-
-					}
+					sqreen_auth_track(false, $user['email']);
 
 					return false;
 			
@@ -165,11 +157,7 @@ class Auth {
 
 			}else{
 
-				if(getenv('SQREEN_ENABLED') == true){
-
-					\sqreen\auth_track(false, ['email' => $user['email']]);
-
-				}
+				sqreen_auth_track(false, $user['email']);
 
 				return false;
 
@@ -221,6 +209,26 @@ class Auth {
 
 			return false;
 
+		}
+
+	}
+
+	public function sqreen_auth_track($success, $identifier){
+
+		if(getenv('SQREEN_ENABLED')){
+
+			\sqreen\auth_track($success, ['email' => $identifier]);
+
+		}
+
+	}
+
+	public function sqreen_signup_track($identifier){
+
+		if(getenv('SQREEN_ENABLED')){
+
+			\sqreen\signup_track(['email' => $email]);
+			
 		}
 
 	}
