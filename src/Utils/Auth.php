@@ -31,21 +31,13 @@ class Auth {
 
 		if(password_verify($password, $user['password']) && $user['verified'] == "t"){
 
-			if(getenv('SQREEN_ENABLED') == true){
-
-				\sqreen\auth_track(true, ['email' => $user['email']]);
-
-			}
+			sqreen_auth_track(true, $user['email']);
 
 			return true;
 		
 		}else{
 
-			if(getenv('SQREEN_ENABLED') == true){
-
-				\sqreen\auth_track(false, ['email' => $user['email']]);
-
-			}
+			sqreen_auth_track(false, $user['email']);
 
 			return false;
 		
