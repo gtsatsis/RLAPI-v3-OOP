@@ -282,7 +282,7 @@ class User {
 		if($execute_prepared_statement){
 			$verification_fetch = pg_fetch_array($execute_prepared_statement);
 
-			if($verification_fetch != null){
+			if(!empty($verification_fetch)){
 
 				pg_prepare($this->dbconn, "verify_email", "UPDATE users SET verified = true WHERE user_id = $1 AND email = $2");
 				$execute_prepared_statement = pg_execute($this->dbconn, "verify_email", array($verification_fetch['user_id'], $verification_fetch['email']));
