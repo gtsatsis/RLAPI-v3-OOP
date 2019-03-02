@@ -13,6 +13,7 @@ class User {
 
 	private $dbconn;
 	private $authentication;
+	private $sqreen;
 
 	public function __construct(){
 
@@ -24,6 +25,8 @@ class User {
 		$this->dbconn = pg_connect("host=" . getenv('DB_HOST') . " port=5432 dbname=" . getenv('DB_NAME') . " user=" . getenv('DB_USERNAME') . " password=" . getenv('DB_PASSWORD'));
 
 		$this->authentication = new Auth();
+
+		$this->sqreen = new SqreenLib();
 
 	}
 
@@ -43,7 +46,7 @@ class User {
 				
 			$send_verification_email = $this->user_send_verify_email($email, $user_id, $username);
 
-			$this->authentication->sqreen_signup_track($email);
+			$this->sqreen->sqreen_signup_track($email);
 
 			if($send_verification_email){
 			
