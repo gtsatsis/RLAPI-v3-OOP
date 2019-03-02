@@ -30,11 +30,11 @@ class Getters {
 
 		if($result[0] == 0){
 
-			return true;
+			return $result;
 		
 		}else{
 			
-			return false;
+			return $result;
 		
 		}
 
