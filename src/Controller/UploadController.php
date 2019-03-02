@@ -84,7 +84,27 @@ class UploadController extends AbstractController {
 
 	public function upload_file_pomf_noQS(Request $request, $apiKey){
 
-			return new Response("Upload Endpoint Test");
+			if($request->query->has('bucket')){
+
+				/* Initiate the Uploader Object */
+				$uploader = new Uploader($request->query->get('bucket'));
+
+				/* Get the API key from the query, then proceed to the uploader */
+				$api_key = apiKey;
+				$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
+
+				return new Response(json_encode($uploadFile));
+
+			}else{
+
+				$api_key = $apiKey;
+				$uploader = new Uploader();
+
+				$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
+
+				return new Response(json_encode($uploadFile));
+
+			}
 		
 	}
 }
