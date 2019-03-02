@@ -39,47 +39,56 @@ class User {
 
 		if($getter->check_if_user_exists($username, $email) == false){
 
-			$password = password_hash($password, PASSWORD_BCRYPT);
+			if(strlen($password) >=8){
 
-			$user_id = Uuid::uuid4();
-			$user_id = $user_id->toString();
+				$password = password_hash($password, PASSWORD_BCRYPT);
 
-			pg_prepare($this->dbconn, "create_user", "INSERT INTO users (id, username, password, email, tier, is_admin, is_blocked, verified) VALUES ($1, $2, $3, $4, 'free', false, false, false)");
+				$user_id = Uuid::uuid4();
+				$user_id = $user_id->toString();
 
-			$execute_prepared_statement = pg_execute($this->dbconn, "create_user", array($user_id, $username, $password, $email));
+				pg_prepare($this->dbconn, "create_user", "INSERT INTO users (id, username, password, email, tier, is_admin, is_blocked, verified) VALUES ($1, $2, $3, $4, 'free', false, false, false)");
 
-			if($execute_prepared_statement){
+				$execute_prepared_statement = pg_execute($this->dbconn, "create_user", array($user_id, $username, $password, $email));
+
+				if($execute_prepared_statement){
 				
-				$send_verification_email = $this->user_send_verify_email($email, $user_id, $username);
+					$send_verification_email = $this->user_send_verify_email($email, $user_id, $username);
 
-				$this->sqreen->sqreen_signup_track($email);
+					$this->sqreen->sqreen_signup_track($email);
 
-				if($send_verification_email){
-			
-					return [
-						'success' => true,
-						'status' => 'created',
-						'account' => [
-							'id' => $user_id,
-							'username' => $username,
-							'email' => $email
-						]
-					];
+					if($send_verification_email){
+				
+						return [
+							'success' => true,
+							'status' => 'created',
+							'account' => [
+								'id' => $user_id,
+								'username' => $username,
+								'email' => $email
+							]
+						];
 
-			}
+				}	
 
-			}else{
+				}else{
 
-				throw new \Exception("Error Processing create_user Request");
+					throw new \Exception("Error Processing create_user Request");
 		
+				}
+			}else{
+				return [
+					'success' => false,
+					'error_code' => 1013,
+					'error_message' => 'Insufficient password length'
+				];
 			}
-		}else{
-			return [
-				'success' => false,
-				'error_code' => 1012,
-				'error_message' => 'User Email/Name Exists'
-			];
-		}
+			}else{
+				return [
+					'success' => false,
+					'error_code' => 1012,
+					'error_message' => 'User Email/Name Exists'
+				];
+			}
 	}
 
 	/* End User Creation Function */
