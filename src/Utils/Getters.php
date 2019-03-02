@@ -5,7 +5,7 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
 use Symfony\Component\Dotenv\Dotenv;
 
-class SqreenLib {
+class Getters {
 
 	private $dbconn;
 	private $prepared;
