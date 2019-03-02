@@ -37,7 +37,7 @@ class User {
 	public function create_user(string $username, string $password, string $email){
 		$getter = new Getters();
 
-		if(1==1){//$getter->check_if_user_exists($username, $email) == false){
+		if($getter->check_if_user_exists($username, $email) == false){
 
 			$password = password_hash($password, PASSWORD_BCRYPT);
 
