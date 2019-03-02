@@ -62,8 +62,7 @@ class User {
 						'account' => [
 							'id' => $user_id,
 							'username' => $username,
-							'email' => $email,
-							'ree' => $getter->check_if_user_exists($username, $email)
+							'email' => $email
 						]
 					];
 
