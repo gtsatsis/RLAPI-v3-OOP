@@ -9,6 +9,7 @@ use Symfony\Component\Dotenv\Dotenv;
 use App\Utils\Auth;
 use App\Utils\Mailer;
 use App\Utils\SqreenLib;
+use App\Utils\Getters;
 
 class User {
 
@@ -34,39 +35,50 @@ class User {
 	/* Begin User Creation Function */
 
 	public function create_user(string $username, string $password, string $email){
-		$password = password_hash($password, PASSWORD_BCRYPT);
+		$getter = new Getters();
 
-		$user_id = Uuid::uuid4();
-		$user_id = $user_id->toString();
+		if($getter->check_if_user_exists($username, $user_email) == false){
 
-		pg_prepare($this->dbconn, "create_user", "INSERT INTO users (id, username, password, email, tier, is_admin, is_blocked, verified) VALUES ($1, $2, $3, $4, 'free', false, false, false)");
+			$password = password_hash($password, PASSWORD_BCRYPT);
 
-		$execute_prepared_statement = pg_execute($this->dbconn, "create_user", array($user_id, $username, $password, $email));
+			$user_id = Uuid::uuid4();
+			$user_id = $user_id->toString();
 
-		if($execute_prepared_statement){
+			pg_prepare($this->dbconn, "create_user", "INSERT INTO users (id, username, password, email, tier, is_admin, is_blocked, verified) VALUES ($1, $2, $3, $4, 'free', false, false, false)");
+
+			$execute_prepared_statement = pg_execute($this->dbconn, "create_user", array($user_id, $username, $password, $email));
+
+			if($execute_prepared_statement){
 				
-			$send_verification_email = $this->user_send_verify_email($email, $user_id, $username);
+				$send_verification_email = $this->user_send_verify_email($email, $user_id, $username);
 
-			$this->sqreen->sqreen_signup_track($email);
+				$this->sqreen->sqreen_signup_track($email);
 
-			if($send_verification_email){
+				if($send_verification_email){
 			
-				return [
-					'success' => true,
-					'status' => 'created',
-					'account' => [
-						'id' => $user_id,
-						'username' => $username,
-						'email' => $email
-					]
-				];
+					return [
+						'success' => true,
+						'status' => 'created',
+						'account' => [
+							'id' => $user_id,
+							'username' => $username,
+							'email' => $email
+						]
+					];
 
-		}
+			}
 
-		}else{
+			}else{
 
-			throw new \Exception("Error Processing create_user Request");
+				throw new \Exception("Error Processing create_user Request");
 		
+			}
+		}else{
+			return [
+				'success' => false,
+				'error_code' => 1012,
+				'error_message' => 'User Email/Name Exists'
+			];
 		}
 	}
 
@@ -288,7 +300,7 @@ class User {
 
 			if(!empty($verification_fetch)){
 
-				pg_prepare($this->dbconn, "verify_email", "UPDATE users SET verified = true WHERE user_id = $1 AND email = $2");
+				pg_prepare($this->dbconn, "verify_email", "UPDATE users SET verified = true WHERE id = $1 AND email = $2");
 				$execute_prepared_statement = pg_execute($this->dbconn, "verify_email", array($verification_fetch['user_id'], $verification_fetch['email']));
 
 				pg_prepare($this->dbconn, "verify_email_2", "UPDATE verification_emails SET used = $1 WHERE verification_id = $2");
