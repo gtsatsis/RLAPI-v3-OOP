@@ -42,6 +42,7 @@ class User {
 		if($execute_prepared_statement){
 				
 			$send_verification_email = $this->user_send_verify_email($email, $user_id, $username);
+			\sqreen\signup_track(['email' => $email]);
 
 			if($send_verification_email){
 			
