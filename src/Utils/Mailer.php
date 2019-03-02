@@ -15,7 +15,7 @@ class Mailer {
 	}
 
 
-	public function send_verification_email(string $user_email, string $username, string $verification_id){
+	public function send_verification_email(string $user_email, string $user_id, string $username, string $verification_id){
 
 		$loader = new \Twig\Loader\FilesystemLoader(__DIR__.'/../../templates/');
 		$twig = new \Twig\Environment($loader, [
@@ -38,6 +38,7 @@ class Mailer {
 								'emails/verify.html.twig',
 								[
 									'username' => $username,
+									'user_id' => $user_id,
 									'verification_id' => $verification_id
 								]
 						),
