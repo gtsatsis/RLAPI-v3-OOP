@@ -31,9 +31,21 @@ class Auth {
 
 		if(password_verify($password, $user['password']) && $user['verified'] == "t"){
 
+			if(getenv('SQREEN_ENABLED') == true){
+
+				\sqreen\auth_track(true, ['email' => $user['email']]);
+
+			}
+
 			return true;
 		
 		}else{
+
+			if(getenv('SQREEN_ENABLED') == true){
+
+				\sqreen\auth_track(false, ['email' => $user['email']]);
+
+			}
 
 			return false;
 		
@@ -131,9 +143,14 @@ class Auth {
 
 				if($user['is_blocked'] == "f" || empty($user['is_blocked'])){
 					
+					sqreen_auth_track(true, $user['email']);
+					sqreen_track_upload($user['id']);
+
 					return true;
 			
 				}else{
+
+					sqreen_auth_track(false, $user['email']);
 
 					return false;
 			
@@ -141,13 +158,15 @@ class Auth {
 
 			}else{
 
+				sqreen_auth_track(false, $user['email']);
+
 				return false;
 
 			}
 		
 		}else{
 
-			throw new \Exception('Userdata not found. Api key: ' . $api_key);
+			return false;
 		
 		}
 	}
@@ -191,6 +210,36 @@ class Auth {
 
 			return false;
 
+		}
+
+	}
+
+	public function sqreen_auth_track($success, $identifier){
+
+		if(getenv('SQREEN_ENABLED')){
+
+			\sqreen\auth_track($success, ['email' => $identifier]);
+
+		}
+
+	}
+
+	public function sqreen_signup_track($identifier){
+
+		if(getenv('SQREEN_ENABLED')){
+
+			\sqreen\signup_track(['email' => $identifier]);
+			
+		}
+
+	}
+
+	public function sqreen_track_upload($identifier){
+
+		if(getenv('SQREEN_ENABLED')){
+
+			\sqreen\track('app.ratelimited.rlapi.upload', ['properties' => ['user_id' => $identifier]]);
+			
 		}
 
 	}

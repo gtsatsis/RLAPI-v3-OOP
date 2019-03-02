@@ -43,6 +43,8 @@ class User {
 				
 			$send_verification_email = $this->user_send_verify_email($email, $user_id, $username);
 
+			$this->authentication->sqreen_signup_track($email);
+
 			if($send_verification_email){
 			
 				return [
