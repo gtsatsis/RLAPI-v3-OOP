@@ -287,8 +287,8 @@ class User {
 				pg_prepare($this->dbconn, "verify_email", "UPDATE users SET verified = true WHERE user_id = $1 AND email = $2");
 				$execute_prepared_statement = pg_execute($this->dbconn, "verify_email", array($verification_fetch['user_id'], $verification_fetch['email']));
 
-				pg_pconnect($this->dbconn, "verify_email_2", "UPDATE verification_emails SET used = $1");
-				$execute_prepared_statement_2 = pg_execute($this->dbconn, "verify_email_2", array(true));
+				pg_prepare($this->dbconn, "verify_email_2", "UPDATE verification_emails SET used = $1 WHERE verification_id = $2");
+				$execute_prepared_statement_2 = pg_execute($this->dbconn, "verify_email_2", array(true, $verification_id));
 
 				if($execute_prepared_statement && $execute_prepared_statement_2){
 
