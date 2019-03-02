@@ -21,6 +21,40 @@ class Auth {
 
 	}
 
+
+
+		public function sqreen_auth_track($success, $identifier){
+
+		if(getenv('SQREEN_ENABLED')){
+
+			\sqreen\auth_track($success, ['email' => $identifier]);
+
+		}
+
+	}
+
+	public function sqreen_signup_track($identifier){
+
+		if(getenv('SQREEN_ENABLED')){
+
+			\sqreen\signup_track(['email' => $identifier]);
+			
+		}
+
+	}
+
+	public function sqreen_track_upload($identifier){
+
+		if(getenv('SQREEN_ENABLED')){
+
+			\sqreen\track('app.ratelimited.rlapi.upload', ['properties' => ['user_id' => $identifier]]);
+			
+		}
+
+	}
+
+	
+
 	public function validate_password(string $user_id, string $password){
 
 		pg_prepare($this->dbconn, "get_user", 'SELECT * FROM users WHERE id = $1');
@@ -202,36 +236,6 @@ class Auth {
 
 			return false;
 
-		}
-
-	}
-
-	public function sqreen_auth_track($success, $identifier){
-
-		if(getenv('SQREEN_ENABLED')){
-
-			\sqreen\auth_track($success, ['email' => $identifier]);
-
-		}
-
-	}
-
-	public function sqreen_signup_track($identifier){
-
-		if(getenv('SQREEN_ENABLED')){
-
-			\sqreen\signup_track(['email' => $identifier]);
-			
-		}
-
-	}
-
-	public function sqreen_track_upload($identifier){
-
-		if(getenv('SQREEN_ENABLED')){
-
-			\sqreen\track('app.ratelimited.rlapi.upload', ['properties' => ['user_id' => $identifier]]);
-			
 		}
 
 	}
