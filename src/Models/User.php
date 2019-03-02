@@ -258,7 +258,7 @@ class User {
 
 		if($execute_prepared_statement){
 
-			$Mailer->send_verification_email($user_email, $username, $verification_id);
+			$Mailer->send_verification_email($user_email, $user_id, $username, $verification_id);
 
 			return true;
 
