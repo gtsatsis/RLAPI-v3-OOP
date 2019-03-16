@@ -32,5 +32,5 @@ Found a security issue? Want to make sure it's patched? Contact us via our [Hack
 ### Original Development Team
 
 - [gtsatsis](https://github.com/gtsatsis)
-- [Sxribe](https://github.com/Sxribe)
+- [Sxribe](https://github.com/Sxribe) (RESIGNED)
 - [SamuelCSimao](https://github.com/samueldcs)
