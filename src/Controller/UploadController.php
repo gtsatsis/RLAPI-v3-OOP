@@ -91,6 +91,7 @@ class UploadController extends AbstractController {
 
 				/* Get the API key from the query, then proceed to the uploader */
 				$api_key = apiKey;
+				
 				$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
 				return new Response(json_encode($uploadFile));
