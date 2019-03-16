@@ -31,25 +31,32 @@ class Apikeys {
 
 		if($this->authentication->validate_password($user_id, $password)){
 
-			$api_key = $this->generate_api_key();
+			if($this->authentication->user_api_key_allowance($user_id)){
+				$api_key = $this->generate_api_key();
 
-			pg_prepare($this->dbconn, "insert_api_key", "INSERT INTO tokens (user_id, token, name) VALUES ($1, $2, $3)");
-			$execute_prepared_statement = pg_execute($this->dbconn, "insert_api_key", array($user_id, $api_key, $api_key_name));
+				pg_prepare($this->dbconn, "insert_api_key", "INSERT INTO tokens (user_id, token, name) VALUES ($1, $2, $3)");
+				$execute_prepared_statement = pg_execute($this->dbconn, "insert_api_key", array($user_id, $api_key, $api_key_name));
 
-			if($execute_prepared_statement){
+				if($execute_prepared_statement){
 
-				return [
-					'success' => true,
-					'api_key' => [
-						'created' => true,
-						'key' => $api_key
-					]
-				];
+					return [
+						'success' => true,
+						'api_key' => [
+							'created' => true,
+							'key' => $api_key
+						]
+					];
 
+				}else{
+					throw new \Exception('Error Processing create_user_api_key Request');
+				}
 			}else{
-				throw new \Exception('Error Processing create_user_api_key Request');
-			}
-
+				return [
+					'success' => false,
+					'error_code' => '101010',
+					'error_message' => 'Maximum key allowance reached'
+				];
+			}		
 		}else{
 
 			return [

@@ -109,6 +109,25 @@ class Auth {
 
 	}
 
+	public function user_api_key_allowance(string $user_id){
+
+		pg_prepare($this->dbconn, "get_api_key_allowance", "SELECT api_key_limit FROM tiers WHERE tier = (SELECT tier FROM users WHERE id = $1)");
+		$execute_prepared_statement = pg_execute($this->dbconn, "get_api_key_allowance", array($user_id));
+		$api_key_allownace = pg_fetch_array($execute_prepared_statement);
+
+		pg_prepare($this->dbconn, "get_current_buckets", "SELECT COUNT(*) FROM tokens WHERE user_id = $1");
+		$execute_prepared_statement = pg_execute($this->dbconn, "get_current_api_keys", array($user_id));
+		$current_api_keys = pg_fetch_array($execute_prepared_statement);
+
+
+		if($api_key_allownace[0] >= $current_api_keys[0]){
+			return false;
+		}else{
+			return true;
+		}
+
+	}
+
 	public function captcha_verify($recaptcha){
 			$url = "https://www.google.com/recaptcha/api/siteverify";
 			$ch = curl_init();
