@@ -140,7 +140,7 @@ class Auth {
 			curl_close($ch);
 			$data = json_decode($response);     
         
-			return $data->success;        
+			return $data->success;     
     }
 
 
