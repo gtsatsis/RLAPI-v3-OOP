@@ -154,7 +154,7 @@ class UserController extends AbstractController {
 		$auth = new Auth();
 
 		if($auth->isValidUUID($id)){
-			if($auth->isValidUUID->($verification_id)){
+			if($auth->isValidUUID($verification_id)){
 
 				$users = new User();
 
