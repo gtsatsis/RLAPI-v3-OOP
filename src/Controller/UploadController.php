@@ -14,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use App\Models\User;
 use App\Models\Apikeys;
 use App\Uploader\Uploader;
+use App\Utils\Auth;
 
 use Aws\S3\S3Client;
 
@@ -26,52 +27,74 @@ class UploadController extends AbstractController {
      */
 
 	public function upload_file_pomf_QS(Request $request){
+
+		$auth = new Auth;
 		
 		if($request->query->has('key')){
 
-			if($request->query->has('bucket')){
+			if($auth->isValidUUID($request->query->get('key'))){
 
-				/* Initiate the Uploader Object */
-				$uploader = new Uploader($request->query->get('bucket'));
+				if($request->query->has('bucket')){
 
-				/* Get the API key from the query, then proceed to the uploader */
-				$api_key = $request->query->get('key');
-				$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
+					/* Initiate the Uploader Object */
+					$uploader = new Uploader($request->query->get('bucket'));
 
-				return new Response(json_encode($uploadFile));
+					/* Get the API key from the query, then proceed to the uploader */
+					$api_key = $request->query->get('key');
+					$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
+					return new Response(json_encode($uploadFile));
+
+				}else{
+
+					$api_key = $request->query->get('key');
+					$uploader = new Uploader();
+
+					$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
+
+					return new Response(json_encode($uploadFile));
+
+				}
 			}else{
-
-				$api_key = $request->query->get('key');
-				$uploader = new Uploader();
-
-				$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
-
-				return new Response(json_encode($uploadFile));
-
+				return new Response(json_encode([
+					'success' => false,
+					'error_message' => 'key_not_uuid_format'
+				]));
 			}
 
 		}elseif($request->headers->has('Authorization')){
 
-			if($request->query->has('bucket')){
+			if($auth->isValidUUID($request->headers->get('Authorization'))){
 
-				$uploader = new Uploader($request->query->get('bucket'));
+				if($request->query->has('bucket')){
 
-				$api_key = $request->headers->get('Authorization');
-				$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
+					$uploader = new Uploader($request->query->get('bucket'));
 
-				return new Response(json_encode($uploadFile));
+					$api_key = $request->headers->get('Authorization');
+					$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
+					return new Response(json_encode($uploadFile));
+
+				}else{
+
+					$uploader = new Uploader();
+					$api_key = $request->headers->get('Authorization');
+					$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
+				
+				}
 			}else{
 				return new Response(json_encode([
 					'success' => false,
-					'error_message' => 'no_auth_method_provided'
+					'error_message' => 'key_not_uuid_format'
 				]));
 			}
 
 		}else{
 
-			return new Response('To use the API, you must either add an API key via a query parameter, or via trailing slash.');
+			return new Response(json_encode([
+				'success' => false,
+				'error_message' => 'no_auth_method_provided'
+			]));
 		
 		}
 	}
@@ -83,6 +106,10 @@ class UploadController extends AbstractController {
      */
 
 	public function upload_file_pomf_noQS(Request $request, $apiKey){
+
+		$auth = new Auth();
+
+		if($auth->isValidUUID($apiKey)){
 
 			if($request->query->has('bucket')){
 
@@ -106,6 +133,12 @@ class UploadController extends AbstractController {
 				return new Response(json_encode($uploadFile));
 
 			}
+		}else{
+			return new Response(json_encode([
+					'success' => false,
+					'error_message' => 'key_not_uuid_format'
+				]));
+		}
 		
 	}
 }

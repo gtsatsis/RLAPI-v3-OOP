@@ -13,6 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 use App\Models\User;
 use App\Models\Apikeys;
+use App\Utils\Auth;
 
 class UserController extends AbstractController {
 
@@ -41,12 +42,20 @@ class UserController extends AbstractController {
      */
 
 	public function delete_user(Request $request, $id){
-		if($request->request->has('email') && $request->request->has('password')){
-			$users = new User();
 
-			$deleteUser = $users->delete_user($id, $request->request->get('email'), $request->request->get('password'));
+		$auth = new Auth();
+		if($auth->isValidUUID($id)){
 
-			return new Response(json_encode($deleteUser));
+			if($request->request->has('email') && $request->request->has('password')){
+				$users = new User();
+
+				$deleteUser = $users->delete_user($id, $request->request->get('email'), $request->request->get('password'));
+
+				return new Response(json_encode($deleteUser));
+			}else{
+				return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+			}
+
 		}else{
 			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
 		}
@@ -60,13 +69,22 @@ class UserController extends AbstractController {
 
 	public function set_user_tier(Request $request, $id){
 		$users = new User();
+		$auth = new Auth();
 
-		if($request->request->has('tier') && $request->request->has('api_key')){
-			$setTier = $users->user_set_tier($id, $request->request->get('tier'), $request->request->get('api_key'));
+		if($auth->isValidUUID($id)){
 
-			return new Response(json_encode($setTier));
+			if($request->request->has('tier') && $request->request->has('api_key')){
+				$setTier = $users->user_set_tier($id, $request->request->get('tier'), $request->request->get('api_key'));
+
+				return new Response(json_encode($setTier));
+			}else{
+				return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+			}
+
 		}else{
+
 			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+		
 		}
 	}
 	
@@ -78,13 +96,21 @@ class UserController extends AbstractController {
 
 	public function set_user_email(Request $request, $id){
 		$users = new User();
+		$auth = new Auth();
 
-		if($request->request->has('password') && $request->request->has('newEmail')){
+		if($auth->isValidUUID($id)){
 
-			$users->user_set_email($id, $request->request->get('newEmail'), $request->request->get('password'));
+			if($request->request->has('password') && $request->request->has('newEmail')){
 
+				$users->user_set_email($id, $request->request->get('newEmail'), $request->request->get('password'));
+
+			}else{
+				return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+			}
 		}else{
+
 			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+		
 		}
 
 	}
@@ -97,13 +123,24 @@ class UserController extends AbstractController {
 
 	public function update_user_password(Request $request, $id){
 		$users = new User();
+		$auth = new Auth();
 
-		if($request->request->has('password') && $request->request->has('newPassword')){
-			$updatePassword = $users->user_set_password($id, $request->request->get('password'), $request->request->get('newPassword'));
+		if($auth->isValidUUID($id)){
 
-			return new Response(json_encode($updatePassword));
+			if($request->request->has('password') && $request->request->has('newPassword')){
+				$updatePassword = $users->user_set_password($id, $request->request->get('password'), $request->request->get('newPassword'));
+
+				return new Response(json_encode($updatePassword));
+			}else{
+			
+				return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+			
+			}
+
 		}else{
+			
 			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+		
 		}
 	}
 
@@ -114,11 +151,27 @@ class UserController extends AbstractController {
      */	
 
 	public function verify_user_email($id, $verification_id){
-		$users = new User();
+		$auth = new Auth();
 
-		$verify_email = $users->user_verify_email($id, $verification_id);
+		if($auth->isValidUUID($id)){
+			if($auth->isValidUUID->($verification_id)){
+
+				$users = new User();
+
+				$verify_email = $users->user_verify_email($id, $verification_id);
+			
+				return new Response(json_encode($verify_email));
+
+			}else{
+
+				return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+			
+			}
+		}else{
+
+			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
 		
-		return new Response(json_encode($verify_email));
+		}
 	}	
 
 }

@@ -12,8 +12,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 
 use App\Models\User;
 use App\Models\Apikeys;
-
-//use App\Utils\Sentry;
+use App\Utils\Auth;
 
 class ApiKeysController extends AbstractController {
 
@@ -25,11 +24,17 @@ class ApiKeysController extends AbstractController {
 
 	public function create_user_api_key(Request $request, $id){
 		$api_keys = new Apikeys();
+		$auth = new Auth();
 
-		if($request->request->has('api_key_name') && $request->request->has('password')){
+		if($auth->isValidUUID($id)){
+
+			if($request->request->has('api_key_name') && $request->request->has('password')){
 			$new_api_key = $api_keys->create_user_api_key($id, $request->request->get('api_key_name'), $request->request->get('password'));
 
-			return new Response(json_encode($new_api_key));
+				return new Response(json_encode($new_api_key));
+			}else{
+				return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+			}
 		}else{
 			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
 		}
@@ -43,11 +48,18 @@ class ApiKeysController extends AbstractController {
 
 	public function delete_user_api_key(Request $request, $id, $api_key){
 		$api_keys = new Apikeys();
+		$auth = new Auth();
 
-		if($request->request->has('password')){
-			$delete_api_key = $api_keys->delete_user_api_key($id, $api_key, $request->request->get('password'));
+		if($auth->isValidUUID($id)){
 
-			return new Response(json_encode($delete_api_key));
+			if($request->request->has('password')){
+				$delete_api_key = $api_keys->delete_user_api_key($id, $api_key, $request->request->get('password'));
+
+				return new Response(json_encode($delete_api_key));
+			}else{
+				return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+			}
+
 		}else{
 			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
 		}
@@ -61,11 +73,18 @@ class ApiKeysController extends AbstractController {
 
 	public function rename_user_api_key(Request $request, $id, $api_key){
 		$api_keys = new Apikeys();
+		$auth = new Auth();
 
-		if($request->request->has('password') && $request->request->has('api_key_name')){
-			$rename_api_key = $api_keys->rename_user_api_key($id, $api_key, $request->request->get('api_key_name'), $request->request->get('password'));
+		if($auth->isValidUUID($api_key)){
 
-			return new Response(json_encode($rename_api_key));
+			if($request->request->has('password') && $request->request->has('api_key_name')){
+				$rename_api_key = $api_keys->rename_user_api_key($id, $api_key, $request->request->get('api_key_name'), $request->request->get('password'));
+
+				return new Response(json_encode($rename_api_key));
+
+			}else{
+				return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+			}
 
 		}else{
 			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
@@ -80,12 +99,19 @@ class ApiKeysController extends AbstractController {
 
 	public function regen_user_api_key(Request $request, $id, $api_key){
 		$api_keys = new Apikeys();
+		$auth = new Auth();
 
-		if($request->request->has('password')){
+		if($auth->isValidUUID($api_key)){
 
-			$regen_api_key = $api_keys->regenerate_user_api_key($id, $api_key, $request->request->get('password'));
+			if($request->request->has('password')){
 
-			return new Response(json_encode($regen_api_key));
+				$regen_api_key = $api_keys->regenerate_user_api_key($id, $api_key, $request->request->get('password'));
+
+				return new Response(json_encode($regen_api_key));
+
+			}else{
+				return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+			}
 
 		}else{
 			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
