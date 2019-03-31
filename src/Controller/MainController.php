@@ -35,5 +35,18 @@ class MainController extends AbstractController {
 	public function upload_index_page(){
 		return new Response("Upload Index");
 	}
+
+	/**
+     * Matches /status exactly
+     *
+     * @Route("/status", name="status_page")
+     */
+
+	public function status_page(){
+		return new Response(json_encode([
+			'success' => 'true',
+			'code' => 200
+		]))
+	}
 }
 ?>
