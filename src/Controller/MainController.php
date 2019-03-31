@@ -46,7 +46,7 @@ class MainController extends AbstractController {
 		return new Response(json_encode([
 			'success' => 'true',
 			'code' => 200
-		]))
+		]));
 	}
 }
 ?>
