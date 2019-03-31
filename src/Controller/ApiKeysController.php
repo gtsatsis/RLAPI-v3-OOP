@@ -36,7 +36,7 @@ class ApiKeysController extends AbstractController {
 				return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
 			}
 		}else{
-			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+			return new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
 		}
 	}
 
@@ -61,7 +61,7 @@ class ApiKeysController extends AbstractController {
 			}
 
 		}else{
-			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+			return new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
 		}
 	}
 
@@ -87,7 +87,7 @@ class ApiKeysController extends AbstractController {
 			}
 
 		}else{
-			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+			return new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
 		}
 	}
 
@@ -114,7 +114,7 @@ class ApiKeysController extends AbstractController {
 			}
 
 		}else{
-			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+			return new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
 		}
 	}
 
