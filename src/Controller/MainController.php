@@ -43,10 +43,14 @@ class MainController extends AbstractController {
      */
 
 	public function status_page(){
-		return new Response(json_encode([
+		$response = new Response(json_encode([
 			'success' => 'true',
 			'code' => 200
 		]));
+
+		$response->headers->set('Content-Type', 'application/json');
+
+		return $response;
 	}
 }
 ?>
