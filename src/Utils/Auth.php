@@ -111,7 +111,7 @@ class Auth {
 
 	public function user_api_key_allowance(string $user_id){
 
-		pg_prepare($this->dbconn, "get_api_key_allowance", "SELECT api_key_limit FROM tiers WHERE tier = (SELECT tier FROM users WHERE id = $1)");
+		pg_prepare($this->dbconn, "get_api_key_allowance", "SELECT api_keys FROM tiers WHERE tier = (SELECT tier FROM users WHERE id = $1)");
 		$execute_prepared_statement = pg_execute($this->dbconn, "get_api_key_allowance", array($user_id));
 		$api_key_allownace = pg_fetch_array($execute_prepared_statement);
 
