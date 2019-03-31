@@ -45,6 +45,7 @@ class BucketsController extends AbstractController {
 			return new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
 
 		}
+	}
 
 	/**
      * Matches /buckets/{id}/delete exactly
