@@ -1,2 +1,2 @@
 sentry:
-    release: "rlapi@alpha_0.2"
+    dsn: ''
