@@ -57,7 +57,7 @@ class UserController extends AbstractController {
 			}
 
 		}else{
-			return new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+			return new Response(json_encode(array('success' => false, 'errorcode' => 302883)))->headers->set('Content-Type', 'application/json');
 		}
 	}
 
