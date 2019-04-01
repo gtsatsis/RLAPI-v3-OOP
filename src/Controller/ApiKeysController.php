@@ -31,12 +31,26 @@ class ApiKeysController extends AbstractController {
 			if($request->request->has('api_key_name') && $request->request->has('password')){
 			$new_api_key = $api_keys->create_user_api_key($id, $request->request->get('api_key_name'), $request->request->get('password'));
 
-				return new Response(json_encode($new_api_key));
+				$response = new Response(json_encode($new_api_key));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
+
 			}else{
-				return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+
+				$response = new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
+			
 			}
 		}else{
-			return new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+
+			$response = new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
+		
 		}
 	}
 
@@ -55,13 +69,27 @@ class ApiKeysController extends AbstractController {
 			if($request->request->has('password')){
 				$delete_api_key = $api_keys->delete_user_api_key($id, $api_key, $request->request->get('password'));
 
-				return new Response(json_encode($delete_api_key));
+				$response = new Response(json_encode($delete_api_key));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
+			
 			}else{
-				return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+				
+				$response = new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
+			
 			}
 
 		}else{
-			return new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+
+			$response = new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
+		
 		}
 	}
 
@@ -80,14 +108,27 @@ class ApiKeysController extends AbstractController {
 			if($request->request->has('password') && $request->request->has('api_key_name')){
 				$rename_api_key = $api_keys->rename_user_api_key($id, $api_key, $request->request->get('api_key_name'), $request->request->get('password'));
 
-				return new Response(json_encode($rename_api_key));
+				$response = new Response(json_encode($rename_api_key));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
 
 			}else{
-				return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+
+				$response = new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
+			
 			}
 
 		}else{
-			return new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+
+			$response = new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
+		
 		}
 	}
 
@@ -107,14 +148,27 @@ class ApiKeysController extends AbstractController {
 
 				$regen_api_key = $api_keys->regenerate_user_api_key($id, $api_key, $request->request->get('password'));
 
-				return new Response(json_encode($regen_api_key));
+				$response = new Response(json_encode($regen_api_key));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
 
 			}else{
-				return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+
+				$response = new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
+			
 			}
 
 		}else{
-			return new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+
+			$response = new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
+		
 		}
 	}
 

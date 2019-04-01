@@ -33,16 +33,25 @@ class BucketsController extends AbstractController {
 			if($request->request->has('bucket_name') && $request->request->has('password')){
 				$new_bucket = $buckets->create_new_user_bucket($id, $request->request->get('bucket_name'), $request->request->get('password'));
 
-				return new Response(json_encode($new_bucket));
+				$response = new Response(json_encode($new_bucket));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
 		
 			}else{
 
-				return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+				$response = new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
 		
 			}
 		}else{
 
-			return new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+			$response = new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
 
 		}
 	}
@@ -62,16 +71,25 @@ class BucketsController extends AbstractController {
 			if($request->request->has('bucket_name') && $request->request->has('password')){
 				$deleted_bucket = $buckets->delete_user_bucket($id, $request->request->get('bucket_name'), $request->request->get('password'));
 
-			return new Response(json_encode($deleted_bucket));
+				$response = new Response(json_encode($deleted_bucket));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
 		
 			}else{
 		
-				return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+				$response = new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
 		
 			}
 		}else{
 
-			return new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+			$response = new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
 
 		}
 	}
@@ -91,16 +109,25 @@ class BucketsController extends AbstractController {
 			if($request->request->has('bucket_name') && $request->request->has('password') && $request->request->has('domain')){
 				$assign_domain = $buckets->assign_domain_to_bucket($id, $request->request->get('password'), $request->request->get('bucket_name'), $request->request->get('domain'));
 
-				return new Response(json_encode($assign_domain));
+				$response = new Response(json_encode($assign_domain));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
 			
 			}else{
 		
-				return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+				$response = new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
+
 			}
 		}else{
 
-			return new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+			$response = new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+			$response->headers->set('Content-Type', 'application/json');
 
+			return $response;
 		}
 	}
 

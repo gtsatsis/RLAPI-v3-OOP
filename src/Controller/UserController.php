@@ -29,9 +29,17 @@ class UserController extends AbstractController {
 		if($request->request->has('username') && $request->request->has('password') && $request->request->has('email')){
 			$createUser = $users->create_user($request->request->get('username'), $request->request->get('password'), $request->request->get('email'));
 
-			return new Response(json_encode($createUser));
+			$response = new Response(json_encode($createUser));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
+
 		}else{
-			return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+
+			$response = new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
 		}
 	}
 
@@ -52,12 +60,22 @@ class UserController extends AbstractController {
 				$deleteUser = $users->delete_user($id, $request->request->get('email'), $request->request->get('password'));
 
 				return new Response(json_encode($deleteUser));
+			
 			}else{
-				return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+
+				$response = new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
+			
 			}
 
 		}else{
-			return new Response(json_encode(array('success' => false, 'errorcode' => 302883)))->headers->set('Content-Type', 'application/json');
+
+			$response = new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
 		}
 	}
 
@@ -105,12 +123,20 @@ class UserController extends AbstractController {
 				$users->user_set_email($id, $request->request->get('newEmail'), $request->request->get('password'));
 
 			}else{
-				return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+
+				$response = new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
+			
 			}
 		}else{
 
-			return new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
-		
+			$response = new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
+
 		}
 
 	}
@@ -130,17 +156,26 @@ class UserController extends AbstractController {
 			if($request->request->has('password') && $request->request->has('newPassword')){
 				$updatePassword = $users->user_set_password($id, $request->request->get('password'), $request->request->get('newPassword'));
 
-				return new Response(json_encode($updatePassword));
+				$response = new Response(json_encode($updatePassword));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
+
 			}else{
 			
-				return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+				$response = new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
 			
 			}
 
 		}else{
 			
-			return new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
-		
+			$response = new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
 		}
 	}
 
@@ -160,16 +195,25 @@ class UserController extends AbstractController {
 
 				$verify_email = $users->user_verify_email($id, $verification_id);
 			
-				return new Response(json_encode($verify_email));
+				$response = new Response(json_encode($verify_email));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
 
 			}else{
 
-				return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+				$response = new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
 			
 			}
 		}else{
 
-			return new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+			$response = new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
 		
 		}
 	}	

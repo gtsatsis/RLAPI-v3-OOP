@@ -45,7 +45,10 @@ class UploadController extends AbstractController {
 						$api_key = $request->query->get('key');
 						$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-						return new Response(json_encode($uploadFile));
+						$response = new Response(json_encode($uploadFile));
+						$response->headers->set('Content-Type', 'application/json');
+
+						return $response;
 
 					}else{
 
@@ -54,24 +57,35 @@ class UploadController extends AbstractController {
 
 						$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-						return new Response(json_encode($uploadFile));
+						$response = new Response(json_encode($uploadFile));
+						$response->headers->set('Content-Type', 'application/json');
+
+						return $response;
 
 					}
 
 				}else{
 
-					return new Response(json_encode([
+					$response = new Response(json_encode([
 						'success' => false,
 						'error_message' => 'no_file_provided'
 					]));
+					$response->headers->set('Content-Type', 'application/json');
+
+					return $response;
 
 				}
 
 			}else{
-				return new Response(json_encode([
+
+				$response = new Response(json_encode([
 					'success' => false,
 					'error_message' => 'key_not_uuid_format'
 				]));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
+
 			}
 
 		}elseif($request->headers->has('Authorization')){
@@ -87,40 +101,57 @@ class UploadController extends AbstractController {
 						$api_key = $request->headers->get('Authorization');
 						$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-						return new Response(json_encode($uploadFile));
+						$response = new Response(json_encode($uploadFile));
+						$response->headers->set('Content-Type', 'application/json');
+
+						return $response;
 
 					}else{
 
 						$uploader = new Uploader();
 						$api_key = $request->headers->get('Authorization');
 						$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
+
+						$response = new Response(json_encode($uploadFile));
+						$response->headers->set('Content-Type', 'application/json');
+
+						return $response;
 				
 					}
 
 				}else{
 
-					return new Response(json_encode([
+					$response = new Response(json_encode([
 						'success' => false,
 						'error_message' => 'no_file_provided'
 					]));
+					$response->headers->set('Content-Type', 'application/json');
+
+					return $response;
 
 				}
 
 				}else{
 				
-					return new Response(json_encode([
+					$response = new Response(json_encode([
 						'success' => false,
 						'error_message' => 'key_not_uuid_format'
 					]));
+					$response->headers->set('Content-Type', 'application/json');
+
+					return $response;
 				
 				}
 
 		}else{
 
-			return new Response(json_encode([
+			$response = new Response(json_encode([
 				'success' => false,
 				'error_message' => 'no_auth_method_provided'
 			]));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
 		
 		}
 	}
@@ -149,7 +180,10 @@ class UploadController extends AbstractController {
 				
 					$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-					return new Response(json_encode($uploadFile));
+					$response = new Response(json_encode($uploadFile));
+					$response->headers->set('Content-Type', 'application/json');
+
+					return $response;
 
 				}else{
 
@@ -158,24 +192,32 @@ class UploadController extends AbstractController {
 
 					$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-					return new Response(json_encode($uploadFile));
+					$response = new Response(json_encode($uploadFile));
+					$response->headers->set('Content-Type', 'application/json');
+
+					return $response;
 
 				}
 
 			}else{
 
-				return new Response(json_encode([
+				$response = new Response(json_encode([
 						'success' => false,
 						'error_message' => 'no_file_provided'
 					]));
+				$response->headers->set('Content-Type', 'application/json');
 
+				return $response;
 			}
 
 		}else{
-			return new Response(json_encode([
+			$response = new Response(json_encode([
 					'success' => false,
 					'error_message' => 'key_not_uuid_format'
 				]));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
 		}
 		
 	}
