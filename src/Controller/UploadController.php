@@ -34,27 +34,39 @@ class UploadController extends AbstractController {
 
 			if($auth->isValidUUID($request->query->get('key'))){
 
-				if($request->query->has('bucket')){
+				if(!is_null($_FILES['files'])){
 
-					/* Initiate the Uploader Object */
-					$uploader = new Uploader($request->query->get('bucket'));
+					if($request->query->has('bucket')){
 
-					/* Get the API key from the query, then proceed to the uploader */
-					$api_key = $request->query->get('key');
-					$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
+						/* Initiate the Uploader Object */
+						$uploader = new Uploader($request->query->get('bucket'));
 
-					return new Response(json_encode($uploadFile));
+						/* Get the API key from the query, then proceed to the uploader */
+						$api_key = $request->query->get('key');
+						$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
+
+						return new Response(json_encode($uploadFile));
+
+					}else{
+
+						$api_key = $request->query->get('key');
+						$uploader = new Uploader();
+
+						$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
+
+						return new Response(json_encode($uploadFile));
+
+					}
 
 				}else{
 
-					$api_key = $request->query->get('key');
-					$uploader = new Uploader();
-
-					$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
-
-					return new Response(json_encode($uploadFile));
+					return new Response(json_encode([
+						'success' => false,
+						'error_message' => 'no_file_provided'
+					]));
 
 				}
+
 			}else{
 				return new Response(json_encode([
 					'success' => false,
@@ -66,28 +78,42 @@ class UploadController extends AbstractController {
 
 			if($auth->isValidUUID($request->headers->get('Authorization'))){
 
-				if($request->query->has('bucket')){
+				if(!is_null($_FILES['files'])){
 
-					$uploader = new Uploader($request->query->get('bucket'));
+					if($request->query->has('bucket')){
 
-					$api_key = $request->headers->get('Authorization');
-					$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
+						$uploader = new Uploader($request->query->get('bucket'));
 
-					return new Response(json_encode($uploadFile));
+						$api_key = $request->headers->get('Authorization');
+						$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
+
+						return new Response(json_encode($uploadFile));
+
+					}else{
+
+						$uploader = new Uploader();
+						$api_key = $request->headers->get('Authorization');
+						$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
+				
+					}
 
 				}else{
 
-					$uploader = new Uploader();
-					$api_key = $request->headers->get('Authorization');
-					$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
+					return new Response(json_encode([
+						'success' => false,
+						'error_message' => 'no_file_provided'
+					]));
+
+				}
+
+				}else{
+				
+					return new Response(json_encode([
+						'success' => false,
+						'error_message' => 'key_not_uuid_format'
+					]));
 				
 				}
-			}else{
-				return new Response(json_encode([
-					'success' => false,
-					'error_message' => 'key_not_uuid_format'
-				]));
-			}
 
 		}else{
 
@@ -111,28 +137,40 @@ class UploadController extends AbstractController {
 
 		if($auth->isValidUUID($apiKey)){
 
-			if($request->query->has('bucket')){
+			if(!is_null($_FILES['files'])){
 
-				/* Initiate the Uploader Object */
-				$uploader = new Uploader($request->query->get('bucket'));
+				if($request->query->has('bucket')){
 
-				/* Get the API key from the query, then proceed to the uploader */
-				$api_key = apiKey;
+					/* Initiate the Uploader Object */
+					$uploader = new Uploader($request->query->get('bucket'));
+
+					/* Get the API key from the query, then proceed to the uploader */
+					$api_key = apiKey;
 				
-				$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
+					$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-				return new Response(json_encode($uploadFile));
+					return new Response(json_encode($uploadFile));
+
+				}else{
+
+					$api_key = $apiKey;
+					$uploader = new Uploader();
+
+					$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
+
+					return new Response(json_encode($uploadFile));
+
+				}
 
 			}else{
 
-				$api_key = $apiKey;
-				$uploader = new Uploader();
-
-				$uploadFile = $uploader->Upload($api_key, $_FILES['files']);
-
-				return new Response(json_encode($uploadFile));
+				return new Response(json_encode([
+						'success' => false,
+						'error_message' => 'no_file_provided'
+					]));
 
 			}
+
 		}else{
 			return new Response(json_encode([
 					'success' => false,
