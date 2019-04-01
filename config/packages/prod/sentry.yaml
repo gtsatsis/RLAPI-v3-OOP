@@ -1,3 +1,4 @@
 sentry:
     dsn: '%env(SENTRY_DSN)%'
-    release: '%env(SENTRY_RELEASE)%'
+    options:
+      release: '%env(SENTRY_RELEASE)%'
