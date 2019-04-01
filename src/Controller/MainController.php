@@ -52,17 +52,5 @@ class MainController extends AbstractController {
 
 		return $response;
 	}
-
-	/**
-     * Matches /throwException exactly
-     *
-     * @Route("/throwException", name="cause_exception")
-     */
-
-	public function cause_exception(){
-
-		throw new \Exception('Exception Created | /throwException');
-
-	} 
 }
 ?>
