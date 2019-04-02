@@ -226,13 +226,13 @@ class UserController extends AbstractController {
 
 	public function reset_user_password(Request $request){
 		
-		$auth = new Auth();
+		$user = new User();
 
 		if($request->request->has('email')){
 
 			$email = $request->request->get('email');
 
-			$reset_password = $auth->reset_password_send($email);
+			$reset_password = $user->reset_password_send($email);
 
 			$response = new Response(json_encode($reset_password));
 			$response->headers->set('Content-Type', 'application/json');

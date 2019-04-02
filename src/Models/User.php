@@ -377,5 +377,30 @@ class User {
 		/* End Get User By API Key Function */
 	}
 
+	public function reset_password_send(string $user_email){
+
+		$Mailer = new Mailer();
+
+		$reset_id = Uuid::uuid4();
+		$reset_id = $verification_id->toString();
+
+		pg_prepare($this->dbconn, "reset_created", "INSERT INTO password_resets (reset_id, email, used) VALUES ($1, $2, $3, false)");
+
+		$execute_prepared_statement = pg_execute($this->dbconn, "reset_created", array($reset_id, $user_email));
+
+		if($execute_prepared_statement){
+
+			$Mailer->send_password_reset_email($user_email, $reset_id);
+
+			return true;
+
+		}else{
+
+			throw new \Exception("Error Processing reset_password_send Request");
+			
+		}
+
+	}
+
 }
 ?>
