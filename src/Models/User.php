@@ -384,7 +384,7 @@ class User {
 		$reset_id = Uuid::uuid4();
 		$reset_id = $reset_id->toString();
 
-		pg_prepare($this->dbconn, "reset_created", "INSERT INTO password_resets (id, email, used) VALUES ($1, $2, $3, false)");
+		pg_prepare($this->dbconn, "reset_created", "INSERT INTO password_resets (id, email, used) VALUES ($1, $2, false)");
 
 		$execute_prepared_statement = pg_execute($this->dbconn, "reset_created", array($reset_id, $user_email));
 
