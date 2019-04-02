@@ -405,5 +405,56 @@ class User {
 
 	}
 
+
+	public function user_password_reset($reset_id, $password){
+
+		pg_prepare($this->dbconn, "reset_password_fetch", "SELECT * FROM password_resets WHERE id = $1 AND used IS NOT true");
+		$execute_prepared_statement = pg_execute($this->dbconn, "reset_password_fetch", array($reset_id));
+
+		if($execute_prepared_statement){
+			$password_reset_fetch = pg_fetch_array($execute_prepared_statement);
+
+			if(!empty($password_reset_fetch)){
+
+				pg_prepare($this->dbconn, "get_user_id_by_email", "SELECT id FROM users WHERE email = $1");
+				$execute_prepared_statement = pg_execute($this->dbconn, "get_user_id_by_email", array($password_reset_fetch['email']));
+
+				$fetch_user = pg_fetch_array($execute_prepared_statement);
+
+				if(!is_null($fetch_user)){
+
+					$reset_password = $this->user_set_password($fetch_user['id'], "", $password, true);
+
+					if($reset_password['success'] == true){
+
+						return [
+							'success' => true,
+							'password' => [
+								'reset' => true
+							]
+						];
+
+					}else{
+
+						return [
+							'success' => false,
+							'message' => 'user_not_found'
+						];
+
+					}
+
+				}
+
+			}else{
+
+				return [
+					'success' => false,
+					'error_message' => 'already_verified_or_nonexistant'
+				];
+				
+			}
+		}
+	}
+
 }
 ?>
