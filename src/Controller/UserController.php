@@ -216,7 +216,40 @@ class UserController extends AbstractController {
 			return $response;
 		
 		}
-	}	
+	}
+
+	/**
+     * Matches /users/reset_password exactly
+     *
+     * @Route("/users/reset_password", name="reset_user_password")
+     */
+
+	public function reset_user_password(Request $request){
+		
+		$auth = new Auth();
+
+		if($request->request->has('email')){
+
+			$email = $request->request->get('email');
+
+			$reset_password = $auth->reset_password_send($email);
+
+			$response = new Response(json_encode($reset_password));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
+		
+		}else{
+
+			$response = new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
+
+		}
+
+
+	}
 
 }
 
