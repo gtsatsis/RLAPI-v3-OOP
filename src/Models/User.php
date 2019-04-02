@@ -330,7 +330,11 @@ class User {
 				}
 
 			}else{
-				throw new \Exception("Error Processing user_verify_email Request: fetch_array");
+
+				return [
+					'success' => false,
+					'error_message' => 'already_verified_or_nonexistant'
+				];
 				
 			}
 		}else{
