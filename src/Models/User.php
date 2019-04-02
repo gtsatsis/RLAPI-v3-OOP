@@ -301,7 +301,7 @@ class User {
 
 	public function user_verify_email($user_id, $verification_id){
 
-		pg_prepare($this->dbconn, "verify_email_fetch", "SELECT * FROM verification_emails WHERE verification_id = $1 AND user_id = $2");
+		pg_prepare($this->dbconn, "verify_email_fetch", "SELECT * FROM verification_emails WHERE verification_id = $1 AND user_id = $2 AND used IS NOT true");
 		$execute_prepared_statement = pg_execute($this->dbconn, "verify_email_fetch", array($verification_id, $user_id));
 
 		if($execute_prepared_statement){
