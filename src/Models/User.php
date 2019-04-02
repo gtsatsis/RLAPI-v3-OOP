@@ -392,7 +392,10 @@ class User {
 
 			$Mailer->send_password_reset_email($user_email, $reset_id);
 
-			return true;
+			return [
+				'success' => true,
+				'message' => 'email_sent_successfully'
+			];
 
 		}else{
 
