@@ -382,7 +382,7 @@ class User {
 		$Mailer = new Mailer();
 
 		$reset_id = Uuid::uuid4();
-		$reset_id = $verification_id->toString();
+		$reset_id = $reset_id->toString();
 
 		pg_prepare($this->dbconn, "reset_created", "INSERT INTO password_resets (reset_id, email, used) VALUES ($1, $2, $3, false)");
 
