@@ -31,7 +31,7 @@ class Mailer {
 
 		$message = (new \Swift_Message('Please verify your e-mail to continue using RATELIMITED'))
 				->setFrom(getenv('SUPPORT_EMAIL'))
-				->setTo($user_email)
+				->setTo(htmlspecialchars_decode(htmlspecialchars($user_email)))
 				->setSubject('Please verify your e-mail to continue using RATELIMITED')
 				->setBody(
 						$twig->render(
