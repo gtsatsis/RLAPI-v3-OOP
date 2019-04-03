@@ -389,7 +389,7 @@ class User {
 		
 		$user_fetch = pg_fetch_array($execute_prepared_statement);
 
-		$sqreen->sqreen_track_password_reset();
+		$this->sqreen->sqreen_track_password_reset();
 
 		if(!is_null($user_fetch['id'])){
 
