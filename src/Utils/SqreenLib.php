@@ -46,5 +46,15 @@ class SqreenLib {
 
 	}
 
+	public function sqreen_track_password_reset(){
+		
+		if(getenv('SQREEN_ENABLED')){
+
+			sqreen\track('app.reset_password_request');
+
+		}
+	
+	}
+
 }
 ?>
