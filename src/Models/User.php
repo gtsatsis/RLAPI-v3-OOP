@@ -427,8 +427,8 @@ class User {
 
 					if($reset_password['success'] == true){
 
-						pg_prepare($this->dbconn, "reset_password_set_used", "UPDATE password_resets SET id = $1 AND used IS NOT true");
-						$execute_prepared_statement = pg_execute($this->dbconn, "reset_password_set_used", array($reset_id));
+						pg_prepare($this->dbconn, "reset_password_set_used", "UPDATE password_resets SET id = $1");
+						$execute_prepared_statement = pg_execute($this->dbconn, "reset_password_set_used", array(true));
 
 						return [
 							'success' => true,
