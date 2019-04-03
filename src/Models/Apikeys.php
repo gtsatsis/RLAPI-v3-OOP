@@ -53,8 +53,8 @@ class Apikeys {
 			}else{
 				return [
 					'success' => false,
-					'error_code' => '101010',
-					'error_message' => 'Maximum key allowance reached'
+					'error_code' => 101010,
+					'error_message' => 'maximum_allowed_keys_reached'
 				];
 			}		
 		}else{
@@ -62,7 +62,7 @@ class Apikeys {
 			return [
 				'success' => false,
 				'error_code' => 1002,
-				'error_message' => 'Invalid user ID or Password'
+				'error_message' => 'invalid_user_id_or_password'
 			];
 
 		}
@@ -97,7 +97,7 @@ class Apikeys {
 			return [
 				'success' => false,
 				'error_code' => 1002,
-				'error_message' => 'Invalid user ID or Password'
+				'error_message' => 'invalid_user_id_or_password'
 			];
 
 		}
@@ -135,7 +135,7 @@ class Apikeys {
 			return [
 				'success' => false,
 				'error_code' => 1002,
-				'error_message' => 'Invalid user ID or Password'
+				'error_message' => 'invalid_user_id_or_password'
 			];
 
 		}
@@ -175,7 +175,7 @@ class Apikeys {
 			return [
 				'success' => false,
 				'error_code' => 1002,
-				'error_message' => 'Invalid user ID or Password'
+				'error_message' => 'invalid_user_id_or_password'
 			];
 			
 		}

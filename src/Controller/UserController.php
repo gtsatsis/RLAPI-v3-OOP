@@ -36,7 +36,7 @@ class UserController extends AbstractController {
 
 		}else{
 
-			$response = new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+			$response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
 			$response->headers->set('Content-Type', 'application/json');
 
 			return $response;
@@ -63,7 +63,7 @@ class UserController extends AbstractController {
 			
 			}else{
 
-				$response = new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+				$response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
 				$response->headers->set('Content-Type', 'application/json');
 
 				return $response;
@@ -72,7 +72,7 @@ class UserController extends AbstractController {
 
 		}else{
 
-			$response = new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+			$response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
 			$response->headers->set('Content-Type', 'application/json');
 
 			return $response;
@@ -96,12 +96,12 @@ class UserController extends AbstractController {
 
 				return new Response(json_encode($setTier));
 			}else{
-				return new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+				return new Response(json_encode(array('success' => false, 'error_code' => 1082)));
 			}
 
 		}else{
 
-			return new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+			return new Response(json_encode(array('success' => false, 'error_code' => 1083)));
 		
 		}
 	}
@@ -124,7 +124,7 @@ class UserController extends AbstractController {
 
 			}else{
 
-				$response = new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+				$response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
 				$response->headers->set('Content-Type', 'application/json');
 
 				return $response;
@@ -132,7 +132,7 @@ class UserController extends AbstractController {
 			}
 		}else{
 
-			$response = new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+			$response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
 			$response->headers->set('Content-Type', 'application/json');
 
 			return $response;
@@ -163,7 +163,7 @@ class UserController extends AbstractController {
 
 			}else{
 			
-				$response = new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+				$response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
 				$response->headers->set('Content-Type', 'application/json');
 
 				return $response;
@@ -172,7 +172,7 @@ class UserController extends AbstractController {
 
 		}else{
 			
-			$response = new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+			$response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
 			$response->headers->set('Content-Type', 'application/json');
 
 			return $response;
@@ -202,7 +202,7 @@ class UserController extends AbstractController {
 
 			}else{
 
-				$response = new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+				$response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
 				$response->headers->set('Content-Type', 'application/json');
 
 				return $response;
@@ -210,7 +210,7 @@ class UserController extends AbstractController {
 			}
 		}else{
 
-			$response = new Response(json_encode(array('success' => false, 'errorcode' => 302883)));
+			$response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
 			$response->headers->set('Content-Type', 'application/json');
 
 			return $response;
@@ -241,7 +241,7 @@ class UserController extends AbstractController {
 		
 		}else{
 
-			$response = new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+			$response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
 			$response->headers->set('Content-Type', 'application/json');
 
 			return $response;
@@ -274,7 +274,7 @@ class UserController extends AbstractController {
 		
 		}else{
 
-			$response = new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+			$response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
 			$response->headers->set('Content-Type', 'application/json');
 
 			return $response;
