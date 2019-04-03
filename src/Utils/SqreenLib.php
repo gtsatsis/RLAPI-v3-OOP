@@ -50,7 +50,7 @@ class SqreenLib {
 		
 		if(getenv('SQREEN_ENABLED')){
 
-			sqreen\track('app.reset_password_request');
+			\sqreen\track('app.reset_password_request');
 
 		}
 	
