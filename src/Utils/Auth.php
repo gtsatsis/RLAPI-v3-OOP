@@ -120,7 +120,7 @@ class Auth {
 		$current_api_keys = pg_fetch_array($execute_prepared_statement);
 
 
-		if($api_key_allownace[0] =< $current_api_keys[0]){
+		if($current_api_keys[0] >= $api_key_allownace[0]){
 			return false;
 		}else{
 			return true;
