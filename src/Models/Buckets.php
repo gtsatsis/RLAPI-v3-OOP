@@ -79,7 +79,7 @@ class Buckets {
 				return [
 					'success' => false,
 					'error_code' => 1122,
-					'error_message' => 'You have reached your allocated private bucket allowance.'
+					'error_message' => 'private_bucket_allowance_reached'
 				];
 
 			}
@@ -88,7 +88,7 @@ class Buckets {
 			return [
 				'success' => false,
 				'error_code' => 1002,
-				'error_message' => 'Invalid user ID or Password'
+				'error_message' => 'invalid_user_id_or_password'
 			];
 
 		}
@@ -130,7 +130,7 @@ class Buckets {
 				return [
 					'success' => false,
 					'error_code' => 1100,
-					'error_message' => 'You don\'t own this bucket'
+					'error_message' => 'unauthorized_not_owner'
 				];
 
 			}
@@ -140,7 +140,7 @@ class Buckets {
 			return [
 				'success' => false,
 				'error_code' => 1002,
-				'error_message' => 'Invalid user ID or Password'
+				'error_message' => 'invalid_user_id_or_password'
 			];
 
 		}
@@ -176,7 +176,7 @@ class Buckets {
 				return [
 					'success' => false,
 					'error_code' => 1100,
-					'error_message' => 'You don\'t own this bucket'
+					'error_message' => 'unauthorized_not_owner'
 				];
 
 			}
@@ -186,7 +186,7 @@ class Buckets {
 			return [
 				'success' => false,
 				'error_code' => 1002,
-				'error_message' => 'Invalid user ID or Password'
+				'error_message' => 'invalid_user_id_or_password'
 			];
 
 		}

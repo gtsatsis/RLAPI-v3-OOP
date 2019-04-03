@@ -79,14 +79,14 @@ class User {
 				return [
 					'success' => false,
 					'error_code' => 1013,
-					'error_message' => 'Insufficient password length'
+					'error_message' => 'insufficient_password_length'
 				];
 			}
 			}else{
 				return [
 					'success' => false,
 					'error_code' => 1012,
-					'error_message' => 'User Email/Name Exists'
+					'error_message' => 'user_email_or_name_exists'
 				];
 			}
 	}
@@ -129,7 +129,7 @@ class User {
 			return [
 				'success' => false,
 				'error_code' => 1002,
-				'error_message' => 'Invalid user ID or Password'
+				'error_message' => 'invalid_user_id_or_password'
 			];
 
 		}
@@ -168,7 +168,7 @@ class User {
 			return [
 				'success' => false,
 				'error_code' => 1002,
-				'error_message' => 'Invalid user ID or Password'
+				'error_message' => 'invalid_user_id_or_password'
 			];
 
 		}
@@ -227,7 +227,7 @@ class User {
 				return [
 					'success' => false,
 					'error_code' => 1002,
-					'error_message' => 'Invalid user ID or Password'
+					'error_message' => 'invalid_user_id_or_password'
 				];
 
 			}
@@ -260,7 +260,7 @@ class User {
 			return [
 				'success' => false,
 				'error_code' => 1009,
-				'error_message' => 'Insufficient Permissions'
+				'error_message' => 'insufficient_permissions'
 			];
 		}
 
@@ -369,7 +369,7 @@ class User {
 
 			return [
 				'success' => false,
-				'error_message' => 'No data found'
+				'error_message' => 'no_user_data_found'
 			];
 		
 		}
@@ -456,7 +456,7 @@ class User {
 
 						return [
 							'success' => false,
-							'message' => 'user_not_found'
+							'error_message' => 'user_not_found'
 						];
 
 					}
