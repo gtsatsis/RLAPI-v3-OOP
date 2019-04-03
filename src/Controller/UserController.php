@@ -216,7 +216,72 @@ class UserController extends AbstractController {
 			return $response;
 		
 		}
-	}	
+	}
+
+	/**
+     * Matches /users/reset_password exactly
+     *
+     * @Route("/users/reset_password", name="reset_user_password")
+     */
+
+	public function reset_user_password(Request $request){
+		
+		$user = new User();
+
+		if($request->request->has('email')){
+
+			$email = $request->request->get('email');
+
+			$reset_password = $user->reset_password_send($email);
+
+			$response = new Response(json_encode($reset_password));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
+		
+		}else{
+
+			$response = new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
+
+		}
+
+
+	}
+
+	/**
+     * Matches /users/reset_password/{id} exactly
+     *
+     * @Route("/users/reset_password/{id}", name="reset_user_password_act")
+     */
+
+	public function reset_user_password_act(Request $request, $id){
+
+		$user = new User();
+
+		if($request->request->has('password')){
+
+			$password = $request->request->get('password');
+
+			$reset_password = $user->user_password_reset($id, $password);
+
+			$response = new Response(json_encode($reset_password));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
+		
+		}else{
+
+			$response = new Response(json_encode(array('success' => false, 'errorcode' => 302882)));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
+
+		}
+
+	}
 
 }
 

@@ -183,7 +183,7 @@ class User {
 
 		if($override=true){
 
-			pg_prepare($this->dbconn, "update_password", "UPDATE users SET password = $1 WHERE id = $2");
+			pg_prepare($this->dbconn, "update_password_ovr", "UPDATE users SET password = $1 WHERE id = $2");
 			$execute_prepared_statement = pg_execute($this->dbconn, "update_password_ovr", array(password_hash($new_password, PASSWORD_BCRYPT), $user_id));
 
 			if($execute_prepared_statement){
@@ -301,7 +301,7 @@ class User {
 
 	public function user_verify_email($user_id, $verification_id){
 
-		pg_prepare($this->dbconn, "verify_email_fetch", "SELECT * FROM verification_emails WHERE verification_id = $1 AND user_id = $2");
+		pg_prepare($this->dbconn, "verify_email_fetch", "SELECT * FROM verification_emails WHERE verification_id = $1 AND user_id = $2 AND used IS NOT true");
 		$execute_prepared_statement = pg_execute($this->dbconn, "verify_email_fetch", array($verification_id, $user_id));
 
 		if($execute_prepared_statement){
@@ -330,7 +330,11 @@ class User {
 				}
 
 			}else{
-				throw new \Exception("Error Processing user_verify_email Request: fetch_array");
+
+				return [
+					'success' => false,
+					'error_message' => 'already_verified_or_nonexistant'
+				];
 				
 			}
 		}else{
@@ -371,6 +375,103 @@ class User {
 		}
 
 		/* End Get User By API Key Function */
+	}
+
+	public function reset_password_send(string $user_email){
+
+		$Mailer = new Mailer();
+
+		$reset_id = Uuid::uuid4();
+		$reset_id = $reset_id->toString();
+
+		pg_prepare($this->dbconn, "fetch_user_on_reset", "SELECT * FROM users WHERE email = $1");
+		$execute_prepared_statement = pg_execute($this->dbconn, "fetch_user_on_reset", array($user_email));
+		
+		$user_fetch = pg_fetch_array($execute_prepared_statement);
+
+		$this->sqreen->sqreen_track_password_reset();
+
+		if(!is_null($user_fetch['id'])){
+
+			pg_prepare($this->dbconn, "reset_created", "INSERT INTO password_resets (id, email, used) VALUES ($1, $2, false)");
+
+			$execute_prepared_statement = pg_execute($this->dbconn, "reset_created", array($reset_id, $user_email));
+
+			if($execute_prepared_statement){
+
+				$Mailer->send_password_reset_email($user_email, $reset_id);
+
+				return [
+					'message' => 'if_user_exists_then_email_sent_successfully'
+				];
+
+			}else{
+
+				throw new \Exception("Error Processing reset_password_send Request");
+			
+			}
+		
+		}else{
+
+			return [
+					'message' => 'if_user_exists_then_email_sent_successfully'
+				];
+		}
+
+	}
+
+
+	public function user_password_reset($reset_id, $password){
+
+		pg_prepare($this->dbconn, "reset_password_fetch", "SELECT * FROM password_resets WHERE id = $1 AND used IS NOT true");
+		$execute_prepared_statement = pg_execute($this->dbconn, "reset_password_fetch", array($reset_id));
+
+		if($execute_prepared_statement){
+			$password_reset_fetch = pg_fetch_array($execute_prepared_statement);
+
+			if(!empty($password_reset_fetch)){
+
+				pg_prepare($this->dbconn, "get_user_id_by_email", "SELECT id FROM users WHERE email = $1");
+				$execute_prepared_statement = pg_execute($this->dbconn, "get_user_id_by_email", array($password_reset_fetch['email']));
+
+				$fetch_user = pg_fetch_array($execute_prepared_statement);
+
+				if(!is_null($fetch_user)){
+
+					$reset_password = $this->user_set_password($fetch_user['id'], "", $password, true);
+
+					if($reset_password['success'] == true){
+
+						pg_prepare($this->dbconn, "reset_password_set_used", "UPDATE password_resets SET used = true WHERE id = $1");
+						$execute_prepared_statement = pg_execute($this->dbconn, "reset_password_set_used", array($reset_id));
+
+						return [
+							'success' => true,
+							'password' => [
+								'reset' => true
+							]
+						];
+
+					}else{
+
+						return [
+							'success' => false,
+							'message' => 'user_not_found'
+						];
+
+					}
+
+				}
+
+			}else{
+
+				return [
+					'success' => false,
+					'error_message' => 'already_reset_or_nonexistant'
+				];
+				
+			}
+		}
 	}
 
 }
