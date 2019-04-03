@@ -389,7 +389,7 @@ class User {
 		
 		$user_fetch = pg_fetch_array($execute_prepared_statement);
 
-		if(!is_null($user_fetch)){
+		if(!is_null($user_fetch['id'])){
 
 			pg_prepare($this->dbconn, "reset_created", "INSERT INTO password_resets (id, email, used) VALUES ($1, $2, false)");
 
