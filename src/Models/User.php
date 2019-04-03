@@ -384,23 +384,36 @@ class User {
 		$reset_id = Uuid::uuid4();
 		$reset_id = $reset_id->toString();
 
-		pg_prepare($this->dbconn, "reset_created", "INSERT INTO password_resets (id, email, used) VALUES ($1, $2, false)");
+		pg_prepare($this->dbconn, "fetch_user_on_reset", "SELECT * FROM users WHERE email = $1");
+		$execute_prepared_statement = pg_execute($this->dbconn, "fetch_user_on_reset", array($user_email));
+		
+		$user_fetch = pg_fetch_array($execute_prepared_statement);
 
-		$execute_prepared_statement = pg_execute($this->dbconn, "reset_created", array($reset_id, $user_email));
+		if(!is_null($user_fetch)){
 
-		if($execute_prepared_statement){
+			pg_prepare($this->dbconn, "reset_created", "INSERT INTO password_resets (id, email, used) VALUES ($1, $2, false)");
 
-			$Mailer->send_password_reset_email($user_email, $reset_id);
+			$execute_prepared_statement = pg_execute($this->dbconn, "reset_created", array($reset_id, $user_email));
 
-			return [
-				'success' => true,
-				'message' => 'email_sent_successfully'
-			];
+			if($execute_prepared_statement){
 
+				$Mailer->send_password_reset_email($user_email, $reset_id);
+
+				return [
+					'message' => 'if_user_exists_then_email_sent_successfully'
+				];
+
+			}else{
+
+				throw new \Exception("Error Processing reset_password_send Request");
+			
+			}
+		
 		}else{
 
-			throw new \Exception("Error Processing reset_password_send Request");
-			
+			return [
+					'message' => 'if_user_exists_then_email_sent_successfully'
+				];
 		}
 
 	}
@@ -452,7 +465,7 @@ class User {
 
 				return [
 					'success' => false,
-					'error_message' => 'already_verified_or_nonexistant'
+					'error_message' => 'already_reset_or_nonexistant'
 				];
 				
 			}
