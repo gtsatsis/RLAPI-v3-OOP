@@ -56,5 +56,15 @@ class SqreenLib {
 	
 	}
 
+	public function sqreen_track_user_deletion(){
+		
+		if(getenv('SQREEN_ENABLED')){
+
+			\sqreen\track('user.account_deleted');
+
+		}
+	
+	}
+
 }
 ?>

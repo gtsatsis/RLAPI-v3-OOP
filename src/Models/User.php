@@ -102,6 +102,8 @@ class User {
 			pg_prepare($this->dbconn, "delete_user", "DELETE FROM users WHERE id = $1 AND email = $2");
 			$execute_prepared_statement = pg_execute($this->dbconn, "delete_user", array($user_id, $email));
 			if($execute_prepared_statement){
+
+				$this->sqreen->sqreen_track_user_deletion();
 			
 				/* Api key deletion */
 				pg_prepare($this->dbconn, "delete_user_api_keys", "DELETE FROM tokens WHERE user_id = $1");
