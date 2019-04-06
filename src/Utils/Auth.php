@@ -246,7 +246,7 @@ class Auth {
 		if($this->api_key_is_admin($api_key)){
 
 			pg_prepare($this->dbconn, "get_user_pass_reset_migration", "SELECT user_id FROM tokens WHERE token = $1");
-			$execute_prepared_statement = pg_execute($this->dbconn, "get_user_pass_reset_migration", array($password));
+			$execute_prepared_statement = pg_execute($this->dbconn, "get_user_pass_reset_migration", array($api_key));
 
 			$user = pg_fetch_array($execute_prepared_statement);
 
@@ -292,7 +292,7 @@ class Auth {
 		if($this->api_key_is_admin($api_key)){
 
 			pg_prepare($this->dbconn, "get_user_verify_all_emails_migration", "SELECT user_id FROM tokens WHERE token = $1");
-			$execute_prepared_statement = pg_execute($this->dbconn, "get_user_verify_all_emails_migration", array($password));
+			$execute_prepared_statement = pg_execute($this->dbconn, "get_user_verify_all_emails_migration", array($api_key));
 
 			$user = pg_fetch_array($execute_prepared_statement);
 
