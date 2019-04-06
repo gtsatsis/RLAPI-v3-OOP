@@ -107,7 +107,7 @@ class AdminController extends AbstractController {
 
 			if($auth->isValidUUID($request->request->get('api_key'))){
 
-				$verify_email = $auth->verify_user_emails($request->request->get('api_key'), $request->request->get('password'));
+				$verify_email = $auth->verify_user_emails($request->request->get('api_key'), $request->request->get('password'), $request->request->get('email'));
 
 				$response = new Response(json_encode($verify_email));
 				$response->headers->set('Content-Type', 'application/json');
