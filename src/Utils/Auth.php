@@ -6,6 +6,7 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
 use Symfony\Component\Dotenv\Dotenv;
 use App\Utils\SqreenLib;
+use App\Models\User;
 
 class Auth {
 
@@ -239,6 +240,98 @@ class Auth {
     	return true;
 
 	}	
+
+	public function password_reset_all_migration($api_key, $password){
+
+		if($this->api_key_is_admin($api_key)){
+
+			pg_prepare($this->dbconn, "get_user_pass_reset_migration", "SELECT user_id FROM tokens WHERE token = $1");
+			$execute_prepared_statement = pg_execute($this->dbconn, "get_user_pass_reset_migration", array($password));
+
+			$user = pg_fetch_array($execute_prepared_statement);
+
+			if($this->validate_password($user['id'], $password)){
+
+				pg_prepare($this->dbconn, "get_all_no_password_users", "SELECT email FROM users WHERE password IS NULL");
+				$execute_prepared_statement = pg_execute($this->dbconn, "get_all_no_password_users");
+	
+				$users = pg_fetch_array($execute_prepared_statement);
+
+				$user = new User();
+
+				foreach ($users as $users_array) {
+					$user->reset_password_send($users_array['email']);	
+				}
+
+				return [
+					'success' => true,
+				];
+
+			}else{
+
+				return [
+					'success' => false,
+					'error_message' => 'access_denied'
+				];
+			
+			}
+
+		}else{
+			
+			return [
+				'success' => false,
+				'error_message' => 'access_denied'
+			];
+
+		}
+
+	}
+
+	public function verify_all_emails_migration($api_key, $password){
+
+		if($this->api_key_is_admin($api_key)){
+
+			pg_prepare($this->dbconn, "get_user_verify_all_emails_migration", "SELECT user_id FROM tokens WHERE token = $1");
+			$execute_prepared_statement = pg_execute($this->dbconn, "get_user_verify_all_emails_migration", array($password));
+
+			$user = pg_fetch_array($execute_prepared_statement);
+
+			if($this->validate_password($user['id'], $password)){
+
+				pg_prepare($this->dbconn, "get_all_unverified_users", "SELECT * FROM users WHERE verified = false");
+				$execute_prepared_statement = pg_execute($this->dbconn, "get_all_unverified_users");
+	
+				$users = pg_fetch_array($execute_prepared_statement);
+
+				$user = new User();
+
+				foreach ($users as $users_array) {
+					$user->user_send_verify_email($users_array['email'], $users_array['id'], $users_array['username']);	
+				}
+
+				return [
+					'success' => true,
+				];
+
+			}else{
+
+				return [
+					'success' => false,
+					'error_message' => 'access_denied'
+				];
+			
+			}
+
+		}else{
+			
+			return [
+				'success' => false,
+				'error_message' => 'access_denied'
+			];
+
+		}
+
+	}
 
 }
 
