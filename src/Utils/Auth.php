@@ -353,6 +353,10 @@ class Auth {
 
 				$user->user_send_verify_email($users['email'], $users['id'], $users['username']);
 
+				return [
+					'success' => true,
+				];
+
 			}else{
 
 				return [
