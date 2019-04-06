@@ -94,6 +94,45 @@ class AdminController extends AbstractController {
 		}
 	}
 
+	/**
+     * Matches /admin/migration/verify_email exactly
+     *
+     * @Route("/admin/migration/verify_email", name="verify_email")
+     */
+
+	public function verify_email(Request $request){
+		$auth = new Auth();
+
+		if($request->request->has('api_key') && $request->request->has('password') && $request->request->has('email')){
+
+			if($auth->isValidUUID($request->request->get('api_key'))){
+
+				$verify_email = $auth->verify_user_emails($request->request->get('api_key'), $request->request->get('password'));
+
+				$response = new Response(json_encode($verify_email));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
+			
+			}else{
+
+				$response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
+		
+			}
+
+		}else{
+			
+			$response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
+			
+		}
+	}
+
 }
 
 ?>
