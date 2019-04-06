@@ -298,17 +298,14 @@ class Auth {
 
 			if($this->validate_password($user['user_id'], $password)){
 
-				pg_prepare($this->dbconn, "get_all_unverified_users", "SELECT * FROM users WHERE verified = false");
-				$execute_prepared_statement = pg_execute($this->dbconn, "get_all_unverified_users", array());
+				$execute_statement = pg_query($this->dbconn, "SELECT * FROM users WHERE verified = false");
 	
-				$users = pg_fetch_array($execute_prepared_statement);
+				$users = pg_fetch_array($execute_statement);
 
 				$user = new User();
 
 				foreach($users as $users_array){
-					foreach($users_array as $users_array_2 => $value){
-						$user->user_send_verify_email($value['email'], $value['id'], $value['username']);	
-					}
+					$user->user_send_verify_email($value['email'], $value['id'], $value['username']);	
 				}
 
 				return [
