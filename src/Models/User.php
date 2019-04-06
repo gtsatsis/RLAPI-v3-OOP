@@ -16,6 +16,7 @@ class User {
 	private $dbconn;
 	private $authentication;
 	private $sqreen;
+	public $verification_created_pg;
 
 	public function __construct(){
 
@@ -279,7 +280,10 @@ class User {
 		$verification_id = Uuid::uuid4();
 		$verification_id = $verification_id->toString();
 
+		if($this->verification_created_pg == false){
 		pg_prepare($this->dbconn, "verification_created", "INSERT INTO verification_emails (user_id, verification_id, email, used) VALUES ($1, $2, $3, false)");
+		$this->verification_created_pg = true;
+		}
 
 		$execute_prepared_statement = pg_execute($this->dbconn, "verification_created", array($user_id, $verification_id, $user_email));
 
