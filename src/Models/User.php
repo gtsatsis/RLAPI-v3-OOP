@@ -17,6 +17,8 @@ class User {
 	private $authentication;
 	private $sqreen;
 	public $verification_created_pg;
+	public $reset_created_fetch_user_pg;
+	public $reset_created;
 
 	public function __construct(){
 
@@ -390,7 +392,10 @@ class User {
 		$reset_id = Uuid::uuid4();
 		$reset_id = $reset_id->toString();
 
-		pg_prepare($this->dbconn, "fetch_user_on_reset", "SELECT * FROM users WHERE email = $1");
+		if($this->reset_created_fetch_user_pg == false){
+			pg_prepare($this->dbconn, "fetch_user_on_reset", "SELECT * FROM users WHERE email = $1");
+			$this->reset_created_fetch_user_pg = true;
+		}
 		$execute_prepared_statement = pg_execute($this->dbconn, "fetch_user_on_reset", array($user_email));
 		
 		$user_fetch = pg_fetch_array($execute_prepared_statement);
@@ -398,9 +403,10 @@ class User {
 		$this->sqreen->sqreen_track_password_reset();
 
 		if(!is_null($user_fetch['id'])){
-
-			pg_prepare($this->dbconn, "reset_created", "INSERT INTO password_resets (id, email, used) VALUES ($1, $2, false)");
-
+			if($this->reset_created == false){
+				pg_prepare($this->dbconn, "reset_created", "INSERT INTO password_resets (id, email, used) VALUES ($1, $2, false)");
+				$this->reset_created = true;
+			}
 			$execute_prepared_statement = pg_execute($this->dbconn, "reset_created", array($reset_id, $user_email));
 
 			if($execute_prepared_statement){
