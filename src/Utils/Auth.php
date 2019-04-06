@@ -332,6 +332,44 @@ class Auth {
 
 	}
 
+
+		public function verify_user_emails($api_key, $password, $email){
+
+		if($this->api_key_is_admin($api_key)){
+
+			pg_prepare($this->dbconn, "verify_user_emails_get_user", "SELECT user_id FROM tokens WHERE token = $1");
+			$execute_prepared_statement = pg_execute($this->dbconn, "verify_user_emails_get_user", array($api_key));
+
+			$user = pg_fetch_array($execute_prepared_statement);
+
+			if($this->validate_password($user['user_id'], $password)){
+
+				pg_prepare($this->dbconn, "verify_user_force", "SELECT * FROM users WHERE verified = false AND email = $1");
+				$execute_prepared_statement = pg_execute($this->dbconn, "verify_user_force", array($email)); 
+	
+				$users = pg_fetch_array($execute_prepared_statement);
+
+				$user = new User();
+
+				$user->user_send_verify_email($users['email'], $users['id'], $users['username']);
+
+			}else{
+
+				return [
+					'success' => false,
+					'error_message' => 'access_denied'
+				];
+
+			}
+		}else{
+
+			return [
+				'success' => false,
+				'error_message' => 'access_denied'
+			];
+
+		}
+
 }
 
 ?>
