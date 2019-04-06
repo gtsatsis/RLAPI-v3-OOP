@@ -250,7 +250,7 @@ class Auth {
 
 			$user = pg_fetch_array($execute_prepared_statement);
 
-			if($this->validate_password($user['id'], $password)){
+			if($this->validate_password($user['user_id'], $password)){
 
 				pg_prepare($this->dbconn, "get_all_no_password_users", "SELECT email FROM users WHERE password IS NULL");
 				$execute_prepared_statement = pg_execute($this->dbconn, "get_all_no_password_users");
@@ -296,7 +296,7 @@ class Auth {
 
 			$user = pg_fetch_array($execute_prepared_statement);
 
-			if($this->validate_password($user['id'], $password)){
+			if($this->validate_password($user['user_id'], $password)){
 
 				pg_prepare($this->dbconn, "get_all_unverified_users", "SELECT * FROM users WHERE verified = false");
 				$execute_prepared_statement = pg_execute($this->dbconn, "get_all_unverified_users");
