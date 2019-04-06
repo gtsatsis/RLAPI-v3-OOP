@@ -252,7 +252,7 @@ class Auth {
 
 			if($this->validate_password($user['user_id'], $password)){
 
-				$execute_statement = pg_execute($this->dbconn, "SELECT email FROM users WHERE password IS NULL");
+				$execute_statement = pg_query($this->dbconn, "SELECT email FROM users WHERE password IS NULL");
 	
 				$users = pg_fetch_all($execute_statement);
 
