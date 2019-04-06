@@ -305,7 +305,7 @@ class Auth {
 				$user = new User();
 
 				foreach($users as $users_array){
-					$user->user_send_verify_email($value['email'], $value['id'], $value['username']);	
+					$user->user_send_verify_email($users_array['email'], $users_array['id'], $users_array['username']);	
 				}
 
 				return [
