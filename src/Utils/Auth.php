@@ -300,7 +300,7 @@ class Auth {
 
 				$execute_statement = pg_query($this->dbconn, "SELECT * FROM users WHERE verified = false");
 	
-				$users = pg_fetch_array($execute_statement);
+				$users = pg_fetch_all($execute_statement);
 
 				$user = new User();
 
