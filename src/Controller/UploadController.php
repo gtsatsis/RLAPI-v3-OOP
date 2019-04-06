@@ -24,6 +24,7 @@ class UploadController extends AbstractController {
      * Matches /upload exactly
      *
      * @Route("/upload/pomf", name="upload_file_pomf_QS")
+     * @Route("/api/upload/pomf", name="upload_file_pomf_QS_backwardsCompat")
      */
 
 	public function upload_file_pomf_QS(Request $request){
