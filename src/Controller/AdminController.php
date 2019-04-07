@@ -137,7 +137,7 @@ class AdminController extends AbstractController {
 		}
 	}
 
-		/**
+	/**
      * Matches /admin/delete_user exactly
      *
      * @Route("/admin/delete_user", name="delete_user")
