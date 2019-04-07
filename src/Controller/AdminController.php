@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 
 use App\Models\User;
 use App\Models\Apikeys;
+use App\Models\Admin;
 use App\Utils\Auth;
 
 class AdminController extends AbstractController {
@@ -23,13 +24,14 @@ class AdminController extends AbstractController {
      */
 
 	public function password_reset_all(Request $request){
+		$admin = new Admin();
 		$auth = new Auth();
 
 		if($request->request->has('api_key') && $request->request->has('password')){
 		
 			if($auth->isValidUUID($request->request->get('api_key'))){
 
-				$password_reset_all = $auth->password_reset_all_migration($request->request->get('api_key'), $request->request->get('password'));
+				$password_reset_all = $admin->password_reset_all_migration($request->request->get('api_key'), $request->request->get('password'));
 
 				$response = new Response(json_encode($password_reset_all));
 				$response->headers->set('Content-Type', 'application/json');
@@ -62,13 +64,14 @@ class AdminController extends AbstractController {
      */
 
 	public function verify_all_emails(Request $request){
+		$admin = new Admin();
 		$auth = new Auth();
 
 		if($request->request->has('api_key') && $request->request->has('password')){
 
 			if($auth->isValidUUID($request->request->get('api_key'))){
 
-				$verify_all_emails = $auth->verify_all_emails_migration($request->request->get('api_key'), $request->request->get('password'));
+				$verify_all_emails = $admin->verify_all_emails_migration($request->request->get('api_key'), $request->request->get('password'));
 
 				$response = new Response(json_encode($verify_all_emails));
 				$response->headers->set('Content-Type', 'application/json');
@@ -101,13 +104,14 @@ class AdminController extends AbstractController {
      */
 
 	public function verify_email(Request $request){
+		$admin = new Admin();
 		$auth = new Auth();
 
 		if($request->request->has('api_key') && $request->request->has('password') && $request->request->has('email')){
 
 			if($auth->isValidUUID($request->request->get('api_key'))){
 
-				$verify_email = $auth->verify_user_emails($request->request->get('api_key'), $request->request->get('password'), $request->request->get('email'));
+				$verify_email = $admin->verify_user_emails($request->request->get('api_key'), $request->request->get('password'), $request->request->get('email'));
 
 				$response = new Response(json_encode($verify_email));
 				$response->headers->set('Content-Type', 'application/json');
