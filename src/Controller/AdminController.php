@@ -140,7 +140,7 @@ class AdminController extends AbstractController {
 	/**
      * Matches /admin/delete_user exactly
      *
-     * @Route("/admin/delete_user", name="delete_user")
+     * @Route("/admin/delete_user", name="delete_user_admin")
      */
 
 	public function delete_user(Request $request){
