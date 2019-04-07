@@ -137,6 +137,46 @@ class AdminController extends AbstractController {
 		}
 	}
 
+		/**
+     * Matches /admin/delete_user exactly
+     *
+     * @Route("/admin/delete_user", name="delete_user")
+     */
+
+	public function delete_user(Request $request){
+		$admin = new Admin();
+		$auth = new Auth();
+
+		if($request->request->has('api_key') && $request->request->has('password') && $request->request->has('email') && $request->request->has('user_id')){
+
+			if($auth->isValidUUID($request->request->get('api_key'))){
+
+				$delete_user = $admin->delete_user($request->request->get('api_key'), $request->request->get('password'), $request->request->get('email'), $request->request->get('user_id'));
+
+				$response = new Response(json_encode($delete_user));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
+			
+			}else{
+
+				$response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
+		
+			}
+
+		}else{
+			
+			$response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
+			
+		}
+	}
+
 }
 
 ?>
