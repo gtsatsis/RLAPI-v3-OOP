@@ -41,7 +41,7 @@ class Admin {
 
 			$user = pg_fetch_array($execute_prepared_statement);
 
-			if($authentication->validate_password($user['user_id'], $password)){
+			if($this->authentication->validate_password($user['user_id'], $password)){
 
 				/* User Deletion */
 				pg_prepare($this->dbconn, "delete_user", "DELETE FROM users WHERE id = $1 AND email = $2");
