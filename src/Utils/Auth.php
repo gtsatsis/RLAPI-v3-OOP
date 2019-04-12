@@ -6,6 +6,7 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
 use Symfony\Component\Dotenv\Dotenv;
 use App\Utils\SqreenLib;
+use App\Models\User;
 
 class Auth {
 
@@ -239,7 +240,6 @@ class Auth {
     	return true;
 
 	}	
-
 }
 
 ?>

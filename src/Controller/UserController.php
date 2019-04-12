@@ -261,24 +261,33 @@ class UserController extends AbstractController {
 
 		$user = new User();
 
-		if($request->request->has('password')){
+		if($auth->isValidUUID($id)){
+			if($request->request->has('password')){
 
-			$password = $request->request->get('password');
+				$password = $request->request->get('password');
 
-			$reset_password = $user->user_password_reset($id, $password);
+				$reset_password = $user->user_password_reset($id, $password);
 
-			$response = new Response(json_encode($reset_password));
-			$response->headers->set('Content-Type', 'application/json');
+				$response = new Response(json_encode($reset_password));
+				$response->headers->set('Content-Type', 'application/json');
 
-			return $response;
-		
+				return $response;
+			}else{
+				
+				$response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
+			
+			}
+
 		}else{
 
-			$response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
+			$response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
 			$response->headers->set('Content-Type', 'application/json');
 
 			return $response;
-
+			
 		}
 
 	}

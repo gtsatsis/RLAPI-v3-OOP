@@ -16,6 +16,9 @@ class User {
 	private $dbconn;
 	private $authentication;
 	private $sqreen;
+	public $verification_created_pg;
+	public $reset_created_fetch_user_pg;
+	public $reset_created;
 
 	public function __construct(){
 
@@ -102,6 +105,8 @@ class User {
 			pg_prepare($this->dbconn, "delete_user", "DELETE FROM users WHERE id = $1 AND email = $2");
 			$execute_prepared_statement = pg_execute($this->dbconn, "delete_user", array($user_id, $email));
 			if($execute_prepared_statement){
+
+				$this->sqreen->sqreen_track_user_deletion();
 			
 				/* Api key deletion */
 				pg_prepare($this->dbconn, "delete_user_api_keys", "DELETE FROM tokens WHERE user_id = $1");
@@ -181,7 +186,7 @@ class User {
 
 	public function user_set_password(string $user_id, string $old_password="", string $new_password, bool $override=false){
 
-		if($override=true){
+		if($override==true){
 
 			pg_prepare($this->dbconn, "update_password_ovr", "UPDATE users SET password = $1 WHERE id = $2");
 			$execute_prepared_statement = pg_execute($this->dbconn, "update_password_ovr", array(password_hash($new_password, PASSWORD_BCRYPT), $user_id));
@@ -277,7 +282,10 @@ class User {
 		$verification_id = Uuid::uuid4();
 		$verification_id = $verification_id->toString();
 
+		if($this->verification_created_pg == false){
 		pg_prepare($this->dbconn, "verification_created", "INSERT INTO verification_emails (user_id, verification_id, email, used) VALUES ($1, $2, $3, false)");
+		$this->verification_created_pg = true;
+		}
 
 		$execute_prepared_statement = pg_execute($this->dbconn, "verification_created", array($user_id, $verification_id, $user_email));
 
@@ -384,7 +392,10 @@ class User {
 		$reset_id = Uuid::uuid4();
 		$reset_id = $reset_id->toString();
 
-		pg_prepare($this->dbconn, "fetch_user_on_reset", "SELECT * FROM users WHERE email = $1");
+		if($this->reset_created_fetch_user_pg == false){
+			pg_prepare($this->dbconn, "fetch_user_on_reset", "SELECT * FROM users WHERE email = $1");
+			$this->reset_created_fetch_user_pg = true;
+		}
 		$execute_prepared_statement = pg_execute($this->dbconn, "fetch_user_on_reset", array($user_email));
 		
 		$user_fetch = pg_fetch_array($execute_prepared_statement);
@@ -392,9 +403,10 @@ class User {
 		$this->sqreen->sqreen_track_password_reset();
 
 		if(!is_null($user_fetch['id'])){
-
-			pg_prepare($this->dbconn, "reset_created", "INSERT INTO password_resets (id, email, used) VALUES ($1, $2, false)");
-
+			if($this->reset_created == false){
+				pg_prepare($this->dbconn, "reset_created", "INSERT INTO password_resets (id, email, used) VALUES ($1, $2, false)");
+				$this->reset_created = true;
+			}
 			$execute_prepared_statement = pg_execute($this->dbconn, "reset_created", array($reset_id, $user_email));
 
 			if($execute_prepared_statement){
