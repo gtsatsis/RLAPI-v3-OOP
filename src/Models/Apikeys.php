@@ -188,7 +188,7 @@ class Apikeys {
 
 	public function generate_api_key(){
 		$unique = false;
-			while ($unique == false){
+			while (!$unique){
 		
 				$api_key = Uuid::uuid4();
 				$api_key = $api_key->toString();

@@ -149,7 +149,7 @@ class Auth {
 
 	public function upload_authentication(string $api_key){
 
-		$prepareStatement = pg_prepare($this->dbconn, "get_user_by_api_key_2", "SELECT * FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1 LIMIT 1)");
+		pg_prepare($this->dbconn, "get_user_by_api_key_2", "SELECT * FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1 LIMIT 1)");
 		$execute_prepared_statement = pg_execute($this->dbconn, "get_user_by_api_key_2", array($api_key));
 
 		$user = pg_fetch_array($execute_prepared_statement);

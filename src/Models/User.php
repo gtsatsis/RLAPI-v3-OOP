@@ -40,7 +40,7 @@ class User {
 	public function create_user(string $username, string $password, string $email){
 		$getter = new Getters();
 
-		if($getter->check_if_user_exists($username, $email) == false){
+		if(!$getter->check_if_user_exists($username, $email)){
 
 			if(strlen($password) >=8){
 
@@ -186,7 +186,7 @@ class User {
 
 	public function user_set_password(string $user_id, string $old_password="", string $new_password, bool $override=false){
 
-		if($override==true){
+		if($override){
 
 			pg_prepare($this->dbconn, "update_password_ovr", "UPDATE users SET password = $1 WHERE id = $2");
 			$execute_prepared_statement = pg_execute($this->dbconn, "update_password_ovr", array(password_hash($new_password, PASSWORD_BCRYPT), $user_id));
@@ -282,7 +282,7 @@ class User {
 		$verification_id = Uuid::uuid4();
 		$verification_id = $verification_id->toString();
 
-		if($this->verification_created_pg == false){
+		if(!$this->verification_created_pg){
 		pg_prepare($this->dbconn, "verification_created", "INSERT INTO verification_emails (user_id, verification_id, email, used) VALUES ($1, $2, $3, false)");
 		$this->verification_created_pg = true;
 		}
@@ -360,7 +360,7 @@ class User {
 
 		$this->prepared = false;
 		
-		if($this->prepared == false){
+		if(!$this->prepared){
 
 			$prepareStatement = pg_prepare($this->dbconn, "get_user_by_api_key", "SELECT * FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1 LIMIT 1)");
 			$this->prepared = true;
@@ -392,7 +392,7 @@ class User {
 		$reset_id = Uuid::uuid4();
 		$reset_id = $reset_id->toString();
 
-		if($this->reset_created_fetch_user_pg == false){
+		if(!$this->reset_created_fetch_user_pg){
 			pg_prepare($this->dbconn, "fetch_user_on_reset", "SELECT * FROM users WHERE email = $1");
 			$this->reset_created_fetch_user_pg = true;
 		}
@@ -403,7 +403,7 @@ class User {
 		$this->sqreen->sqreen_track_password_reset();
 
 		if(!is_null($user_fetch['id'])){
-			if($this->reset_created == false){
+			if(!$this->reset_created){
 				pg_prepare($this->dbconn, "reset_created", "INSERT INTO password_resets (id, email, used) VALUES ($1, $2, false)");
 				$this->reset_created = true;
 			}
@@ -452,10 +452,10 @@ class User {
 
 					$reset_password = $this->user_set_password($fetch_user['id'], "", $password, true);
 
-					if($reset_password['success'] == true){
+					if($reset_password['success']){
 
 						pg_prepare($this->dbconn, "reset_password_set_used", "UPDATE password_resets SET used = true WHERE id = $1");
-						$execute_prepared_statement = pg_execute($this->dbconn, "reset_password_set_used", array($reset_id));
+						pg_execute($this->dbconn, "reset_password_set_used", array($reset_id));
 
 						return [
 							'success' => true,

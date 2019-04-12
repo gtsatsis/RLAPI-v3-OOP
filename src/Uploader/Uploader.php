@@ -56,7 +56,7 @@ class Uploader {
 
 		$authentication = $this->authentication->upload_authentication($api_key);
 		
-		if($authentication == true){
+		if($authentication){
 			if($this->authentication->maximum_filesize_assessment($api_key, implode('', $file['size']))){
 				$fileUtils = new FileUtils();
 
@@ -65,7 +65,7 @@ class Uploader {
 				$file_name = $fileUtils->generateFileName($extension, 10);
 				$file_name_is_unique = false;
 
-				while($file_name_is_unique == false){
+				while(!$file_name_is_unique){
 
 					if($fileUtils->isUnique($file_name, getenv('S3_ENDPOINT').'/'.$this->bucket.'/')){
 
