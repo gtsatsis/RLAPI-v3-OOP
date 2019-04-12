@@ -186,7 +186,7 @@ class User {
 
 	public function user_set_password(string $user_id, string $old_password="", string $new_password, bool $override=false){
 
-		if($override=true){
+		if($override==true){
 
 			pg_prepare($this->dbconn, "update_password_ovr", "UPDATE users SET password = $1 WHERE id = $2");
 			$execute_prepared_statement = pg_execute($this->dbconn, "update_password_ovr", array(password_hash($new_password, PASSWORD_BCRYPT), $user_id));
