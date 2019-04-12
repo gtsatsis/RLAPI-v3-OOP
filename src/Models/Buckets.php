@@ -161,7 +161,7 @@ class Buckets {
 					return [
 						'success' => true,
 						'bucket' => [
-							$bucket => [
+							$bucket_name => [
 								'domain' => $domain
 							]
 						]

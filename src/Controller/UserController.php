@@ -260,6 +260,7 @@ class UserController extends AbstractController {
 	public function reset_user_password_act(Request $request, $id){
 
 		$user = new User();
+		$auth = new Auth();
 
 		if($auth->isValidUUID($id)){
 			if($request->request->has('password')){
