@@ -1,5 +1,8 @@
 # RLAPI
 ### An open-source file hosting API
+----
+
+[![Security Rating](https://sonar.ratelimited.me/api/project_badges/measure?project=RLAPI-v3&metric=security_rating)](https://sonar.ratelimited.me/dashboard?id=RLAPI-v3)
 
 RLAPI is an API developed for [RATELIMITED](https://ratelimited.me), a file hosting service started by [George Tsatsis](https://github.com/gtsatsis) in early 2017.
 
