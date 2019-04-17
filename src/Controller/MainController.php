@@ -52,5 +52,21 @@ class MainController extends AbstractController {
 
 		return $response;
 	}
+
+	/**
+     * Matches /api exactly
+     *
+     * @Route("/api", name="api_endpoint_deprecated")
+     */
+
+	public function api_endpoint_deprecated(){
+		$response = new Response(json_encode([
+			'message' => 'api_endpoint_deprecated'
+		]));
+
+		$response->headers->set('Content-Type', 'application/json');
+
+		return $response;
+	}
 }
 ?>
