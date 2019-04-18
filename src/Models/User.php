@@ -52,7 +52,7 @@ class User {
 				if(getenv('PROMOS') == true && !is_null($optional_params['promo_code'])){
 
 					pg_prepare($this->dbconn, "fetch_promo_code", "SELECT * FROM promo_codes WHERE code = $1 AND expired = false");
-					$execute_prepared_statement = pg_execute($this->dbconn, "fetch_promo_code", array($optional_params['promo_code'));
+					$execute_prepared_statement = pg_execute($this->dbconn, "fetch_promo_code", array($optional_params['promo_code']));
 
 					$promo_results = pg_fetch_array($execute_prepared_statement);
 
