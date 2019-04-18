@@ -92,7 +92,7 @@ class Admin {
 
 		public function password_reset_all_migration($api_key, $password){
 
-		if($this->api_key_is_admin($api_key)){
+		if($this->authentication->api_key_is_admin($api_key)){
 
 			pg_prepare($this->dbconn, "get_user_pass_reset_migration", "SELECT user_id FROM tokens WHERE token = $1");
 			$execute_prepared_statement = pg_execute($this->dbconn, "get_user_pass_reset_migration", array($api_key));
@@ -137,7 +137,7 @@ class Admin {
 
 	public function verify_all_emails_migration($api_key, $password){
 
-		if($this->api_key_is_admin($api_key)){
+		if($this->authentication->api_key_is_admin($api_key)){
 
 			pg_prepare($this->dbconn, "get_user_verify_all_emails_migration", "SELECT user_id FROM tokens WHERE token = $1");
 			$execute_prepared_statement = pg_execute($this->dbconn, "get_user_verify_all_emails_migration", array($api_key));
@@ -182,7 +182,7 @@ class Admin {
 
 	public function verify_user_emails($api_key, $password, $email){
 
-		if($this->api_key_is_admin($api_key)){
+		if($this->authentication->api_key_is_admin($api_key)){
 
 			pg_prepare($this->dbconn, "verify_user_emails_get_user", "SELECT user_id FROM tokens WHERE token = $1");
 			$execute_prepared_statement = pg_execute($this->dbconn, "verify_user_emails_get_user", array($api_key));
@@ -224,7 +224,7 @@ class Admin {
 
 	public function get_all_active_promos($api_key, $password){
 
-		if($this->api_key_is_admin($api_key)){
+		if($this->authentication->api_key_is_admin($api_key)){
 
 			pg_prepare($this->dbconn, "verify_user_emails_get_user", "SELECT user_id FROM tokens WHERE token = $1");
 			$execute_prepared_statement = pg_execute($this->dbconn, "verify_user_emails_get_user", array($api_key));
