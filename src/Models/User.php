@@ -49,7 +49,7 @@ class User {
 				$user_id = Uuid::uuid4();
 				$user_id = $user_id->toString();
 
-				if(getenv('PROMOS') && !is_null($promo_code)){
+				if(getenv('PROMOS') == true && !is_null($promo_code)){
 
 					pg_prepare($this->dbconn, "fetch_promo_code", "SELECT * FROM promo_codes WHERE code = $1 AND expired = false");
 					$execute_prepared_statement = pg_execute($this->dbconn, "fetch_promo_code", array($promo_code));
