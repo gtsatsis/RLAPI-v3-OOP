@@ -60,9 +60,7 @@ class User {
 
 						return [
 							'success' => false,
-							'error_message' => 'no_promo_found',
-							var_dump($promo_results),
-							var_dump($optional_params)
+							'error_message' => 'no_promo_found'
 						];
 						
 					}elseif($promo_results['uses'] >= $promo_results['max_uses']){
