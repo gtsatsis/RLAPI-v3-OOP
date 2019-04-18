@@ -235,7 +235,7 @@ class Admin {
 				
 				$execute_statement = pg_query($this->dbconn, "SELECT * FROM promo_codes WHERE expired = false");
 
-				return pg_fetch_array($execute_statement);  
+				return pg_fetch_all($execute_statement);  
 
 			}
 		}
