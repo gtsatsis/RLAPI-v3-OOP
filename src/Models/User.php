@@ -37,7 +37,7 @@ class User {
 
 	/* Begin User Creation Function */
 
-	public function create_user(string $username, string $password, string $email, $promo_code = null){
+	public function create_user(string $username, string $password, string $email, $optional_params){
 		$getter = new Getters();
 
 		if(!$getter->check_if_user_exists($username, $email)){
@@ -49,10 +49,10 @@ class User {
 				$user_id = Uuid::uuid4();
 				$user_id = $user_id->toString();
 
-				if(getenv('PROMOS') == true && !is_null($promo_code)){
+				if(getenv('PROMOS') == true && !is_null($optional_params['promo_code'])){
 
 					pg_prepare($this->dbconn, "fetch_promo_code", "SELECT * FROM promo_codes WHERE code = $1 AND expired = false");
-					$execute_prepared_statement = pg_execute($this->dbconn, "fetch_promo_code", array($promo_code));
+					$execute_prepared_statement = pg_execute($this->dbconn, "fetch_promo_code", array($optional_params['promo_code'));
 
 					$promo_results = pg_fetch_array($execute_prepared_statement);
 
@@ -85,7 +85,7 @@ class User {
 							if($send_verification_email){
 
 								pg_prepare($this->dbconn, "add_promo_use", "UPDATE promo_codes SET uses = uses + 1 WHERE code = $1");
-								pg_execute($this->dbconn, "add_promo_use", array($promo_code));
+								pg_execute($this->dbconn, "add_promo_use", array($optional_params['promo_code']));
 				
 								return [
 									'success' => true,
