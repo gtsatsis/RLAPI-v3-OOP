@@ -27,12 +27,25 @@ class UserController extends AbstractController {
 		$users = new User();
 
 		if($request->request->has('username') && $request->request->has('password') && $request->request->has('email')){
-			$createUser = $users->create_user($request->request->get('username'), $request->request->get('password'), $request->request->get('email'));
 
-			$response = new Response(json_encode($createUser));
-			$response->headers->set('Content-Type', 'application/json');
+			if($request->request->has('promo_code')){
 
-			return $response;
+				$createUser = $users->create_user($request->request->get('username'), $request->request->get('password'), $request->request->get('email'), array('promo_code' => $request->request->get('promo_code')));
+
+				$response = new Response(json_encode($createUser));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
+
+			}else{
+
+				$createUser = $users->create_user($request->request->get('username'), $request->request->get('password'), $request->request->get('email'), "");
+
+				$response = new Response(json_encode($createUser));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
+			}
 
 		}else{
 

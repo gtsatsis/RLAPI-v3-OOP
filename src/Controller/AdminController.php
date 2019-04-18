@@ -177,6 +177,46 @@ class AdminController extends AbstractController {
 		}
 	}
 
+	/**
+     * Matches /admin/promos/active exactly
+     *
+     * @Route("/admin/promos/active", name="active_promos")
+     */
+
+	public function active_promos(Request $request){
+		$admin = new Admin();
+		$auth = new Auth();
+
+		if($request->request->has('api_key') && $request->request->has('password')){
+
+			if($auth->isValidUUID($request->request->get('api_key'))){
+
+				$active_promos = $admin->get_all_active_promos($request->request->get('api_key'), $request->request->get('password'));
+
+				$response = new Response(json_encode($active_promos));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
+			
+			}else{
+
+				$response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
+		
+			}
+
+		}else{
+			
+			$response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
+			
+		}
+	}
+
 }
 
 ?>

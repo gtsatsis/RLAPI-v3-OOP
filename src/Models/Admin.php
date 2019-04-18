@@ -92,14 +92,14 @@ class Admin {
 
 		public function password_reset_all_migration($api_key, $password){
 
-		if($this->api_key_is_admin($api_key)){
+		if($this->authentication->api_key_is_admin($api_key)){
 
 			pg_prepare($this->dbconn, "get_user_pass_reset_migration", "SELECT user_id FROM tokens WHERE token = $1");
 			$execute_prepared_statement = pg_execute($this->dbconn, "get_user_pass_reset_migration", array($api_key));
 
 			$user = pg_fetch_array($execute_prepared_statement);
 
-			if($this->validate_password($user['user_id'], $password)){
+			if($this->authentication->validate_password($user['user_id'], $password)){
 
 				$execute_statement = pg_query($this->dbconn, "SELECT email FROM users WHERE password IS NULL");
 	
@@ -137,14 +137,14 @@ class Admin {
 
 	public function verify_all_emails_migration($api_key, $password){
 
-		if($this->api_key_is_admin($api_key)){
+		if($this->authentication->api_key_is_admin($api_key)){
 
 			pg_prepare($this->dbconn, "get_user_verify_all_emails_migration", "SELECT user_id FROM tokens WHERE token = $1");
 			$execute_prepared_statement = pg_execute($this->dbconn, "get_user_verify_all_emails_migration", array($api_key));
 
 			$user = pg_fetch_array($execute_prepared_statement);
 
-			if($this->validate_password($user['user_id'], $password)){
+			if($this->authentication->validate_password($user['user_id'], $password)){
 
 				$execute_statement = pg_query($this->dbconn, "SELECT * FROM users WHERE verified = false");
 	
@@ -182,14 +182,14 @@ class Admin {
 
 	public function verify_user_emails($api_key, $password, $email){
 
-		if($this->api_key_is_admin($api_key)){
+		if($this->authentication->api_key_is_admin($api_key)){
 
 			pg_prepare($this->dbconn, "verify_user_emails_get_user", "SELECT user_id FROM tokens WHERE token = $1");
 			$execute_prepared_statement = pg_execute($this->dbconn, "verify_user_emails_get_user", array($api_key));
 
 			$user = pg_fetch_array($execute_prepared_statement);
 
-			if($this->validate_password($user['user_id'], $password)){
+			if($this->authentication->validate_password($user['user_id'], $password)){
 
 				pg_prepare($this->dbconn, "verify_user_force", "SELECT * FROM users WHERE verified = false AND email = $1");
 				$execute_prepared_statement = pg_execute($this->dbconn, "verify_user_force", array($email)); 
@@ -220,6 +220,26 @@ class Admin {
 			];
 
 		}
+	}
+
+	public function get_all_active_promos($api_key, $password){
+
+		if($this->authentication->api_key_is_admin($api_key)){
+
+			pg_prepare($this->dbconn, "verify_user_emails_get_user", "SELECT user_id FROM tokens WHERE token = $1");
+			$execute_prepared_statement = pg_execute($this->dbconn, "verify_user_emails_get_user", array($api_key));
+
+			$user = pg_fetch_array($execute_prepared_statement);
+
+			if($this->authentication->validate_password($user['user_id'], $password)){
+				
+				$execute_statement = pg_query($this->dbconn, "SELECT * FROM promo_codes WHERE expired = false");
+
+				return pg_fetch_all($execute_statement);  
+
+			}
+		}
+
 	}
 }
 ?>
