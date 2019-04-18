@@ -99,7 +99,7 @@ class Admin {
 
 			$user = pg_fetch_array($execute_prepared_statement);
 
-			if($this->validate_password($user['user_id'], $password)){
+			if($this->authentication->validate_password($user['user_id'], $password)){
 
 				$execute_statement = pg_query($this->dbconn, "SELECT email FROM users WHERE password IS NULL");
 	
@@ -144,7 +144,7 @@ class Admin {
 
 			$user = pg_fetch_array($execute_prepared_statement);
 
-			if($this->validate_password($user['user_id'], $password)){
+			if($this->authentication->validate_password($user['user_id'], $password)){
 
 				$execute_statement = pg_query($this->dbconn, "SELECT * FROM users WHERE verified = false");
 	
@@ -189,7 +189,7 @@ class Admin {
 
 			$user = pg_fetch_array($execute_prepared_statement);
 
-			if($this->validate_password($user['user_id'], $password)){
+			if($this->authentication->validate_password($user['user_id'], $password)){
 
 				pg_prepare($this->dbconn, "verify_user_force", "SELECT * FROM users WHERE verified = false AND email = $1");
 				$execute_prepared_statement = pg_execute($this->dbconn, "verify_user_force", array($email)); 
@@ -231,7 +231,7 @@ class Admin {
 
 			$user = pg_fetch_array($execute_prepared_statement);
 
-			if($this->validate_password($user['user_id'], $password)){
+			if($this->authentication->validate_password($user['user_id'], $password)){
 				
 				$execute_statement = pg_query($this->dbconn, "SELECT * FROM promo_codes WHERE expired = false");
 
