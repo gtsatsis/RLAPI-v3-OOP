@@ -28,7 +28,7 @@ class UserController extends AbstractController {
 
 		if($request->request->has('username') && $request->request->has('password') && $request->request->has('email')){
 
-			if($request->request->has('invite_code')){
+			if($request->request->has('promo_code')){
 
 				$createUser = $users->create_user($request->request->get('username'), $request->request->get('password'), $request->request->get('email'), $request->request->get('invite_code'));
 
