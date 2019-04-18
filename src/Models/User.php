@@ -63,6 +63,13 @@ class User {
 							'error_message' => 'promo_out_of_uses'
 						];
 
+					}elseif(is_null($promo_results){
+
+						return [
+							'success' => false,
+							'error_message' => 'no_promo_found'
+						];
+
 					}else{
 
 						pg_prepare($this->dbconn, "create_user", "INSERT INTO users (id, username, password, email, tier, is_admin, is_blocked, verified) VALUES ($1, $2, $3, $4, $5, false, false, false)");
