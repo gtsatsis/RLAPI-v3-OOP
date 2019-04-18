@@ -63,7 +63,7 @@ class User {
 							'error_message' => 'promo_out_of_uses'
 						];
 
-					}elseif(is_null($promo_results){
+					}elseif(is_null($promo_results)){
 
 						return [
 							'success' => false,
