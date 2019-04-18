@@ -56,18 +56,18 @@ class User {
 
 					$promo_results = pg_fetch_array($execute_prepared_statement);
 
-					if($promo_results['uses'] >= $promo_results['max_uses']){
-
-						return [
-							'success' => false,
-							'error_message' => 'promo_out_of_uses'
-						];
-
-					}elseif(is_null($promo_results['id'])){
+					if(is_null($promo_results['id'])){
 
 						return [
 							'success' => false,
 							'error_message' => 'no_promo_found'
+						];
+						
+					}elseif($promo_results['uses'] >= $promo_results['max_uses']){
+
+						return [
+							'success' => false,
+							'error_message' => 'promo_out_of_uses'
 						];
 
 					}else{
