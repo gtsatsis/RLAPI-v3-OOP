@@ -22,7 +22,7 @@ class ApiKeysController extends AbstractController {
      * @Route("/users/email_auth/api_keys/create", name="create_user_api_key")
      */
 
-	public function create_user_api_key(Request $request, $id){
+	public function create_user_api_key_email_auth(Request $request, $id){
 		$api_keys = new Apikeys();
 		$auth = new Auth();
 
