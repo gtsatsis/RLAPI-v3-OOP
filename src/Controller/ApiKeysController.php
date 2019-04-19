@@ -19,7 +19,7 @@ class ApiKeysController extends AbstractController {
 		/**
      * Matches /users/email_auth/api_keys/create exactly
      *
-     * @Route("/users/email_auth/api_keys/create", name="create_user_api_key")
+     * @Route("/users/email_auth/api_keys/create", name="create_user_api_key_email_auth")
      */
 
 	public function create_user_api_key_email_auth(Request $request){
