@@ -13,6 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 use App\Models\User;
 use App\Models\Apikeys;
+use App\Models\Domains;
 
 class MainController extends AbstractController {
 
@@ -63,6 +64,40 @@ class MainController extends AbstractController {
 		$response = new Response(json_encode([
 			'message' => 'api_endpoint_deprecated'
 		]));
+
+		$response->headers->set('Content-Type', 'application/json');
+
+		return $response;
+	}
+
+	/**
+     * Matches /domains exactly
+     *
+     * @Route("/domains", name="domains")
+     */
+
+	public function domains(){
+		$response = new Response(json_encode([
+			'message' => 'check_domains/list'
+		]));
+
+		$response->headers->set('Content-Type', 'application/json');
+
+		return $response;
+	}
+
+	/**
+     * Matches /domains/list exactly
+     *
+     * @Route("/domains/list", name="domains_list")
+     */
+
+	public function domains_list(){
+		$domains = new Domains();
+
+		$list_domains = $domains->list_domains();
+
+		$response = new Response(json_encode($list_domains));
 
 		$response->headers->set('Content-Type', 'application/json');
 
