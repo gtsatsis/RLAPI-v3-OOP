@@ -217,5 +217,55 @@ class Apikeys {
 		return $api_key_exists[0];
 	}
 
+	/* Begin API Key Creation Function */
+
+	public function create_user_api_key_email_auth(string $email, string $api_key_name, string $password){
+
+		pg_prepare($this->dbconn, "get_user_id_api_key_create_email_auth", "SELECT id FROM users WHERE email = $1");
+		$execute_prepared_statement = pg_execute($this->dbconn, "get_user_id_api_key_create_email_auth", array($email));
+
+		$user_info = pg_fetch_array($execute_prepared_statement);
+		$user_id = $user_info['id'];
+
+		if($this->authentication->validate_password($user_id, $password)){
+
+			if($this->authentication->user_api_key_allowance($user_id)){
+				$api_key = $this->generate_api_key();
+
+				pg_prepare($this->dbconn, "insert_api_key", "INSERT INTO tokens (user_id, token, name) VALUES ($1, $2, $3)");
+				$execute_prepared_statement = pg_execute($this->dbconn, "insert_api_key", array($user_id, $api_key, $api_key_name));
+
+				if($execute_prepared_statement){
+
+					return [
+						'success' => true,
+						'api_key' => [
+							'created' => true,
+							'key' => $api_key
+						]
+					];
+
+				}else{
+					throw new \Exception('Error Processing create_user_api_key Request');
+				}
+			}else{
+				return [
+					'success' => false,
+					'error_code' => 101010,
+					'error_message' => 'maximum_allowed_keys_reached'
+				];
+			}		
+		}else{
+
+			return [
+				'success' => false,
+				'error_code' => 1002,
+				'error_message' => 'invalid_user_id_or_password'
+			];
+
+		}
+
+	}
+
 }
 ?>
