@@ -22,36 +22,26 @@ class ApiKeysController extends AbstractController {
      * @Route("/users/email_auth/api_keys/create", name="create_user_api_key")
      */
 
-	public function create_user_api_key_email_auth(Request $request, $id){
+	public function create_user_api_key_email_auth(Request $request){
 		$api_keys = new Apikeys();
 		$auth = new Auth();
 
-		if($auth->isValidUUID($id)){
-
-			if($request->request->has('email') && $request->request->has('api_key_name') && $request->request->has('password')){
+		if($request->request->has('email') && $request->request->has('api_key_name') && $request->request->has('password')){
 			$new_api_key = $api_keys->create_user_api_key_email_auth($email, $request->request->get('api_key_name'), $request->request->get('password'));
 
-				$response = new Response(json_encode($new_api_key));
-				$response->headers->set('Content-Type', 'application/json');
-
-				return $response;
-
-			}else{
-
-				$response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
-				$response->headers->set('Content-Type', 'application/json');
-
-				return $response;
-			
-			}
-		}else{
-
-			$response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
+			$response = new Response(json_encode($new_api_key));
 			$response->headers->set('Content-Type', 'application/json');
 
 			return $response;
-		
-		}
+
+		}else{
+
+			$response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
+			
+			}
 	}
 
 	/**
