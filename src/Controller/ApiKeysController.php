@@ -27,7 +27,7 @@ class ApiKeysController extends AbstractController {
 		$auth = new Auth();
 
 		if($request->request->has('email') && $request->request->has('api_key_name') && $request->request->has('password')){
-			$new_api_key = $api_keys->create_user_api_key_email_auth($email, $request->request->get('api_key_name'), $request->request->get('password'));
+			$new_api_key = $api_keys->create_user_api_key_email_auth($request->request->get('email'), $request->request->get('api_key_name'), $request->request->get('password'));
 
 			$response = new Response(json_encode($new_api_key));
 			$response->headers->set('Content-Type', 'application/json');
