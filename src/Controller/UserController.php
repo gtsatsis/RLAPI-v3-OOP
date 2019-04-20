@@ -319,7 +319,7 @@ class UserController extends AbstractController {
 
 		if($auth->isValidUUID($id)){
 
-				$reset_password = $user->get_user_uploads($id);
+				$get_uploads = $user->get_user_uploads($id);
 
 				$response = new Response(json_encode($get_uploads));
 				$response->headers->set('Content-Type', 'application/json');
