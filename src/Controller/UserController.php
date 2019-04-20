@@ -306,6 +306,37 @@ class UserController extends AbstractController {
 
 	}
 
+	/**
+     * Matches /users/{id}/uploads exactly
+     *
+     * @Route("/users/{id}/uploads", name="get_user_uploads")
+     */
+
+	public function get_user_uploads(Request $request, $id){
+
+		$user = new User();
+		$auth = new Auth();
+
+		if($auth->isValidUUID($id)){
+
+				$reset_password = $user->get_user_uploads($id);
+
+				$response = new Response(json_encode($get_uploads));
+				$response->headers->set('Content-Type', 'application/json');
+
+				return $response;
+
+		}else{
+
+			$response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
+			$response->headers->set('Content-Type', 'application/json');
+
+			return $response;
+			
+		}
+
+	}	
+
 }
 
 ?>
