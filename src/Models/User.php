@@ -546,7 +546,7 @@ class User {
 
 	public function get_user_uploads(string $user_id){
 
-		pg_prepare($this->dbconn, "get_all_uploads_by_user", "SELECT * FROM files WHERE user_id = $1");
+		pg_prepare($this->dbconn, "get_all_uploads_by_user", "SELECT filename, originalfilename, timestamp, user_id, md5, sha1, deleted FROM files WHERE user_id = $1");
 		$execute_prepared_statement = pg_execute($this->dbconn, "get_all_uploads_by_user", array($user_id));
 
 		return pg_fetch_all($execute_prepared_statement);
