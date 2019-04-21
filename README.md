@@ -14,11 +14,11 @@ RLAPI is currently in a very early stage of development. There will be bugs, and
 
 Requirements:
 
-	1. Know-how regarding Linux, as we do not support running RLAPI on Windows environments.
-	2. Apache & PHP (Stable on 7.2).
+	1. Know-how regarding Linux, as we do not support running RLAPI on Windows environments (WSL included).
+	2. Your favorite web daemon (Apache & NGINX are supported) & PHP (Stable on 7.2).
 	3. A [Sentry](https://sentry.io) DSN.
 	4. [Minio](https://minio.io), or AWS S3.
-	5. An SMTP server.
+	5. A SMTP server.
 	6. Composer.
 
 Installing:
