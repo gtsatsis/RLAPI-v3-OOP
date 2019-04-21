@@ -11,7 +11,9 @@ class ExternalAPIFunctions
     // nts: https://whoisapi.whoisxmlapi.com/products
 
     public $api_key;
+
     public $domain;
+
     public $key;
 
     public function __construct($domain)

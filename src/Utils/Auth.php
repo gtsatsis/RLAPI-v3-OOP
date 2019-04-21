@@ -10,11 +10,11 @@ use Symfony\Component\Dotenv\Dotenv;
 class Auth
 {
     private $dbconn;
+
     private $sqreen;
 
     public function __construct()
     {
-
         /* Load the env file */
         $dotenv = new Dotenv();
         $dotenv->load(__DIR__.'/../../.env');
@@ -31,7 +31,7 @@ class Auth
         $execute_prepared_statement = pg_execute($this->dbconn, 'get_user', [$user_id]);
         $user = pg_fetch_array($execute_prepared_statement);
 
-        if (password_verify($password, $user['password']) && $user['verified'] == 't') {
+        if (password_verify($password, $user['password']) && 't' == $user['verified']) {
             $this->sqreen->sqreen_auth_track(true, $user['email']);
 
             return true;
@@ -113,7 +113,7 @@ class Auth
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, ['secret'=>getenv('RECAPTCHA_SECRET'), 'response'=>$recaptcha]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, ['secret' => getenv('RECAPTCHA_SECRET'), 'response' => $recaptcha]);
         $response = curl_exec($ch);
         curl_close($ch);
         $data = json_decode($response);
@@ -130,9 +130,9 @@ class Auth
 
         $user = pg_fetch_array($execute_prepared_statement);
 
-        if ($user != null) {
-            if ($user['verified'] == 't') {
-                if ($user['is_blocked'] == 'f' || empty($user['is_blocked'])) {
+        if (null != $user) {
+            if ('t' == $user['verified']) {
+                if ('f' == $user['is_blocked'] || empty($user['is_blocked'])) {
                     $this->sqreen->sqreen_auth_track(true, $user['email']);
                     $this->sqreen->sqreen_track_upload($user['id']);
 
@@ -162,7 +162,7 @@ class Auth
         if ($execute_prepared_statement) {
             $is_admin = pg_fetch_array($execute_prepared_statement);
 
-            if ($is_admin == 'f' || empty($is_admin)) {
+            if ('f' == $is_admin || empty($is_admin)) {
                 return false;
             } else {
                 return true;
@@ -176,7 +176,7 @@ class Auth
         $execute_prepared_statement = pg_execute($this->dbconn, 'owns_bucket', [$user_id, $bucket_name]);
 
         $count = pg_fetch_array($execute_prepared_statement);
-        if ($count[0] == 1) {
+        if (1 == $count[0]) {
             return true;
         } else {
             return false;
@@ -185,7 +185,7 @@ class Auth
 
     public function isValidUUID($uuid)
     {
-        if (!is_string($uuid) || (preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/', $uuid) !== 1)) {
+        if (!is_string($uuid) || (1 !== preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/', $uuid))) {
             return false;
         }
 

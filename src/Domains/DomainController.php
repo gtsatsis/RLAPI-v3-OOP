@@ -27,18 +27,18 @@ class DomainController
 
         $prepareStatement = pg_prepare($dbconn, 'add_domain', "INSERT INTO domains ('id', 'user_id', 'domainname', 'validated', 'validationhash', 'official', 'visibility', 'bucket', 'expirydate') VALUES ($1, $2, $3, false, $4, false, 'public', 'owoapi', $5)");
         $executePreparedStatement = pg_execute($dbconn, 'add_domain', [$domainid, $userid, $domainname, $validationHash, $expiryDate]);
-        if ($prepareStatement !== false && $executePreparedStatement !== false) {
+        if (false !== $prepareStatement && false !== $executePreparedStatement) {
             return
             [
                 'success' => true,
-                'domain'  => [
+                'domain' => [
                 'added' => true,
                 ],
             ];
         } else {
             return
             [
-                'success'    => false,
+                'success' => false,
                 'error_code' => 302882,
             ];
             $this->sentry_instance->log_error('There was a domain addition oopsie. Check logs (ln 55) Time: '.gmdate('Y-m-d H:i:s', time()));
@@ -52,18 +52,18 @@ class DomainController
 
         $prepareStatement = pg_prepare($dbconn, 'remove_domain', 'DELETE FROM domains WHERE domainname = $1 AND validationhash = $2');
         $executePreparedStatement = pg_execute($dbconn, 'remove_domain', [$domainname, $validationHash]);
-        if ($prepareStatement !== false && $executePreparedStatement !== false) {
+        if (false !== $prepareStatement && false !== $executePreparedStatement) {
             return
             [
                 'success' => true,
-                'domain'  => [
+                'domain' => [
                     'removed' => true,
                 ],
             ];
         } else {
             return
             [
-                'success'    => false,
+                'success' => false,
                 'error_code' => 302882,
             ];
             $this->sentry_instance->log_error('There was a domain removal oopsie. Check logs (ln 83) Time: '.gmdate('Y-m-d H:i:s', time()));
@@ -79,14 +79,14 @@ class DomainController
             return
             [
                 'success' => true,
-                'domain'  => [
+                'domain' => [
                     'bucket' => $bucket,
                 ],
             ];
         } else {
             return
             [
-                'success'    => false,
+                'success' => false,
                 'error_code' => 302882,
             ];
             $this->sentry_instance->log_error('Error upon bucket change. Time:'.gmdate('Y-m-d H:i:s', time()));
@@ -102,14 +102,14 @@ class DomainController
             return
             [
                 'success' => true,
-                'domain'  => [
+                'domain' => [
                     'official' => $officialStatus,
                 ],
             ];
         } else {
             return
             [
-                'success'    => false,
+                'success' => false,
                 'error_code' => 302882,
             ];
             $this->sentry_instance->log_error('Error upon official status change. Time:'.gmdate('Y-m-d H:i:s', time()));
@@ -125,14 +125,14 @@ class DomainController
             return
             [
                 'success' => true,
-                'domain'  => [
+                'domain' => [
                     'visibility' => $visibility,
                 ],
             ];
         } else {
             return
             [
-                'success'    => false,
+                'success' => false,
                 'error_code' => 302882,
             ];
             $this->sentry_instance->log_error('Error upon visibility ('.$visibility.') change. Time:'.gmdate('Y-m-d H:i:s', time()));
@@ -141,21 +141,21 @@ class DomainController
 
     public function updateExpiryDate(string $domainname, bool $override, bool $expiryDate)
     {
-        if ($override == true) {
+        if (true == $override) {
             $prepareStatement = pg_prepare($dbconn, 'set_domain_expiry_date', 'UPDATE domains SET expirydate = $1 WHERE domainname = $2');
             $executePreparedStatement = pg_execute($dbconn, 'set_domain_expiry_date', [$expiryDate, $domainname]);
             if ($prepareStatement && $executePreparedStatement) {
                 return
               [
                   'success' => true,
-                  'domain'  => [
+                  'domain' => [
                       'expiry_date' => $expiryDate,
                   ],
               ];
             } else {
                 return
               [
-                  'success'    => false,
+                  'success' => false,
                   'error_code' => 302882,
               ];
                 $this->sentry_instance->log_error('Error upon expiry date change. Time:'.gmdate('Y-m-d H:i:s', time()));
@@ -170,14 +170,14 @@ class DomainController
                 return
               [
                   'success' => true,
-                  'domain'  => [
+                  'domain' => [
                       'expiry_date' => $expiryDate,
                   ],
               ];
             } else {
                 return
               [
-                  'success'    => false,
+                  'success' => false,
                   'error_code' => 302882,
               ];
                 $this->sentry_instance->log_error('Error upon expiry date change. Time:'.gmdate('Y-m-d H:i:s', time()));

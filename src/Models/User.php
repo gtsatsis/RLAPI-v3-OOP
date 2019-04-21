@@ -14,15 +14,19 @@ use Symfony\Component\Dotenv\Dotenv;
 class User
 {
     private $dbconn;
+
     private $authentication;
+
     private $sqreen;
+
     public $verification_created_pg;
+
     public $reset_created_fetch_user_pg;
+
     public $reset_created;
 
     public function __construct()
     {
-
         /* Load the env file */
         $dotenv = new Dotenv();
         $dotenv->load(__DIR__.'/../../.env');
@@ -41,7 +45,7 @@ class User
     {
         $getter = new Getters();
 
-        if ($getter->check_if_user_exists($username, $email) == false) {
+        if (false == $getter->check_if_user_exists($username, $email)) {
             if (strlen($password) >= 8) {
                 $password = password_hash($password, PASSWORD_BCRYPT);
 
@@ -60,11 +64,11 @@ class User
                     if ($send_verification_email) {
                         return [
                             'success' => true,
-                            'status'  => 'created',
+                            'status' => 'created',
                             'account' => [
-                                'id'       => $user_id,
+                                'id' => $user_id,
                                 'username' => $username,
-                                'email'    => $email,
+                                'email' => $email,
                             ],
                         ];
                     }
@@ -73,15 +77,15 @@ class User
                 }
             } else {
                 return [
-                    'success'       => false,
-                    'error_code'    => 1013,
+                    'success' => false,
+                    'error_code' => 1013,
                     'error_message' => 'insufficient_password_length',
                 ];
             }
         } else {
             return [
-                    'success'       => false,
-                    'error_code'    => 1012,
+                    'success' => false,
+                    'error_code' => 1012,
                     'error_message' => 'user_email_or_name_exists',
                 ];
         }
@@ -94,7 +98,6 @@ class User
     public function delete_user(string $user_id, string $email, string $password)
     {
         if ($this->authentication->validate_password($user_id, $password)) {
-
             /* User Deletion */
             pg_prepare($this->dbconn, 'delete_user', 'DELETE FROM users WHERE id = $1 AND email = $2');
             $execute_prepared_statement = pg_execute($this->dbconn, 'delete_user', [$user_id, $email]);
@@ -117,8 +120,8 @@ class User
             }
         } else {
             return [
-                'success'       => false,
-                'error_code'    => 1002,
+                'success' => false,
+                'error_code' => 1002,
                 'error_message' => 'invalid_user_id_or_password',
             ];
         }
@@ -148,8 +151,8 @@ class User
             }
         } else {
             return [
-                'success'       => false,
-                'error_code'    => 1002,
+                'success' => false,
+                'error_code' => 1002,
                 'error_message' => 'invalid_user_id_or_password',
             ];
         }
@@ -161,7 +164,7 @@ class User
 
     public function user_set_password(string $user_id, string $old_password, string $new_password, bool $override = false)
     {
-        if ($override == true) {
+        if (true == $override) {
             pg_prepare($this->dbconn, 'update_password_ovr', 'UPDATE users SET password = $1 WHERE id = $2');
             $execute_prepared_statement = pg_execute($this->dbconn, 'update_password_ovr', [password_hash($new_password, PASSWORD_BCRYPT), $user_id]);
 
@@ -196,8 +199,8 @@ class User
                 }
             } else {
                 return [
-                    'success'       => false,
-                    'error_code'    => 1002,
+                    'success' => false,
+                    'error_code' => 1002,
                     'error_message' => 'invalid_user_id_or_password',
                 ];
             }
@@ -218,15 +221,15 @@ class User
                 return [
                     'success' => true,
                     'account' => [
-                        'id'   => $user_id,
+                        'id' => $user_id,
                         'tier' => $user_tier,
                     ],
                 ];
             }
         } else {
             return [
-                'success'       => false,
-                'error_code'    => 1009,
+                'success' => false,
+                'error_code' => 1009,
                 'error_message' => 'insufficient_permissions',
             ];
         }
@@ -243,7 +246,7 @@ class User
         $verification_id = Uuid::uuid4();
         $verification_id = $verification_id->toString();
 
-        if ($this->verification_created_pg == false) {
+        if (false == $this->verification_created_pg) {
             pg_prepare($this->dbconn, 'verification_created', 'INSERT INTO verification_emails (user_id, verification_id, email, used) VALUES ($1, $2, $3, false)');
             $this->verification_created_pg = true;
         }
@@ -281,7 +284,7 @@ class User
                 if ($execute_prepared_statement && $execute_prepared_statement_2) {
                     return [
                         'success' => true,
-                        'email'   => [
+                        'email' => [
                             'verified' => true,
                         ],
                     ];
@@ -290,7 +293,7 @@ class User
                 }
             } else {
                 return [
-                    'success'       => false,
+                    'success' => false,
                     'error_message' => 'already_verified_or_nonexistant',
                 ];
             }
@@ -307,7 +310,7 @@ class User
     {
         $this->prepared = false;
 
-        if ($this->prepared == false) {
+        if (false == $this->prepared) {
             $prepareStatement = pg_prepare($this->dbconn, 'get_user_by_api_key', 'SELECT * FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1 LIMIT 1)');
             $this->prepared = true;
         }
@@ -318,7 +321,7 @@ class User
             return pg_fetch_array($execute_prepared_statement);
         } else {
             return [
-                'success'       => false,
+                'success' => false,
                 'error_message' => 'no_user_data_found',
             ];
         }
@@ -333,7 +336,7 @@ class User
         $reset_id = Uuid::uuid4();
         $reset_id = $reset_id->toString();
 
-        if ($this->reset_created_fetch_user_pg == false) {
+        if (false == $this->reset_created_fetch_user_pg) {
             pg_prepare($this->dbconn, 'fetch_user_on_reset', 'SELECT * FROM users WHERE email = $1');
             $this->reset_created_fetch_user_pg = true;
         }
@@ -344,7 +347,7 @@ class User
         $this->sqreen->sqreen_track_password_reset();
 
         if (!is_null($user_fetch['id'])) {
-            if ($this->reset_created == false) {
+            if (false == $this->reset_created) {
                 pg_prepare($this->dbconn, 'reset_created', 'INSERT INTO password_resets (id, email, used) VALUES ($1, $2, false)');
                 $this->reset_created = true;
             }
@@ -383,26 +386,26 @@ class User
                 if (!is_null($fetch_user)) {
                     $reset_password = $this->user_set_password($fetch_user['id'], '', $password, true);
 
-                    if ($reset_password['success'] == true) {
+                    if (true == $reset_password['success']) {
                         pg_prepare($this->dbconn, 'reset_password_set_used', 'UPDATE password_resets SET used = true WHERE id = $1');
                         $execute_prepared_statement = pg_execute($this->dbconn, 'reset_password_set_used', [$reset_id]);
 
                         return [
-                            'success'  => true,
+                            'success' => true,
                             'password' => [
                                 'reset' => true,
                             ],
                         ];
                     } else {
                         return [
-                            'success'       => false,
+                            'success' => false,
                             'error_message' => 'user_not_found',
                         ];
                     }
                 }
             } else {
                 return [
-                    'success'       => false,
+                    'success' => false,
                     'error_message' => 'already_reset_or_nonexistant',
                 ];
             }

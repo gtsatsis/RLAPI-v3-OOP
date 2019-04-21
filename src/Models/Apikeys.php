@@ -11,11 +11,11 @@ use Symfony\Component\Dotenv\Dotenv;
 class Apikeys
 {
     private $dbconn;
+
     private $authentication;
 
     public function __construct()
     {
-
         /* Load the env file */
         $dotenv = new Dotenv();
         $dotenv->load(__DIR__.'/../../.env');
@@ -42,7 +42,7 @@ class Apikeys
                         'success' => true,
                         'api_key' => [
                             'created' => true,
-                            'key'     => $api_key,
+                            'key' => $api_key,
                         ],
                     ];
                 } else {
@@ -50,15 +50,15 @@ class Apikeys
                 }
             } else {
                 return [
-                    'success'       => false,
-                    'error_code'    => 101010,
+                    'success' => false,
+                    'error_code' => 101010,
                     'error_message' => 'maximum_allowed_keys_reached',
                 ];
             }
         } else {
             return [
-                'success'       => false,
-                'error_code'    => 1002,
+                'success' => false,
+                'error_code' => 1002,
                 'error_message' => 'invalid_user_id_or_password',
             ];
         }
@@ -83,8 +83,8 @@ class Apikeys
             }
         } else {
             return [
-                'success'       => false,
-                'error_code'    => 1002,
+                'success' => false,
+                'error_code' => 1002,
                 'error_message' => 'invalid_user_id_or_password',
             ];
         }
@@ -112,8 +112,8 @@ class Apikeys
             }
         } else {
             return [
-                'success'       => false,
-                'error_code'    => 1002,
+                'success' => false,
+                'error_code' => 1002,
                 'error_message' => 'invalid_user_id_or_password',
             ];
         }
@@ -146,8 +146,8 @@ class Apikeys
             }
         } else {
             return [
-                'success'       => false,
-                'error_code'    => 1002,
+                'success' => false,
+                'error_code' => 1002,
                 'error_message' => 'invalid_user_id_or_password',
             ];
         }
@@ -160,7 +160,7 @@ class Apikeys
     public function generate_api_key()
     {
         $unique = false;
-        while ($unique == false) {
+        while (false == $unique) {
             $api_key = Uuid::uuid4();
             $api_key = $api_key->toString();
 
@@ -168,7 +168,7 @@ class Apikeys
             $execute_prepared_statement = pg_execute($this->dbconn, 'check_if_api_key_exists', [$api_key]);
             $number_of_rows = pg_num_rows($execute_prepared_statement);
 
-            if ($number_of_rows == 0) {
+            if (0 == $number_of_rows) {
                 $unique = true;
             }
         }

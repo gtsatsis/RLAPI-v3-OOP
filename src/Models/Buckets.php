@@ -10,11 +10,11 @@ use Symfony\Component\Dotenv\Dotenv;
 class Buckets
 {
     private $dbconn;
+
     private $s3;
 
     public function __construct()
     {
-
         /* Load the env file */
         $dotenv = new Dotenv();
         $dotenv->load(__DIR__.'/../../.env');
@@ -26,10 +26,10 @@ class Buckets
 
         $this->s3 = new \Aws\S3\S3Client(
             [
-                'version'                 => 'latest', // Latest S3 version
-                'region'                  => 'us-east-1', // The service's region
-                'endpoint'                => getenv('S3_ENDPOINT'), // API to point to
-                'credentials'             => new \Aws\Credentials\Credentials(getenv('S3_API_KEY'), getenv('S3_API_SECRET')), // Credentials
+                'version' => 'latest', // Latest S3 version
+                'region' => 'us-east-1', // The service's region
+                'endpoint' => getenv('S3_ENDPOINT'), // API to point to
+                'credentials' => new \Aws\Credentials\Credentials(getenv('S3_API_KEY'), getenv('S3_API_SECRET')), // Credentials
                 'use_path_style_endpoint' => true, // Minio Compatible (https://minio.io)
             ]
         );
@@ -43,14 +43,14 @@ class Buckets
             if ($this->authentication->bucket_allowance($user_id)) {
                 $create_bucket = $this->s3->createBucket(['ACL' => 'public-read', 'Bucket' => $bucket_name, 'CreateBucketConfiguration' => ['LocationConstraint' => 'us-east-1']]);
 
-                if ($create_bucket != null) {
+                if (null != $create_bucket) {
                     pg_prepare($this->dbconn, 'insert_bucket', 'INSERT INTO buckets (user_id, bucket_name, allocated_domain) VALUES ($1, $2, $3)');
                     $execute_prepared_statement = pg_execute($this->dbconn, 'insert_bucket', [$user_id, $bucket_name, $allocated_domain]);
 
                     if ($execute_prepared_statement) {
                         return [
                                 'success' => true,
-                                'bucket'  => [
+                                'bucket' => [
                                     'location' => $create_bucket->get('Location'),
                                 ],
                             ];
@@ -62,15 +62,15 @@ class Buckets
                 }
             } else {
                 return [
-                    'success'       => false,
-                    'error_code'    => 1122,
+                    'success' => false,
+                    'error_code' => 1122,
                     'error_message' => 'private_bucket_allowance_reached',
                 ];
             }
         } else {
             return [
-                'success'       => false,
-                'error_code'    => 1002,
+                'success' => false,
+                'error_code' => 1002,
                 'error_message' => 'invalid_user_id_or_password',
             ];
         }
@@ -86,7 +86,7 @@ class Buckets
             if ($this->authentication->owns_bucket($user_id, $bucket_name)) {
                 $delete_bucket = $this->s3->deleteBucket(['Bucket' => $bucket_name]);
 
-                if ($delete_bucket != null) {
+                if (null != $delete_bucket) {
                     pg_prepare($this->dbconn, 'delete_bucket', 'DELETE FROM buckets WHERE bucket_name = $1');
                     $execute_prepared_statement = pg_execute($this->dbconn, 'delete_bucket', [$bucket_name]);
 
@@ -100,15 +100,15 @@ class Buckets
                 }
             } else {
                 return [
-                    'success'       => false,
-                    'error_code'    => 1100,
+                    'success' => false,
+                    'error_code' => 1100,
                     'error_message' => 'unauthorized_not_owner',
                 ];
             }
         } else {
             return [
-                'success'       => false,
-                'error_code'    => 1002,
+                'success' => false,
+                'error_code' => 1002,
                 'error_message' => 'invalid_user_id_or_password',
             ];
         }
@@ -124,7 +124,7 @@ class Buckets
                 if ($execute_prepared_statement) {
                     return [
                         'success' => true,
-                        'bucket'  => [
+                        'bucket' => [
                             $bucket => [
                                 'domain' => $domain,
                             ],
@@ -134,15 +134,15 @@ class Buckets
                 }
             } else {
                 return [
-                    'success'       => false,
-                    'error_code'    => 1100,
+                    'success' => false,
+                    'error_code' => 1100,
                     'error_message' => 'unauthorized_not_owner',
                 ];
             }
         } else {
             return [
-                'success'       => false,
-                'error_code'    => 1002,
+                'success' => false,
+                'error_code' => 1002,
                 'error_message' => 'invalid_user_id_or_password',
             ];
         }
