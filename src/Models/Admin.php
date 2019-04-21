@@ -11,12 +11,13 @@ use Symfony\Component\Dotenv\Dotenv;
 class Admin
 {
     private $dbconn;
+
     private $authentication;
+
     private $sqreen;
 
     public function __construct()
     {
-
         /* Load the env file */
         $dotenv = new Dotenv();
         $dotenv->load(__DIR__.'/../../.env');
@@ -38,7 +39,6 @@ class Admin
             $user = pg_fetch_array($execute_prepared_statement);
 
             if ($this->authentication->validate_password($user['user_id'], $password)) {
-
                 /* User Deletion */
                 pg_prepare($this->dbconn, 'delete_user', 'DELETE FROM users WHERE id = $1 AND email = $2');
                 $execute_prepared_statement = pg_execute($this->dbconn, 'delete_user', [$user_id, $email]);
@@ -61,13 +61,13 @@ class Admin
                 }
             } else {
                 return [
-                    'success'       => false,
+                    'success' => false,
                     'error_message' => 'access_denied',
                 ];
             }
         } else {
             return [
-                    'success'       => false,
+                    'success' => false,
                     'error_message' => 'access_denied',
             ];
         }
@@ -97,13 +97,13 @@ class Admin
                 ];
             } else {
                 return [
-                    'success'       => false,
+                    'success' => false,
                     'error_message' => 'access_denied',
                 ];
             }
         } else {
             return [
-                'success'       => false,
+                'success' => false,
                 'error_message' => 'access_denied',
             ];
         }
@@ -133,13 +133,13 @@ class Admin
                 ];
             } else {
                 return [
-                    'success'       => false,
+                    'success' => false,
                     'error_message' => 'access_denied',
                 ];
             }
         } else {
             return [
-                'success'       => false,
+                'success' => false,
                 'error_message' => 'access_denied',
             ];
         }
@@ -168,13 +168,13 @@ class Admin
                 ];
             } else {
                 return [
-                    'success'       => false,
+                    'success' => false,
                     'error_message' => 'access_denied',
                 ];
             }
         } else {
             return [
-                'success'       => false,
+                'success' => false,
                 'error_message' => 'access_denied',
             ];
         }

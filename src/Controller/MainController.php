@@ -40,7 +40,7 @@ class MainController extends AbstractController
     {
         $response = new Response(json_encode([
             'success' => 'true',
-            'code'    => 200,
+            'code' => 200,
         ]));
 
         $response->headers->set('Content-Type', 'application/json');
