@@ -10,7 +10,6 @@ class Mailer
 {
     public function __construct()
     {
-
         /* Load the env file */
         $dotenv = new Dotenv();
         $dotenv->load(__DIR__.'/../../.env');
@@ -37,8 +36,8 @@ class Mailer
                         $twig->render(
                                 'emails/verify.html.twig',
                                 [
-                                    'username'        => $username,
-                                    'user_id'         => $user_id,
+                                    'username' => $username,
+                                    'user_id' => $user_id,
                                     'verification_id' => $verification_id,
                                 ]
                         ),
