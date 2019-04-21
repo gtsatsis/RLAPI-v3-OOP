@@ -20,7 +20,6 @@ class FileUtils
 
     public function generateFileName($extension)
     {
-
         // Generate a random name
         $fileName = substr(str_shuffle(str_repeat(getenv('FILENAME_DICTIONARY'), getenv('FILENAME_LENGTH'))), 0, getenv('FILENAME_LENGTH'));
 
@@ -34,7 +33,7 @@ class FileUtils
     {
         $headers = get_headers($s3Endpoint.$filename);
 
-        if (substr($headers[0], 9, 3) == '404') {
+        if ('404' == substr($headers[0], 9, 3)) {
             return true;
         }
 

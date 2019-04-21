@@ -8,7 +8,6 @@ class SqreenLib
 {
     public function __construct()
     {
-
         /* Load the env file */
         $dotenv = new Dotenv();
         $dotenv->load(__DIR__.'/../../.env');
