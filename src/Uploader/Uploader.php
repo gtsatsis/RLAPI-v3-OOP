@@ -3,8 +3,8 @@
 namespace App\Uploader;
 
 use App\Models\User;
-use App\Utils\FileUtils;
 use App\Utils\Auth;
+use App\Utils\FileUtils;
 use Symfony\Component\Dotenv\Dotenv;
 
 class Uploader

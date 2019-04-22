@@ -4,9 +4,9 @@ namespace App\Models;
 
 require_once __DIR__.'/../../vendor/autoload.php';
 
+use App\Utils\Auth;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Dotenv\Dotenv;
-use App\Utils\Auth;
 
 class Apikeys
 {
@@ -166,6 +166,7 @@ class Apikeys
 
             pg_prepare($this->dbconn, 'check_if_api_key_exists', 'SELECT * FROM tokens WHERE token = $1');
             $execute_prepared_statement = pg_execute($this->dbconn, 'check_if_api_key_exists', array($api_key));
+
             $number_of_rows = pg_num_rows($execute_prepared_statement);
 
             if (0 == $number_of_rows) {

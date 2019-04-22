@@ -4,10 +4,10 @@ namespace App\Controller;
 
 require_once __DIR__.'/../../vendor/autoload.php';
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\Response;
 use App\Models\Domains;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class MainController extends AbstractController
 {

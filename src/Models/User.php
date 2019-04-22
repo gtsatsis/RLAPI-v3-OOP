@@ -4,12 +4,12 @@ namespace App\Models;
 
 require_once __DIR__.'/../../vendor/autoload.php';
 
-use Ramsey\Uuid\Uuid;
-use Symfony\Component\Dotenv\Dotenv;
 use App\Utils\Auth;
+use App\Utils\Getters;
 use App\Utils\Mailer;
 use App\Utils\SqreenLib;
-use App\Utils\Getters;
+use Ramsey\Uuid\Uuid;
+use Symfony\Component\Dotenv\Dotenv;
 
 class User
 {
@@ -70,7 +70,6 @@ class User
                         ];
                     } else {
                         pg_prepare($this->dbconn, 'create_user', 'INSERT INTO users (id, username, password, email, tier, is_admin, is_blocked, verified) VALUES ($1, $2, $3, $4, $5, false, false, false)');
-
                         $execute_prepared_statement = pg_execute($this->dbconn, 'create_user', array($user_id, $username, $password, $email, $promo_results['promo_tier']));
 
                         if ($execute_prepared_statement) {
@@ -96,7 +95,6 @@ class User
                     }
                 } else {
                     pg_prepare($this->dbconn, 'create_user', "INSERT INTO users (id, username, password, email, tier, is_admin, is_blocked, verified) VALUES ($1, $2, $3, $4, 'free', false, false, false)");
-
                     $execute_prepared_statement = pg_execute($this->dbconn, 'create_user', array($user_id, $username, $password, $email));
 
                     if ($execute_prepared_statement) {
@@ -145,6 +143,7 @@ class User
             /* User Deletion */
             pg_prepare($this->dbconn, 'delete_user', 'DELETE FROM users WHERE id = $1 AND email = $2');
             $execute_prepared_statement = pg_execute($this->dbconn, 'delete_user', array($user_id, $email));
+          
             if ($execute_prepared_statement) {
                 $this->sqreen->sqreen_track_user_deletion();
 
@@ -384,6 +383,7 @@ class User
             pg_prepare($this->dbconn, 'fetch_user_on_reset', 'SELECT * FROM users WHERE email = $1');
             $this->reset_created_fetch_user_pg = true;
         }
+
         $execute_prepared_statement = pg_execute($this->dbconn, 'fetch_user_on_reset', array($user_email));
 
         $user_fetch = pg_fetch_array($execute_prepared_statement);
@@ -395,6 +395,7 @@ class User
                 pg_prepare($this->dbconn, 'reset_created', 'INSERT INTO password_resets (id, email, used) VALUES ($1, $2, false)');
                 $this->reset_created = true;
             }
+          
             $execute_prepared_statement = pg_execute($this->dbconn, 'reset_created', array($reset_id, $user_email));
 
             if ($execute_prepared_statement) {

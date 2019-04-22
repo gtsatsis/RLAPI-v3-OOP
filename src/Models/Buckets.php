@@ -4,8 +4,8 @@ namespace App\Models;
 
 require_once __DIR__.'/../../vendor/autoload.php';
 
-use Symfony\Component\Dotenv\Dotenv;
 use App\Utils\Auth;
+use Symfony\Component\Dotenv\Dotenv;
 
 class Buckets
 {

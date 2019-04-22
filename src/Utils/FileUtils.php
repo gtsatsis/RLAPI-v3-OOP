@@ -2,8 +2,8 @@
 
 namespace App\Utils;
 
-use Symfony\Component\Dotenv\Dotenv;
 use App\Models\User;
+use Symfony\Component\Dotenv\Dotenv;
 
 class FileUtils
 {

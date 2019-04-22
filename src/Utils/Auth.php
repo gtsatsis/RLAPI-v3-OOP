@@ -4,8 +4,8 @@ namespace App\Utils;
 
 require_once __DIR__.'/../../vendor/autoload.php';
 
-use Symfony\Component\Dotenv\Dotenv;
 use App\Models\User;
+use Symfony\Component\Dotenv\Dotenv;
 
 class Auth
 {
@@ -29,6 +29,7 @@ class Auth
     {
         pg_prepare($this->dbconn, 'get_user', 'SELECT * FROM users WHERE id = $1');
         $execute_prepared_statement = pg_execute($this->dbconn, 'get_user', array($user_id));
+      
         $user = pg_fetch_array($execute_prepared_statement);
 
         if (password_verify($password, $user['password']) && 't' == $user['verified']) {
@@ -74,11 +75,13 @@ class Auth
     public function bucket_allowance(string $user_id)
     {
         pg_prepare($this->dbconn, 'get_bucket_allowance', 'SELECT bucket_limit FROM tiers WHERE tier = (SELECT tier FROM users WHERE id = $1)');
+
         $execute_prepared_statement = pg_execute($this->dbconn, 'get_bucket_allowance', array($user_id));
         $bucket_allowance = pg_fetch_array($execute_prepared_statement);
 
         pg_prepare($this->dbconn, 'get_current_buckets', 'SELECT COUNT(*) FROM buckets WHERE user_id = $1');
         $execute_prepared_statement = pg_execute($this->dbconn, 'get_current_buckets', array($user_id));
+
         $current_buckets = pg_fetch_array($execute_prepared_statement);
 
         if ($bucket_allowance[0] >= $current_buckets[0]) {
@@ -96,6 +99,7 @@ class Auth
 
         pg_prepare($this->dbconn, 'get_current_api_keys', 'SELECT COUNT(*) FROM tokens WHERE user_id = $1');
         $execute_prepared_statement = pg_execute($this->dbconn, 'get_current_api_keys', array($user_id));
+
         $current_api_keys = pg_fetch_array($execute_prepared_statement);
 
         if ($current_api_keys[0] >= $api_key_allownace[0]) {
@@ -114,6 +118,7 @@ class Auth
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, array('secret' => getenv('RECAPTCHA_SECRET'), 'response' => $recaptcha));
+
         $response = curl_exec($ch);
         curl_close($ch);
         $data = json_decode($response);

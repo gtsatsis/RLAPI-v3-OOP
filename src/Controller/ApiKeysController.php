@@ -4,12 +4,12 @@ namespace App\Controller;
 
 require_once __DIR__.'/../../vendor/autoload.php';
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Request;
 use App\Models\Apikeys;
 use App\Utils\Auth;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class ApiKeysController extends AbstractController
 {
@@ -31,6 +31,7 @@ class ApiKeysController extends AbstractController
 
             return $response;
         } else {
+
             $response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
             $response->headers->set('Content-Type', 'application/json');
 
@@ -57,12 +58,14 @@ class ApiKeysController extends AbstractController
 
                 return $response;
             } else {
+              
                 $response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
             }
         } else {
+
             $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
             $response->headers->set('Content-Type', 'application/json');
 
@@ -89,12 +92,14 @@ class ApiKeysController extends AbstractController
 
                 return $response;
             } else {
+
                 $response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
             }
         } else {
+<
             $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
             $response->headers->set('Content-Type', 'application/json');
 
@@ -121,12 +126,14 @@ class ApiKeysController extends AbstractController
 
                 return $response;
             } else {
+
                 $response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
             }
         } else {
+
             $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
             $response->headers->set('Content-Type', 'application/json');
 
@@ -153,12 +160,14 @@ class ApiKeysController extends AbstractController
 
                 return $response;
             } else {
+
                 $response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
             }
         } else {
+
             $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
             $response->headers->set('Content-Type', 'application/json');
 

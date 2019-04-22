@@ -4,10 +4,9 @@ namespace App\Models;
 
 require_once __DIR__.'/../../vendor/autoload.php';
 
-use Ramsey\Uuid\Uuid;
-use Symfony\Component\Dotenv\Dotenv;
 use App\Utils\Auth;
 use App\Utils\SqreenLib;
+use Symfony\Component\Dotenv\Dotenv;
 
 class Admin
 {
@@ -43,6 +42,7 @@ class Admin
                 /* User Deletion */
                 pg_prepare($this->dbconn, 'delete_user', 'DELETE FROM users WHERE id = $1 AND email = $2');
                 $execute_prepared_statement = pg_execute($this->dbconn, 'delete_user', array($user_id, $email));
+              
                 if ($execute_prepared_statement) {
                     $this->sqreen->sqreen_track_user_deletion();
 
@@ -83,6 +83,7 @@ class Admin
             $user = pg_fetch_array($execute_prepared_statement);
 
             if ($this->authentication->validate_password($user['user_id'], $password)) {
+
                 pg_prepare($this->dbconn, 'verify_user_force', 'SELECT * FROM users WHERE verified = false AND email = $1');
                 $execute_prepared_statement = pg_execute($this->dbconn, 'verify_user_force', array($email));
 
@@ -91,6 +92,7 @@ class Admin
                 $user = new User();
 
                 $user->user_send_verify_email($users['email'], $users['id'], $users['username']);
+
 
                 return [
                     'success' => true,
@@ -118,9 +120,11 @@ class Admin
             $user = pg_fetch_array($execute_prepared_statement);
 
             if ($this->authentication->validate_password($user['user_id'], $password)) {
+
                 $execute_statement = pg_query($this->dbconn, 'SELECT * FROM promo_codes WHERE expired = false');
 
                 return pg_fetch_all($execute_statement);
+
             } else {
                 return [
                     'success' => false,
@@ -144,6 +148,7 @@ class Admin
             $user = pg_fetch_array($execute_prepared_statement);
 
             if ($this->authentication->validate_password($user['user_id'], $password)) {
+
                 $promo_id = Uuid::uuid4();
                 $promo_id = $promo_id->toString();
                 pg_prepare($this->dbconn, 'create_promo', 'INSERT INTO promo_codes (id, code, max_uses, promo_tier, expired) VALUES ($1, $2, $3, $4, false)');
@@ -158,6 +163,7 @@ class Admin
                         'promo_tier' => $promo_tier,
                         'status' => 'active',
                     ],
+
                 ];
             } else {
                 return [
@@ -172,4 +178,21 @@ class Admin
             ];
         }
     }
+
+    public function get_all_active_promos($api_key, $password)
+    {
+        if ($this->authentication->api_key_is_admin($api_key)) {
+            pg_prepare($this->dbconn, 'verify_user_emails_get_user', 'SELECT user_id FROM tokens WHERE token = $1');
+            $execute_prepared_statement = pg_execute($this->dbconn, 'verify_user_emails_get_user', [$api_key]);
+
+            $user = pg_fetch_array($execute_prepared_statement);
+
+            if ($this->authentication->validate_password($user['user_id'], $password)) {
+                $execute_statement = pg_query($this->dbconn, 'SELECT * FROM promo_codes WHERE expired = false');
+
+                return pg_fetch_all($execute_statement);
+            }
+        }
+    }
+
 }
