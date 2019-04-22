@@ -29,7 +29,7 @@ class Auth
     {
         pg_prepare($this->dbconn, 'get_user', 'SELECT * FROM users WHERE id = $1');
         $execute_prepared_statement = pg_execute($this->dbconn, 'get_user', array($user_id));
-      
+
         $user = pg_fetch_array($execute_prepared_statement);
 
         if (password_verify($password, $user['password']) && 't' == $user['verified']) {

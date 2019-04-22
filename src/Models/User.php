@@ -143,7 +143,7 @@ class User
             /* User Deletion */
             pg_prepare($this->dbconn, 'delete_user', 'DELETE FROM users WHERE id = $1 AND email = $2');
             $execute_prepared_statement = pg_execute($this->dbconn, 'delete_user', array($user_id, $email));
-          
+
             if ($execute_prepared_statement) {
                 $this->sqreen->sqreen_track_user_deletion();
 
@@ -395,7 +395,7 @@ class User
                 pg_prepare($this->dbconn, 'reset_created', 'INSERT INTO password_resets (id, email, used) VALUES ($1, $2, false)');
                 $this->reset_created = true;
             }
-          
+
             $execute_prepared_statement = pg_execute($this->dbconn, 'reset_created', array($reset_id, $user_email));
 
             if ($execute_prepared_statement) {
