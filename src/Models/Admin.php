@@ -226,8 +226,8 @@ class Admin {
 
 		if($this->authentication->api_key_is_admin($api_key)){
 
-			pg_prepare($this->dbconn, "verify_user_emails_get_user", "SELECT user_id FROM tokens WHERE token = $1");
-			$execute_prepared_statement = pg_execute($this->dbconn, "verify_user_emails_get_user", array($api_key));
+			pg_prepare($this->dbconn, "get_active_promos_get_user", "SELECT user_id FROM tokens WHERE token = $1");
+			$execute_prepared_statement = pg_execute($this->dbconn, "get_active_promos_get_user", array($api_key));
 
 			$user = pg_fetch_array($execute_prepared_statement);
 
@@ -237,9 +237,58 @@ class Admin {
 
 				return pg_fetch_all($execute_statement);  
 
-			}
-		}
+			}else{
+                return [
+                    'success' => false,
+                    'error_message' => 'access_denied'
+                ];
+            }
+		}else{
+            return [
+                'success' => false,
+                'error_message' => 'access_denied'
+            ];
+        }
 
 	}
+
+    public function create_promo($api_key, $password, $promo_code, $promo_max_uses, $promo_tier){
+        if($this->authentication->api_key_is_admin($api_key)){
+
+            pg_prepare($this->dbconn, "create_promo_get_user", "SELECT user_id FROM tokens WHERE token = $1");
+            $execute_prepared_statement = pg_execute($this->dbconn, "create_promo_get_user", array($api_key));
+
+            $user = pg_fetch_array($execute_prepared_statement);
+
+            if($this->authentication->validate_password($user['user_id'], $password)){
+                
+                pg_prepare($this->dbconn, "create_promo", "INSERT INTO promo_codes (id, code, max_uses, promo_tier, expired) VALUES ($1, $2, $3, $4, false)");
+                pg_execute($this->dbconn, "create_promo", array($promo_id, $promo_code, $promo_max_uses, $promo_tier));
+
+                return [
+                    'success' => true,
+                    'promo' => [
+                        'id' => $promo_id,
+                        'promo_code' => $promo_code.
+                        'promo_max_uses' => $promo_max_uses,
+                        'promo_tier' => $promo_tier,
+                        'status' => 'active'
+                    ]
+                ];
+
+            }else{
+                return [
+                    'success' => false,
+                    'error_message' => 'access_denied'
+                ];
+            }
+
+        }else{
+            return [
+                'success' => false,
+                'error_message' => 'access_denied'
+            ];
+        }
+    }
 }
 ?>
