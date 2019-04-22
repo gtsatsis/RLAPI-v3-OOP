@@ -172,20 +172,4 @@ class Admin
             ];
         }
     }
-
-    public function get_all_active_promos($api_key, $password)
-    {
-        if ($this->authentication->api_key_is_admin($api_key)) {
-            pg_prepare($this->dbconn, 'verify_user_emails_get_user', 'SELECT user_id FROM tokens WHERE token = $1');
-            $execute_prepared_statement = pg_execute($this->dbconn, 'verify_user_emails_get_user', [$api_key]);
-
-            $user = pg_fetch_array($execute_prepared_statement);
-
-            if ($this->authentication->validate_password($user['user_id'], $password)) {
-                $execute_statement = pg_query($this->dbconn, 'SELECT * FROM promo_codes WHERE expired = false');
-
-                return pg_fetch_all($execute_statement);
-            }
-        }
-    }
 }
