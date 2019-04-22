@@ -179,7 +179,7 @@ class Admin {
                     'success' => true,
                     'promo' => [
                         'id' => $promo_id,
-                        'promo_code' => $promo_code.
+                        'promo_code' => $promo_code,
                         'promo_max_uses' => $promo_max_uses,
                         'promo_tier' => $promo_tier,
                         'status' => 'active'
