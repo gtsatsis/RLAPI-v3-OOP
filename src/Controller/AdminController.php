@@ -14,74 +14,12 @@ use Symfony\Component\Routing\Annotation\Route;
 class AdminController extends AbstractController
 {
     /**
-     * Matches /admin/migration/password_reset_all exactly.
+
+     * Matches /admin/verify_email exactly.
      *
-     * @Route("/admin/migration/password_reset_all", name="password_reset_all")
+     * @Route("/admin/verify_email", name="verify_email")
      */
-    public function password_reset_all(Request $request)
-    {
-        $admin = new Admin();
-        $auth = new Auth();
 
-        if ($request->request->has('api_key') && $request->request->has('password')) {
-            if ($auth->isValidUUID($request->request->get('api_key'))) {
-                $password_reset_all = $admin->password_reset_all_migration($request->request->get('api_key'), $request->request->get('password'));
-
-                $response = new Response(json_encode($password_reset_all));
-                $response->headers->set('Content-Type', 'application/json');
-
-                return $response;
-            } else {
-                $response = new Response(json_encode(['success' => false, 'error_code' => 1083]));
-                $response->headers->set('Content-Type', 'application/json');
-
-                return $response;
-            }
-        } else {
-            $response = new Response(json_encode(['success' => false, 'error_code' => 1082]));
-            $response->headers->set('Content-Type', 'application/json');
-
-            return $response;
-        }
-    }
-
-    /**
-     * Matches /admin/migration/verify_all_emails exactly.
-     *
-     * @Route("/admin/migration/verify_all_emails", name="verify_all_emails")
-     */
-    public function verify_all_emails(Request $request)
-    {
-        $admin = new Admin();
-        $auth = new Auth();
-
-        if ($request->request->has('api_key') && $request->request->has('password')) {
-            if ($auth->isValidUUID($request->request->get('api_key'))) {
-                $verify_all_emails = $admin->verify_all_emails_migration($request->request->get('api_key'), $request->request->get('password'));
-
-                $response = new Response(json_encode($verify_all_emails));
-                $response->headers->set('Content-Type', 'application/json');
-
-                return $response;
-            } else {
-                $response = new Response(json_encode(['success' => false, 'error_code' => 1083]));
-                $response->headers->set('Content-Type', 'application/json');
-
-                return $response;
-            }
-        } else {
-            $response = new Response(json_encode(['success' => false, 'error_code' => 1082]));
-            $response->headers->set('Content-Type', 'application/json');
-
-            return $response;
-        }
-    }
-
-    /**
-     * Matches /admin/migration/verify_email exactly.
-     *
-     * @Route("/admin/migration/verify_email", name="verify_email")
-     */
     public function verify_email(Request $request)
     {
         $admin = new Admin();
@@ -96,13 +34,15 @@ class AdminController extends AbstractController
 
                 return $response;
             } else {
-                $response = new Response(json_encode(['success' => false, 'error_code' => 1083]));
+
+                $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
             }
         } else {
-            $response = new Response(json_encode(['success' => false, 'error_code' => 1082]));
+
+            $response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
             $response->headers->set('Content-Type', 'application/json');
 
             return $response;
@@ -128,13 +68,15 @@ class AdminController extends AbstractController
 
                 return $response;
             } else {
-                $response = new Response(json_encode(['success' => false, 'error_code' => 1083]));
+
+                $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
             }
         } else {
-            $response = new Response(json_encode(['success' => false, 'error_code' => 1082]));
+
+            $response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
             $response->headers->set('Content-Type', 'application/json');
 
             return $response;
@@ -160,13 +102,47 @@ class AdminController extends AbstractController
 
                 return $response;
             } else {
-                $response = new Response(json_encode(['success' => false, 'error_code' => 1083]));
+
+                $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
             }
         } else {
-            $response = new Response(json_encode(['success' => false, 'error_code' => 1082]));
+
+            $response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
+    }
+
+    /**
+     * Matches /admin/promos/create exactly.
+     *
+     * @Route("/admin/promos/create", name="create_promo")
+     */
+    public function create_promo(Request $request)
+    {
+        $admin = new Admin();
+        $auth = new Auth();
+
+        if ($request->request->has('api_key') && $request->request->has('password') && $request->request->has('promo_code') && $request->request->has('promo_max_uses') && $request->request->has('promo_tier')) {
+            if ($auth->isValidUUID($request->request->get('api_key'))) {
+                $create_promo = $admin->create_promo($request->request->get('api_key'), $request->request->get('password'), $request->request->get('promo_code'), $request->request->get('promo_max_uses'), $request->request->get('promo_tier'));
+
+                $response = new Response(json_encode($create_promo));
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+            } else {
+                $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+            }
+        } else {
+            $response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
             $response->headers->set('Content-Type', 'application/json');
 
             return $response;

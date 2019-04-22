@@ -35,7 +35,7 @@ class Apikeys
                 $api_key = $this->generate_api_key();
 
                 pg_prepare($this->dbconn, 'insert_api_key', 'INSERT INTO tokens (user_id, token, name) VALUES ($1, $2, $3)');
-                $execute_prepared_statement = pg_execute($this->dbconn, 'insert_api_key', [$user_id, $api_key, $api_key_name]);
+                $execute_prepared_statement = pg_execute($this->dbconn, 'insert_api_key', array($user_id, $api_key, $api_key_name));
 
                 if ($execute_prepared_statement) {
                     return [
@@ -72,7 +72,7 @@ class Apikeys
     {
         if ($this->authentication->validate_password($user_id, $password)) {
             pg_prepare($this->dbconn, 'delete_api_key', 'DELETE FROM tokens WHERE user_id = $1 AND token = $2');
-            $execute_prepared_statement = pg_execute($this->dbconn, 'delete_api_key', [$user_id, $api_key]);
+            $execute_prepared_statement = pg_execute($this->dbconn, 'delete_api_key', array($user_id, $api_key));
 
             if ($execute_prepared_statement) {
                 return [
@@ -98,7 +98,7 @@ class Apikeys
     {
         if ($this->authentication->validate_password($user_id, $password)) {
             pg_prepare($this->dbconn, 'rename_api_key', 'UPDATE tokens SET name = $1 WHERE token = $2');
-            $execute_prepared_statement = pg_execute($this->dbconn, 'rename_api_key', [$api_key_name, $api_key]);
+            $execute_prepared_statement = pg_execute($this->dbconn, 'rename_api_key', array($api_key_name, $api_key));
 
             if ($execute_prepared_statement) {
                 return [
@@ -132,7 +132,7 @@ class Apikeys
                 $new_api_key = $this->generate_api_key();
 
                 pg_prepare($this->dbconn, 'regen_api_key', 'UPDATE tokens SET token = $1 WHERE token = $2 AND user_id = $3');
-                $execute_prepared_statement = pg_execute($this->dbconn, 'regen_api_key', [$new_api_key, $api_key, $user_id]);
+                $execute_prepared_statement = pg_execute($this->dbconn, 'regen_api_key', array($new_api_key, $api_key, $user_id));
 
                 if ($execute_prepared_statement) {
                     return [
@@ -165,7 +165,8 @@ class Apikeys
             $api_key = $api_key->toString();
 
             pg_prepare($this->dbconn, 'check_if_api_key_exists', 'SELECT * FROM tokens WHERE token = $1');
-            $execute_prepared_statement = pg_execute($this->dbconn, 'check_if_api_key_exists', [$api_key]);
+            $execute_prepared_statement = pg_execute($this->dbconn, 'check_if_api_key_exists', array($api_key));
+
             $number_of_rows = pg_num_rows($execute_prepared_statement);
 
             if (0 == $number_of_rows) {
@@ -183,7 +184,7 @@ class Apikeys
     public function get_api_key_exists($api_key)
     {
         pg_prepare($this->dbconn, 'api_key_exists', 'SELECT token FROM tokens WHERE token = $1');
-        $execute_prepared_statement = pg_execute($this->dbconn, 'api_key_exists', [$api_key]);
+        $execute_prepared_statement = pg_execute($this->dbconn, 'api_key_exists', array($api_key));
         $api_key_exists = pg_fetch_array($execute_prepared_statement);
 
         return $api_key_exists[0];
@@ -194,7 +195,7 @@ class Apikeys
     public function create_user_api_key_email_auth(string $email, string $api_key_name, string $password)
     {
         pg_prepare($this->dbconn, 'get_user_id_api_key_create_email_auth', 'SELECT id FROM users WHERE email = $1');
-        $execute_prepared_statement = pg_execute($this->dbconn, 'get_user_id_api_key_create_email_auth', [$email]);
+        $execute_prepared_statement = pg_execute($this->dbconn, 'get_user_id_api_key_create_email_auth', array($email));
 
         $user_info = pg_fetch_array($execute_prepared_statement);
         $user_id = $user_info['id'];
@@ -204,7 +205,7 @@ class Apikeys
                 $api_key = $this->generate_api_key();
 
                 pg_prepare($this->dbconn, 'insert_api_key', 'INSERT INTO tokens (user_id, token, name) VALUES ($1, $2, $3)');
-                $execute_prepared_statement = pg_execute($this->dbconn, 'insert_api_key', [$user_id, $api_key, $api_key_name]);
+                $execute_prepared_statement = pg_execute($this->dbconn, 'insert_api_key', array($user_id, $api_key, $api_key_name));
 
                 if ($execute_prepared_statement) {
                     return [

@@ -24,7 +24,8 @@ class UserController extends AbstractController
 
         if ($request->request->has('username') && $request->request->has('password') && $request->request->has('email')) {
             if ($request->request->has('promo_code')) {
-                $createUser = $users->create_user($request->request->get('username'), $request->request->get('password'), $request->request->get('email'), ['promo_code' => $request->request->get('promo_code')]);
+
+                $createUser = $users->create_user($request->request->get('username'), $request->request->get('password'), $request->request->get('email'), array('promo_code' => $request->request->get('promo_code')));
 
                 $response = new Response(json_encode($createUser));
                 $response->headers->set('Content-Type', 'application/json');
@@ -39,7 +40,8 @@ class UserController extends AbstractController
                 return $response;
             }
         } else {
-            $response = new Response(json_encode(['success' => false, 'error_code' => 1082]));
+
+            $response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
             $response->headers->set('Content-Type', 'application/json');
 
             return $response;
@@ -62,13 +64,15 @@ class UserController extends AbstractController
 
                 return new Response(json_encode($deleteUser));
             } else {
-                $response = new Response(json_encode(['success' => false, 'error_code' => 1082]));
+              
+                $response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
             }
         } else {
-            $response = new Response(json_encode(['success' => false, 'error_code' => 1083]));
+
+            $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
             $response->headers->set('Content-Type', 'application/json');
 
             return $response;
@@ -91,10 +95,11 @@ class UserController extends AbstractController
 
                 return new Response(json_encode($setTier));
             } else {
-                return new Response(json_encode(['success' => false, 'error_code' => 1082]));
+
+                return new Response(json_encode(array('success' => false, 'error_code' => 1082)));
             }
         } else {
-            return new Response(json_encode(['success' => false, 'error_code' => 1083]));
+            return new Response(json_encode(array('success' => false, 'error_code' => 1083)));
         }
     }
 
@@ -112,13 +117,15 @@ class UserController extends AbstractController
             if ($request->request->has('password') && $request->request->has('newEmail')) {
                 $users->user_set_email($id, $request->request->get('newEmail'), $request->request->get('password'));
             } else {
-                $response = new Response(json_encode(['success' => false, 'error_code' => 1082]));
+              
+                $response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
             }
         } else {
-            $response = new Response(json_encode(['success' => false, 'error_code' => 1083]));
+
+            $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
             $response->headers->set('Content-Type', 'application/json');
 
             return $response;
@@ -144,13 +151,15 @@ class UserController extends AbstractController
 
                 return $response;
             } else {
-                $response = new Response(json_encode(['success' => false, 'error_code' => 1082]));
+
+                $response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
             }
         } else {
-            $response = new Response(json_encode(['success' => false, 'error_code' => 1083]));
+
+            $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
             $response->headers->set('Content-Type', 'application/json');
 
             return $response;
@@ -177,13 +186,15 @@ class UserController extends AbstractController
 
                 return $response;
             } else {
-                $response = new Response(json_encode(['success' => false, 'error_code' => 1082]));
+              
+                $response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
             }
         } else {
-            $response = new Response(json_encode(['success' => false, 'error_code' => 1083]));
+
+            $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
             $response->headers->set('Content-Type', 'application/json');
 
             return $response;
@@ -209,7 +220,7 @@ class UserController extends AbstractController
 
             return $response;
         } else {
-            $response = new Response(json_encode(['success' => false, 'error_code' => 1082]));
+            $response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
             $response->headers->set('Content-Type', 'application/json');
 
             return $response;
@@ -237,13 +248,13 @@ class UserController extends AbstractController
 
                 return $response;
             } else {
-                $response = new Response(json_encode(['success' => false, 'error_code' => 1082]));
+                $response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
             }
         } else {
-            $response = new Response(json_encode(['success' => false, 'error_code' => 1083]));
+            $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
             $response->headers->set('Content-Type', 'application/json');
 
             return $response;
@@ -263,12 +274,13 @@ class UserController extends AbstractController
         if ($auth->isValidUUID($id)) {
             $get_uploads = $user->get_user_uploads($id);
 
+
             $response = new Response(json_encode($get_uploads));
             $response->headers->set('Content-Type', 'application/json');
 
             return $response;
         } else {
-            $response = new Response(json_encode(['success' => false, 'error_code' => 1083]));
+            $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
             $response->headers->set('Content-Type', 'application/json');
 
             return $response;

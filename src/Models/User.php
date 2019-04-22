@@ -54,7 +54,7 @@ class User
 
                 if (true == getenv('PROMOS') && !is_null($optional_params['promo_code'])) {
                     pg_prepare($this->dbconn, 'fetch_promo_code', 'SELECT * FROM promo_codes WHERE code = $1 AND expired = false');
-                    $execute_prepared_statement = pg_execute($this->dbconn, 'fetch_promo_code', [$optional_params['promo_code']]);
+                    $execute_prepared_statement = pg_execute($this->dbconn, 'fetch_promo_code', array($optional_params['promo_code']));
 
                     $promo_results = pg_fetch_array($execute_prepared_statement);
 
@@ -70,8 +70,7 @@ class User
                         ];
                     } else {
                         pg_prepare($this->dbconn, 'create_user', 'INSERT INTO users (id, username, password, email, tier, is_admin, is_blocked, verified) VALUES ($1, $2, $3, $4, $5, false, false, false)');
-
-                        $execute_prepared_statement = pg_execute($this->dbconn, 'create_user', [$user_id, $username, $password, $email, $promo_results['promo_tier']]);
+                        $execute_prepared_statement = pg_execute($this->dbconn, 'create_user', array($user_id, $username, $password, $email, $promo_results['promo_tier']));
 
                         if ($execute_prepared_statement) {
                             $send_verification_email = $this->user_send_verify_email($email, $user_id, $username);
@@ -80,7 +79,7 @@ class User
 
                             if ($send_verification_email) {
                                 pg_prepare($this->dbconn, 'add_promo_use', 'UPDATE promo_codes SET uses = uses + 1 WHERE code = $1');
-                                pg_execute($this->dbconn, 'add_promo_use', [$optional_params['promo_code']]);
+                                pg_execute($this->dbconn, 'add_promo_use', array($optional_params['promo_code']));
 
                                 return [
                                     'success' => true,
@@ -96,8 +95,7 @@ class User
                     }
                 } else {
                     pg_prepare($this->dbconn, 'create_user', "INSERT INTO users (id, username, password, email, tier, is_admin, is_blocked, verified) VALUES ($1, $2, $3, $4, 'free', false, false, false)");
-
-                    $execute_prepared_statement = pg_execute($this->dbconn, 'create_user', [$user_id, $username, $password, $email]);
+                    $execute_prepared_statement = pg_execute($this->dbconn, 'create_user', array($user_id, $username, $password, $email));
 
                     if ($execute_prepared_statement) {
                         $send_verification_email = $this->user_send_verify_email($email, $user_id, $username);
@@ -144,13 +142,14 @@ class User
         if ($this->authentication->validate_password($user_id, $password)) {
             /* User Deletion */
             pg_prepare($this->dbconn, 'delete_user', 'DELETE FROM users WHERE id = $1 AND email = $2');
-            $execute_prepared_statement = pg_execute($this->dbconn, 'delete_user', [$user_id, $email]);
+            $execute_prepared_statement = pg_execute($this->dbconn, 'delete_user', array($user_id, $email));
+          
             if ($execute_prepared_statement) {
                 $this->sqreen->sqreen_track_user_deletion();
 
                 /* Api key deletion */
                 pg_prepare($this->dbconn, 'delete_user_api_keys', 'DELETE FROM tokens WHERE user_id = $1');
-                $execute_prepared_statement = pg_execute($this->dbconn, 'delete_user_api_keys', [$user_id]);
+                $execute_prepared_statement = pg_execute($this->dbconn, 'delete_user_api_keys', array($user_id));
 
                 if ($execute_prepared_statement) {
                     return [
@@ -179,7 +178,7 @@ class User
     {
         if ($this->authentication->validate_password($user_id, $password)) {
             pg_prepare($this->dbconn, 'update_email', 'UPDATE users SET email = $1 WHERE id = $2');
-            $execute_prepared_statement = pg_execute($this->dbconn, 'update_email', [$user_new_email, $user_id]);
+            $execute_prepared_statement = pg_execute($this->dbconn, 'update_email', array($user_new_email, $user_id));
 
             if ($execute_prepared_statement) {
                 return [
@@ -206,11 +205,11 @@ class User
 
     /* Begin User Set Password Function */
 
-    public function user_set_password(string $user_id, string $old_password, string $new_password, bool $override = false)
+    public function user_set_password(string $user_id, string $old_password = '', string $new_password, bool $override = false)
     {
         if ($override) {
             pg_prepare($this->dbconn, 'update_password_ovr', 'UPDATE users SET password = $1 WHERE id = $2');
-            $execute_prepared_statement = pg_execute($this->dbconn, 'update_password_ovr', [password_hash($new_password, PASSWORD_BCRYPT), $user_id]);
+            $execute_prepared_statement = pg_execute($this->dbconn, 'update_password_ovr', array(password_hash($new_password, PASSWORD_BCRYPT), $user_id));
 
             if ($execute_prepared_statement) {
                 return [
@@ -227,7 +226,7 @@ class User
         } else {
             if ($this->authentication->validate_password($user_id, $old_password)) {
                 pg_prepare($this->dbconn, 'update_password', 'UPDATE users SET password = $1 WHERE id = $2');
-                $execute_prepared_statement = pg_execute($this->dbconn, 'update_password_ovr', [password_hash($new_password, PASSWORD_BCRYPT), $user_id]);
+                $execute_prepared_statement = pg_execute($this->dbconn, 'update_password_ovr', array(password_hash($new_password, PASSWORD_BCRYPT), $user_id));
 
                 if ($execute_prepared_statement) {
                     return [
@@ -259,7 +258,7 @@ class User
     {
         if ($this->authentication->api_key_is_admin($api_key)) {
             pg_prepare($this->dbconn, 'set_user_tier', 'UPDATE users SET tier = $1 WHERE id = $2');
-            $execute_prepared_statement = pg_execute($this->dbconn, 'set_user_tier', [$user_tier, $user_id]);
+            $execute_prepared_statement = pg_execute($this->dbconn, 'set_user_tier', array($user_tier, $user_id));
 
             if ($execute_prepared_statement) {
                 return [
@@ -295,7 +294,7 @@ class User
             $this->verification_created_pg = true;
         }
 
-        $execute_prepared_statement = pg_execute($this->dbconn, 'verification_created', [$user_id, $verification_id, $user_email]);
+        $execute_prepared_statement = pg_execute($this->dbconn, 'verification_created', array($user_id, $verification_id, $user_email));
 
         if ($execute_prepared_statement) {
             $Mailer->send_verification_email($user_email, $user_id, $username, $verification_id);
@@ -313,17 +312,17 @@ class User
     public function user_verify_email($user_id, $verification_id)
     {
         pg_prepare($this->dbconn, 'verify_email_fetch', 'SELECT * FROM verification_emails WHERE verification_id = $1 AND user_id = $2 AND used IS NOT true');
-        $execute_prepared_statement = pg_execute($this->dbconn, 'verify_email_fetch', [$verification_id, $user_id]);
+        $execute_prepared_statement = pg_execute($this->dbconn, 'verify_email_fetch', array($verification_id, $user_id));
 
         if ($execute_prepared_statement) {
             $verification_fetch = pg_fetch_array($execute_prepared_statement);
 
             if (!empty($verification_fetch)) {
                 pg_prepare($this->dbconn, 'verify_email', 'UPDATE users SET verified = true WHERE id = $1 AND email = $2');
-                $execute_prepared_statement = pg_execute($this->dbconn, 'verify_email', [$verification_fetch['user_id'], $verification_fetch['email']]);
+                $execute_prepared_statement = pg_execute($this->dbconn, 'verify_email', array($verification_fetch['user_id'], $verification_fetch['email']));
 
                 pg_prepare($this->dbconn, 'verify_email_2', 'UPDATE verification_emails SET used = $1 WHERE verification_id = $2');
-                $execute_prepared_statement_2 = pg_execute($this->dbconn, 'verify_email_2', [true, $verification_id]);
+                $execute_prepared_statement_2 = pg_execute($this->dbconn, 'verify_email_2', array(true, $verification_id));
 
                 if ($execute_prepared_statement && $execute_prepared_statement_2) {
                     return [
@@ -359,7 +358,7 @@ class User
             $this->prepared = true;
         }
 
-        $execute_prepared_statement = pg_execute($this->dbconn, 'get_user_by_api_key', [$api_key]);
+        $execute_prepared_statement = pg_execute($this->dbconn, 'get_user_by_api_key', array($api_key));
 
         if ($execute_prepared_statement) {
             return pg_fetch_array($execute_prepared_statement);
@@ -384,7 +383,8 @@ class User
             pg_prepare($this->dbconn, 'fetch_user_on_reset', 'SELECT * FROM users WHERE email = $1');
             $this->reset_created_fetch_user_pg = true;
         }
-        $execute_prepared_statement = pg_execute($this->dbconn, 'fetch_user_on_reset', [$user_email]);
+
+        $execute_prepared_statement = pg_execute($this->dbconn, 'fetch_user_on_reset', array($user_email));
 
         $user_fetch = pg_fetch_array($execute_prepared_statement);
 
@@ -395,7 +395,8 @@ class User
                 pg_prepare($this->dbconn, 'reset_created', 'INSERT INTO password_resets (id, email, used) VALUES ($1, $2, false)');
                 $this->reset_created = true;
             }
-            $execute_prepared_statement = pg_execute($this->dbconn, 'reset_created', [$reset_id, $user_email]);
+          
+            $execute_prepared_statement = pg_execute($this->dbconn, 'reset_created', array($reset_id, $user_email));
 
             if ($execute_prepared_statement) {
                 $Mailer->send_password_reset_email($user_email, $reset_id);
@@ -416,14 +417,14 @@ class User
     public function user_password_reset($reset_id, $password)
     {
         pg_prepare($this->dbconn, 'reset_password_fetch', 'SELECT * FROM password_resets WHERE id = $1 AND used IS NOT true');
-        $execute_prepared_statement = pg_execute($this->dbconn, 'reset_password_fetch', [$reset_id]);
+        $execute_prepared_statement = pg_execute($this->dbconn, 'reset_password_fetch', array($reset_id));
 
         if ($execute_prepared_statement) {
             $password_reset_fetch = pg_fetch_array($execute_prepared_statement);
 
             if (!empty($password_reset_fetch)) {
                 pg_prepare($this->dbconn, 'get_user_id_by_email', 'SELECT id FROM users WHERE email = $1');
-                $execute_prepared_statement = pg_execute($this->dbconn, 'get_user_id_by_email', [$password_reset_fetch['email']]);
+                $execute_prepared_statement = pg_execute($this->dbconn, 'get_user_id_by_email', array($password_reset_fetch['email']));
 
                 $fetch_user = pg_fetch_array($execute_prepared_statement);
 
@@ -432,7 +433,7 @@ class User
 
                     if ($reset_password['success']) {
                         pg_prepare($this->dbconn, 'reset_password_set_used', 'UPDATE password_resets SET used = true WHERE id = $1');
-                        pg_execute($this->dbconn, 'reset_password_set_used', [$reset_id]);
+                        pg_execute($this->dbconn, 'reset_password_set_used', array($reset_id));
 
                         return [
                             'success' => true,
@@ -459,7 +460,7 @@ class User
     public function get_user_uploads(string $user_id)
     {
         pg_prepare($this->dbconn, 'get_all_uploads_by_user', 'SELECT filename, originalfilename, timestamp, user_id, md5, sha1, deleted FROM files WHERE user_id = $1');
-        $execute_prepared_statement = pg_execute($this->dbconn, 'get_all_uploads_by_user', [$user_id]);
+        $execute_prepared_statement = pg_execute($this->dbconn, 'get_all_uploads_by_user', array($user_id));
 
         return pg_fetch_all($execute_prepared_statement);
     }

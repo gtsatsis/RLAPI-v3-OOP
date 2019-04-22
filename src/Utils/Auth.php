@@ -28,7 +28,8 @@ class Auth
     public function validate_password(string $user_id, string $password)
     {
         pg_prepare($this->dbconn, 'get_user', 'SELECT * FROM users WHERE id = $1');
-        $execute_prepared_statement = pg_execute($this->dbconn, 'get_user', [$user_id]);
+        $execute_prepared_statement = pg_execute($this->dbconn, 'get_user', array($user_id));
+      
         $user = pg_fetch_array($execute_prepared_statement);
 
         if (password_verify($password, $user['password']) && 't' == $user['verified']) {
@@ -45,14 +46,14 @@ class Auth
     public function maximum_filesize_assessment(string $api_key, string $file_size)
     {
         pg_prepare($this->dbconn, 'get_user_tier', 'SELECT tier FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1)');
-        $execute_prepared_statement = pg_execute($this->dbconn, 'get_user_tier', [$api_key]);
+        $execute_prepared_statement = pg_execute($this->dbconn, 'get_user_tier', array($api_key));
 
         if ($execute_prepared_statement) {
             $user_tier = pg_fetch_array($execute_prepared_statement);
             $tier = $user_tier[0];
 
             pg_prepare($this->dbconn, 'get_tier_from_tiers', 'SELECT * FROM tiers WHERE tier = $1');
-            $execute_prepared_statement = pg_execute($this->dbconn, 'get_tier_from_tiers', [$tier]);
+            $execute_prepared_statement = pg_execute($this->dbconn, 'get_tier_from_tiers', array($tier));
 
             if ($execute_prepared_statement) {
                 $tier_info = pg_fetch_array($execute_prepared_statement);
@@ -74,11 +75,13 @@ class Auth
     public function bucket_allowance(string $user_id)
     {
         pg_prepare($this->dbconn, 'get_bucket_allowance', 'SELECT bucket_limit FROM tiers WHERE tier = (SELECT tier FROM users WHERE id = $1)');
-        $execute_prepared_statement = pg_execute($this->dbconn, 'get_bucket_allowance', [$user_id]);
+
+        $execute_prepared_statement = pg_execute($this->dbconn, 'get_bucket_allowance', array($user_id));
         $bucket_allowance = pg_fetch_array($execute_prepared_statement);
 
         pg_prepare($this->dbconn, 'get_current_buckets', 'SELECT COUNT(*) FROM buckets WHERE user_id = $1');
-        $execute_prepared_statement = pg_execute($this->dbconn, 'get_current_buckets', [$user_id]);
+        $execute_prepared_statement = pg_execute($this->dbconn, 'get_current_buckets', array($user_id));
+
         $current_buckets = pg_fetch_array($execute_prepared_statement);
 
         if ($bucket_allowance[0] >= $current_buckets[0]) {
@@ -91,11 +94,12 @@ class Auth
     public function user_api_key_allowance(string $user_id)
     {
         pg_prepare($this->dbconn, 'get_api_key_allowance', 'SELECT api_keys FROM tiers WHERE tier = (SELECT tier FROM users WHERE id = $1)');
-        $execute_prepared_statement = pg_execute($this->dbconn, 'get_api_key_allowance', [$user_id]);
+        $execute_prepared_statement = pg_execute($this->dbconn, 'get_api_key_allowance', array($user_id));
         $api_key_allownace = pg_fetch_array($execute_prepared_statement);
 
         pg_prepare($this->dbconn, 'get_current_api_keys', 'SELECT COUNT(*) FROM tokens WHERE user_id = $1');
-        $execute_prepared_statement = pg_execute($this->dbconn, 'get_current_api_keys', [$user_id]);
+        $execute_prepared_statement = pg_execute($this->dbconn, 'get_current_api_keys', array($user_id));
+
         $current_api_keys = pg_fetch_array($execute_prepared_statement);
 
         if ($current_api_keys[0] >= $api_key_allownace[0]) {
@@ -113,7 +117,8 @@ class Auth
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, ['secret' => getenv('RECAPTCHA_SECRET'), 'response' => $recaptcha]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, array('secret' => getenv('RECAPTCHA_SECRET'), 'response' => $recaptcha));
+
         $response = curl_exec($ch);
         curl_close($ch);
         $data = json_decode($response);
@@ -126,7 +131,7 @@ class Auth
     public function upload_authentication(string $api_key)
     {
         pg_prepare($this->dbconn, 'get_user_by_api_key_2', 'SELECT * FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1 LIMIT 1)');
-        $execute_prepared_statement = pg_execute($this->dbconn, 'get_user_by_api_key_2', [$api_key]);
+        $execute_prepared_statement = pg_execute($this->dbconn, 'get_user_by_api_key_2', array($api_key));
 
         $user = pg_fetch_array($execute_prepared_statement);
 
@@ -157,7 +162,7 @@ class Auth
     public function api_key_is_admin(string $api_key)
     {
         pg_prepare($this->dbconn, 'api_key_is_admin', 'SELECT is_admin FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1)');
-        $execute_prepared_statement = pg_execute($this->dbconn, 'api_key_is_admin', [$api_key]);
+        $execute_prepared_statement = pg_execute($this->dbconn, 'api_key_is_admin', array($api_key));
 
         if ($execute_prepared_statement) {
             $is_admin = pg_fetch_array($execute_prepared_statement);
@@ -173,7 +178,7 @@ class Auth
     public function owns_bucket(string $user_id, $bucket_name)
     {
         pg_prepare($this->dbconn, 'owns_bucket', 'SELECT COUNT(*) FROM buckets WHERE user_id = $1 AND bucket_name = $2');
-        $execute_prepared_statement = pg_execute($this->dbconn, 'owns_bucket', [$user_id, $bucket_name]);
+        $execute_prepared_statement = pg_execute($this->dbconn, 'owns_bucket', array($user_id, $bucket_name));
 
         $count = pg_fetch_array($execute_prepared_statement);
         if (1 == $count[0]) {

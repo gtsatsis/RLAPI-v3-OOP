@@ -32,13 +32,15 @@ class BucketsController extends AbstractController
 
                 return $response;
             } else {
-                $response = new Response(json_encode(['success' => false, 'error_code' => 1082]));
+
+                $response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
             }
         } else {
-            $response = new Response(json_encode(['success' => false, 'error_code' => 1083]));
+
+            $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
             $response->headers->set('Content-Type', 'application/json');
 
             return $response;
@@ -64,13 +66,15 @@ class BucketsController extends AbstractController
 
                 return $response;
             } else {
-                $response = new Response(json_encode(['success' => false, 'error_code' => 1082]));
+
+                $response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
             }
         } else {
-            $response = new Response(json_encode(['success' => false, 'error_code' => 1083]));
+
+            $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
             $response->headers->set('Content-Type', 'application/json');
 
             return $response;
@@ -96,13 +100,15 @@ class BucketsController extends AbstractController
 
                 return $response;
             } else {
-                $response = new Response(json_encode(['success' => false, 'error_code' => 1082]));
+
+                $response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
             }
         } else {
-            $response = new Response(json_encode(['success' => false, 'error_code' => 1083]));
+
+            $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
             $response->headers->set('Content-Type', 'application/json');
 
             return $response;

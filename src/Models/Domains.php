@@ -4,9 +4,9 @@ namespace App\Models;
 
 require_once __DIR__.'/../../vendor/autoload.php';
 
+use Symfony\Component\Dotenv\Dotenv;
 use App\Utils\Auth;
 use App\Utils\SqreenLib;
-use Symfony\Component\Dotenv\Dotenv;
 
 class Domains
 {

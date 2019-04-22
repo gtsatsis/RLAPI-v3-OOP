@@ -45,7 +45,7 @@ class Buckets
 
                 if (null != $create_bucket) {
                     pg_prepare($this->dbconn, 'insert_bucket', 'INSERT INTO buckets (user_id, bucket_name, allocated_domain) VALUES ($1, $2, $3)');
-                    $execute_prepared_statement = pg_execute($this->dbconn, 'insert_bucket', [$user_id, $bucket_name, $allocated_domain]);
+                    $execute_prepared_statement = pg_execute($this->dbconn, 'insert_bucket', array($user_id, $bucket_name, $allocated_domain));
 
                     if ($execute_prepared_statement) {
                         return [
@@ -88,7 +88,7 @@ class Buckets
 
                 if (null != $delete_bucket) {
                     pg_prepare($this->dbconn, 'delete_bucket', 'DELETE FROM buckets WHERE bucket_name = $1');
-                    $execute_prepared_statement = pg_execute($this->dbconn, 'delete_bucket', [$bucket_name]);
+                    $execute_prepared_statement = pg_execute($this->dbconn, 'delete_bucket', array($bucket_name));
 
                     if ($execute_prepared_statement) {
                         return [
@@ -119,7 +119,7 @@ class Buckets
         if ($this->authentication->validate_password($user_id, $password)) {
             if ($this->authentication->owns_bucket($user_id, $bucket_name)) {
                 pg_prepare($this->dbconn, 'assign_domain_to_bucket', 'UPDATE buckets SET allocated_domain = $1 WHERE bucket = $2');
-                $execute_prepared_statement = pg_execute($this->dbconn, 'assign_domain_to_bucket', [$domain, $bucket_name]);
+                $execute_prepared_statement = pg_execute($this->dbconn, 'assign_domain_to_bucket', array($domain, $bucket_name));
 
                 if ($execute_prepared_statement) {
                     return [

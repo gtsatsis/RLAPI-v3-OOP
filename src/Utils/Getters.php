@@ -23,7 +23,7 @@ class Getters
     public function check_if_user_exists(string $username, string $user_email)
     {
         pg_prepare($this->dbconn, 'check_if_user_exists', 'SELECT COUNT(*) FROM users WHERE username = $1 OR email = $2');
-        $execute_prepared_statement = pg_execute($this->dbconn, 'check_if_user_exists', [$username, $user_email]);
+        $execute_prepared_statement = pg_execute($this->dbconn, 'check_if_user_exists', array($username, $user_email));
 
         $result = pg_fetch_array($execute_prepared_statement);
 
@@ -51,7 +51,7 @@ class Getters
             $this->prepared = true;
         }
 
-        $execute_prepared_statement = pg_execute($this->dbconn, 'get_user_by_api_key', [$api_key]);
+        $execute_prepared_statement = pg_execute($this->dbconn, 'get_user_by_api_key', array($api_key));
 
         if ($execute_prepared_statement) {
             return pg_fetch_array($execute_prepared_statement);
