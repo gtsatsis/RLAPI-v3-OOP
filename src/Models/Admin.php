@@ -144,7 +144,6 @@ class Admin
             $user = pg_fetch_array($execute_prepared_statement);
 
             if ($this->authentication->validate_password($user['user_id'], $password)) {
-
                 $promo_id = Uuid::uuid4();
                 $promo_id = $promo_id->toString();
                 pg_prepare($this->dbconn, 'create_promo', 'INSERT INTO promo_codes (id, code, max_uses, promo_tier, expired) VALUES ($1, $2, $3, $4, false)');

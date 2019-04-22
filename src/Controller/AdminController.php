@@ -13,7 +13,6 @@ use App\Utils\Auth;
 
 class AdminController extends AbstractController
 {
-
     /**
      * Matches /admin/verify_email exactly.
      *
