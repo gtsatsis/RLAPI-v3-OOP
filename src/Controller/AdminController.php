@@ -78,6 +78,39 @@ class AdminController extends AbstractController
     }
 
     /**
+     * Matches /admin/get/userid/{email} exactly.
+     *
+     * @Route("/admin/get/userid/{email}", name="get_user_userid")
+     */
+
+    public function get_user_userid(Request $request, $email){
+
+        $admin = new Admin();
+        $auth = new Auth();
+
+        if ($request->request->has('api_key') && $request->request->has('password')) {
+            if ($auth->isValidUUID($request->request->get('api_key'))) {
+                $get_userId = $admin->get_userId_by_email($request->request->get('api_key'), $request->request->get('password'), $email);
+
+                $response = new Response(json_encode($active_promos));
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+            } else {
+                $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+            }
+        } else {
+            $response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
+    }
+
+    /**
      * Matches /admin/promos/active exactly.
      *
      * @Route("/admin/promos/active", name="active_promos")
