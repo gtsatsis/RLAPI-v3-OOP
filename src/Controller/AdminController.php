@@ -82,9 +82,8 @@ class AdminController extends AbstractController
      *
      * @Route("/admin/get/userid/{email}", name="get_user_userid")
      */
-
-    public function get_user_userid(Request $request, $email){
-
+    public function get_user_userid(Request $request, $email)
+    {
         $admin = new Admin();
         $auth = new Auth();
 
