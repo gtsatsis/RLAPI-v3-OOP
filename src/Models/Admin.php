@@ -6,6 +6,7 @@ require_once __DIR__.'/../../vendor/autoload.php';
 
 use App\Utils\Auth;
 use App\Utils\SqreenLib;
+use App\Utils\Getters;
 use Symfony\Component\Dotenv\Dotenv;
 
 class Admin
@@ -28,6 +29,35 @@ class Admin
         $this->authentication = new Auth();
 
         $this->sqreen = new SqreenLib();
+    }
+
+    public function get_userId_by_email($api_key, $password, $email)
+    {
+        if ($this->authentication->api_key_is_admin($api_key)) {
+            pg_prepare($this->dbconn, 'admin_delete_user_get_admin', 'SELECT user_id FROM tokens WHERE token = $1');
+            $execute_prepared_statement = pg_execute($this->dbconn, 'admin_delete_user_get_admin', array($api_key));
+
+            $user = pg_fetch_array($execute_prepared_statement);
+
+            if ($this->authentication->validate_password($user['user_id'], $password)) {
+
+                $getter = new Getters();
+                $get_user_id_by_email = $getter->get_user_id_by_email($email);
+
+                return $get_user_id_by_email[0];
+
+            }else{
+                return [
+                    'success' => false,
+                    'error_message' => 'access_denied',
+                ];
+            }
+        }else{
+            return [
+                'success' => false,
+                'error_message' => 'access_denied',
+            ];
+        }
     }
 
     public function delete_user($api_key, $password, $email, $user_id)
