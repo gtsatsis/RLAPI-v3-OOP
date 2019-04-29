@@ -25,7 +25,7 @@ class UploadController extends AbstractController
 
         if ($request->query->has('key')) {
             if ($auth->isValidUUID($request->query->get('key'))) {
-                if(array_key_exists('files', $_FILES)){
+                if (array_key_exists('files', $_FILES)) {
                     if (!is_null($_FILES['files'])) {
                         if ($request->query->has('bucket')) {
                             /* Initiate the Uploader Object */
@@ -79,7 +79,7 @@ class UploadController extends AbstractController
             }
         } elseif ($request->headers->has('Authorization')) {
             if ($auth->isValidUUID($request->headers->get('Authorization'))) {
-                if(array_key_exists('files', $_FILES)){
+                if (array_key_exists('files', $_FILES)) {
                     if (!is_null($_FILES['files'])) {
                         if ($request->query->has('bucket')) {
                             $uploader = new Uploader($request->query->get('bucket'));
@@ -101,7 +101,7 @@ class UploadController extends AbstractController
 
                             return $response;
                         }
-                    }else{
+                    } else {
                         $response = new Response(json_encode([
                             'success' => false,
                             'error_message' => 'no_file_provided',
@@ -149,7 +149,7 @@ class UploadController extends AbstractController
         $auth = new Auth();
 
         if ($auth->isValidUUID($apiKey)) {
-            if(array_key_exists('files', $_FILES)){
+            if (array_key_exists('files', $_FILES)) {
                 if (!is_null($_FILES['files'])) {
                     if ($request->query->has('bucket')) {
                         /* Initiate the Uploader Object */
@@ -175,7 +175,7 @@ class UploadController extends AbstractController
 
                         return $response;
                     }
-                }else{
+                } else {
                     $response = new Response(json_encode([
                         'success' => false,
                         'error_message' => 'no_file_provided',
