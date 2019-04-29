@@ -65,6 +65,44 @@ class Getters
 
     public function get_user_by_email(string $user_email)
     {
+        $this->prepared = false;
+
+        if (!$this->prepared) {
+            $prepareStatement = pg_prepare($this->dbconn, 'get_user_by_email', 'SELECT * FROM users WHERE email = $1');
+            $this->prepared = true;
+        }
+
+        $execute_prepared_statement = pg_execute($this->dbconn, 'get_user_by_email', array($user_email));
+
+        if ($execute_prepared_statement) {
+            return pg_fetch_array($execute_prepared_statement);
+        } else {
+            return [
+                'success' => false,
+                'error_message' => 'No data found',
+            ];
+        }
+    }
+
+    public function get_user_id_by_email(string $user_email)
+    {
+        $this->prepared = false;
+
+        if (!$this->prepared) {
+            $prepareStatement = pg_prepare($this->dbconn, 'get_user_id_by_email', 'SELECT id FROM users WHERE email = $1');
+            $this->prepared = true;
+        }
+
+        $execute_prepared_statement = pg_execute($this->dbconn, 'get_user_id_by_email', array($user_email));
+
+        if ($execute_prepared_statement) {
+            return pg_fetch_array($execute_prepared_statement);
+        } else {
+            return [
+                'success' => false,
+                'error_message' => 'No data found',
+            ];
+        }
     }
 
     public function get_api_keys_by_user_id(string $user_id)
