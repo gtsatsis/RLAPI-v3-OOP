@@ -40,19 +40,17 @@ class Admin
             $user = pg_fetch_array($execute_prepared_statement);
 
             if ($this->authentication->validate_password($user['user_id'], $password)) {
-
                 $getter = new Getters();
                 $get_user_id_by_email = $getter->get_user_id_by_email($email);
 
                 return $get_user_id_by_email[0];
-
-            }else{
+            } else {
                 return [
                     'success' => false,
                     'error_message' => 'access_denied',
                 ];
             }
-        }else{
+        } else {
             return [
                 'success' => false,
                 'error_message' => 'access_denied',
