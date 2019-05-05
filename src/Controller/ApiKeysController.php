@@ -177,7 +177,7 @@ class ApiKeysController extends AbstractController
         $auth = new Auth();
 
         if ($auth->isValidUUID($api_key)) {
-            $generate_config = $api_keys->regenerate_user_api_key($api_key, $domain);
+            $generate_config = $api_keys->generate_sharex_config($api_key, $domain);
 
             $response = new Response(json_encode($generate_config));
             $response->headers->set('Content-Type', 'application/json');
