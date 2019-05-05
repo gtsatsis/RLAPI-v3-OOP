@@ -165,4 +165,29 @@ class ApiKeysController extends AbstractController
             return $response;
         }
     }
+
+    /**
+     * Matches /users/{id}/api_keys/{api_key}/generate_config/sharex/{domain} exactly.
+     *
+     * @Route("/users/{id}/api_keys/{api_key}/generate_config/sharex/{domain}", name="generate_sharex_config")
+     */
+    public function generate_sharex_config(Request $request, $api_key, $domain)
+    {
+        $api_keys = new Apikeys();
+        $auth = new Auth();
+
+        if ($auth->isValidUUID($api_key)) {
+            $generate_config = $api_keys->regenerate_user_api_key($api_key, $domain);
+
+            $response = new Response(json_encode($generate_config));
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        } else {
+            $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
+    }
 }

@@ -233,4 +233,20 @@ class Apikeys
             ];
         }
     }
+
+    public function generate_sharex_config($api_key, $domain){
+        return [
+            'Version' => '12.4.1',
+            'Name' => 'ratelimited.me - Free API: '.$api_key,
+            'DestinationType' => 'ImageUploader, TextUploader, FileUploader',
+            'RequestMethod' => 'POST',
+            'RequestURL' => 'https://api.ratelimited.me/upload/pomf',
+            'Parameters' => [
+                'key' => $api_key
+            ],
+            'Body' => 'MultipartFormData',
+            'FileFormName' => 'files[]',
+            'URL' => $domain.'$json:files[0].url$'
+        ];
+    }
 }
