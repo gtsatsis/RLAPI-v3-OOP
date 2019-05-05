@@ -247,7 +247,7 @@ class Apikeys
             ],
             'Body' => 'MultipartFormData',
             'FileFormName' => 'files[]',
-            'URL' => $domain.'$json:files[0].url$',
+            'URL' => 'https://'.$domain.'$json:files[0].url$',
         ];
     }
 }
