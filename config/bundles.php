@@ -16,4 +16,5 @@ return [
     Symfony\Bundle\MakerBundle\MakerBundle::class => ['dev' => true],
     Symfony\Bundle\WebServerBundle\WebServerBundle::class => ['dev' => true],
     Sentry\SentryBundle\SentryBundle::class => ['dev' => true, 'prod' => true],
+    Bugsnag\BugsnagBundle\BugsnagBundle::class => ['all' => true],
 ];
