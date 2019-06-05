@@ -5,6 +5,7 @@ namespace App\Controller;
 require_once __DIR__.'/../../vendor/autoload.php';
 
 use App\Models\Domains;
+use App\Models\Stats;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -97,4 +98,20 @@ class MainController extends AbstractController
 
         return $response;
     }
+    
+    /**
+     * Matches /stats exactly.
+     * @Route("/stats", name="node_stats")
+     */
+     public function node_stats(){
+
+        $stats = new Stats();
+
+        $stats_array = $stats->getStats();
+
+        $response = new Response(json_encode($stats_array));
+
+        $response->headers->set('Content-Type', 'application/json');
+
+     }
 }
