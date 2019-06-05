@@ -45,7 +45,7 @@ class User
     {
         $getter = new Getters();
 
-        if (getenv('REGISTRATIONS') == true) {
+        if (true == getenv('REGISTRATIONS')) {
             if (!$getter->check_if_user_exists($username, $email)) {
                 if (strlen($password) >= 8) {
                     $password = password_hash($password, PASSWORD_BCRYPT);
