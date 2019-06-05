@@ -98,13 +98,14 @@ class MainController extends AbstractController
 
         return $response;
     }
-    
+
     /**
      * Matches /stats exactly.
+     *
      * @Route("/stats", name="node_stats")
      */
-     public function node_stats(){
-
+    public function node_stats()
+    {
         $stats = new Stats();
 
         $stats_array = $stats->getStats();
@@ -112,6 +113,5 @@ class MainController extends AbstractController
         $response = new Response(json_encode($stats_array));
 
         $response->headers->set('Content-Type', 'application/json');
-
-     }
+    }
 }

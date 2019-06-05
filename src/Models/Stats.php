@@ -36,12 +36,12 @@ class Stats
         $total_users = pg_query($this->dbconn, 'SELECT COUNT(*) FROM users');
 
         $total_files = pg_query($this->dbconn, 'SELECT COUNT(*) FROM files');
-        
+
         $stats_array = [
             'users' => [
                 'active' => $active_users,
                 'total' => $total_users,
-                'upgraded_users' => $upgraded_users
+                'upgraded_users' => $upgraded_users,
             ],
             'files' => $total_files,
         ];
