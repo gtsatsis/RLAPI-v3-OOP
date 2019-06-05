@@ -45,8 +45,7 @@ class User
     {
         $getter = new Getters();
 
-        if(getenv('REGISTRATIONS')){
-
+        if (getenv('REGISTRATIONS')) {
             if (!$getter->check_if_user_exists($username, $email)) {
                 if (strlen($password) >= 8) {
                     $password = password_hash($password, PASSWORD_BCRYPT);
@@ -133,11 +132,11 @@ class User
                         'error_message' => 'user_email_or_name_exists',
                     ];
             }
-        }else{
+        } else {
             return [
                 'success' => false,
                 'error_code' => 0,
-                'error_message' => 'registrations_not_enabled'
+                'error_message' => 'registrations_not_enabled',
             ];
         }
     }
