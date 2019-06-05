@@ -34,7 +34,7 @@ class Stats
     {
         $active_users = pg_query($this->dbconn, 'SELECT COUNT(*) FROM users WHERE verified = true AND is_blocked IS NOT true');
         $total_users = pg_query($this->dbconn, 'SELECT COUNT(*) FROM users');
-        $upgraded_users = pg_query($this->dbconn, 'SELECT COUNT(*) FROM users WHERE tier NOT \'free\'');
+        $upgraded_users = pg_query($this->dbconn, 'SELECT COUNT(*) FROM users WHERE tier NOT IN (\'free\')');
 
         $total_files = pg_query($this->dbconn, 'SELECT COUNT(*) FROM files');
 
