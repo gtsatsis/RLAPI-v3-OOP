@@ -55,16 +55,16 @@ class Stats
 
         $stats_array = [
             'users' => [
-                'active' => (int)$active_users[0],
-                'upgraded' => (int)$upgraded_users[0],
-                'total' => (int)$total_users[0],
+                'active' => (int) $active_users[0],
+                'upgraded' => (int) $upgraded_users[0],
+                'total' => (int) $total_users[0],
             ],
-            'files' => (int)$total_files[0],
+            'files' => (int) $total_files[0],
             'promos' => [
-                'active' => (int)$active_promos[0],
-                'total' => (int)$total_promos[0],
+                'active' => (int) $active_promos[0],
+                'total' => (int) $total_promos[0],
             ],
-            'domains' => (int)$total_domains[0],
+            'domains' => (int) $total_domains[0],
         ];
 
         return $stats_array;
