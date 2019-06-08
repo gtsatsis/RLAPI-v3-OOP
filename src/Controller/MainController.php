@@ -41,7 +41,7 @@ class MainController extends AbstractController
 
         $response->headers->set('Content-Type', 'application/json');
 
-        return new $response;
+        return $response;
     }
 
     /**
@@ -56,7 +56,7 @@ class MainController extends AbstractController
         ]));
 
         $response->headers->set('Content-Type', 'application/json');
-        
+
         return $response;
     }
 
