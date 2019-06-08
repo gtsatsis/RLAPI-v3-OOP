@@ -40,7 +40,7 @@ class MainController extends AbstractController
         ];
 
         if(true == getenv('SECURITY_TXT_ENABLED')){
-            $information_array['instance_info']['security'] = getenv('INSTANCE_URL').'/.well-known/security.txt';
+            $information_array['instance_info']['security'] = getenv('INSTANCE_URL').'.well-known/security.txt';
         }
 
         $response = new Response(json_encode($information_array));
@@ -59,7 +59,7 @@ class MainController extends AbstractController
          if(true == getenv('SECURITY_TXT_ENABLED')){
             $response = new Response('Contact: '. getenv('SECURITY_CONTACT') .'
 Acknowledgments: '. getenv('SECURITY_ACKNOWLEDGEMENTS').'
-Preferred-Languages: en
+Preferred-Languages: en 
 Canonical: '. getenv('INSTANCE_URL') .'.well-known/security.txt
 Policy: '. getenv('SECURITY_POLICY'));
 
