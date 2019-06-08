@@ -45,7 +45,7 @@ class User
     {
         $getter = new Getters();
 
-        if (true == getenv('REGISTRATIONS')) {
+        if ("true" == getenv('REGISTRATIONS')) {
             if (!$getter->check_if_user_exists($username, $email)) {
                 if (strlen($password) >= 8) {
                     $password = password_hash($password, PASSWORD_BCRYPT);
@@ -53,7 +53,7 @@ class User
                     $user_id = Uuid::uuid4();
                     $user_id = $user_id->toString();
 
-                    if (true == getenv('PROMOS') && !is_null($optional_params['promo_code'])) {
+                    if ("true" == getenv('PROMOS') && !is_null($optional_params['promo_code'])) {
                         pg_prepare($this->dbconn, 'fetch_promo_code', 'SELECT * FROM promo_codes WHERE code = $1 AND expired = false');
                         $execute_prepared_statement = pg_execute($this->dbconn, 'fetch_promo_code', array($optional_params['promo_code']));
 
