@@ -39,7 +39,7 @@ class MainController extends AbstractController
             ],
         ];
 
-        if(true == getenv('SECURITY_TXT_ENABLED')){
+        if (true == getenv('SECURITY_TXT_ENABLED')) {
             $information_array['instance_info']['security'] = getenv('INSTANCE_URL').'/.well-known/security.txt';
         }
 
@@ -51,29 +51,30 @@ class MainController extends AbstractController
     }
 
     /**
-     * Matches /.well-known/security.txt
-     * 
+     * Matches /.well-known/security.txt.
+     *
      * @Route("/.well-known/security.txt", name="security_text")
      */
-     public function security_text(){
-         if(true == getenv('SECURITY_TXT_ENABLED')){
-            $response = new Response('Contact: '. getenv('SECURITY_CONTACT') .'
-Acknowledgments: '. getenv('SECURITY_ACKNOWLEDGEMENTS').'
+    public function security_text()
+    {
+        if (true == getenv('SECURITY_TXT_ENABLED')) {
+            $response = new Response('Contact: '.getenv('SECURITY_CONTACT').'
+Acknowledgments: '.getenv('SECURITY_ACKNOWLEDGEMENTS').'
 Preferred-Languages: en
-Canonical: '. getenv('INSTANCE_URL') .'.well-known/security.txt
-Policy: '. getenv('SECURITY_POLICY'));
+Canonical: '.getenv('INSTANCE_URL').'.well-known/security.txt
+Policy: '.getenv('SECURITY_POLICY'));
 
-         $response->headers->set('Content-Type', 'text/plain');
-         }else{
+            $response->headers->set('Content-Type', 'text/plain');
+        } else {
             $response = new Response(json_encode([
                 'error_message' => 'security_dot_txt_not_enabled',
             ]));
 
             $response->headers->set('Content-Type', 'application/json');
-         }
+        }
 
-         return $response;
-     }
+        return $response;
+    }
 
     /**
      * Matches /upload exactly.
