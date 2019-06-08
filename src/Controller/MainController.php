@@ -19,7 +19,26 @@ class MainController extends AbstractController
      */
     public function index_page()
     {
-        return new Response('You have reached the RLAPI v3.0 Index Page');
+        $stats = new Stats();
+
+        $stats_array = $stats->getStats();
+
+        $response = new Response(json_encode([
+            'instance_info' => [
+                'name' => getenv('INSTANCE_NAME'),
+                'url' => getenv('INSTANCE_URL'),
+                'contact' => getenv('INSTANCE_CONTACT'),
+                'has_file_handler' => getenv('INSTANCE_FILE_HANDLER_ENABLED')
+            ],
+            'instance_stats' => [
+                $stats_array,
+            ],
+            'sotware_info' => [
+                'name' => 'RLAPI',
+                'version' => 3,
+            ],
+        ]));
+        return new $response;
     }
 
     /**
