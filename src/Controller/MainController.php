@@ -38,6 +38,9 @@ class MainController extends AbstractController
                 'version' => 3,
             ],
         ]));
+
+        $response->headers->set('Content-Type', 'application/json');
+        
         return new $response;
     }
 
