@@ -113,5 +113,7 @@ class MainController extends AbstractController
         $response = new Response(json_encode($stats_array));
 
         $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
     }
 }
