@@ -23,7 +23,7 @@ class MainController extends AbstractController
 
         $stats_array = $stats->getStats();
 
-        $response = new Response(json_encode([
+        $information_array = [
             'instance_info' => [
                 'name' => getenv('INSTANCE_NAME'),
                 'url' => getenv('INSTANCE_URL'),
@@ -37,12 +37,43 @@ class MainController extends AbstractController
                 'name' => 'RLAPI',
                 'version' => 3,
             ],
-        ]));
+        ];
+
+        if(true == getenv('SECURITY_TXT_ENABLED')){
+            $information_array['instance_info']['security'] = getenv('INSTANCE_URL').'/.well-known/security.txt';
+        }
+
+        $response = new Response(json_encode($information_array));
 
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
     }
+
+    /**
+     * Matches /.well-known/security.txt
+     * 
+     * @Route("/.well-known/security.txt", name="security_text")
+     */
+     public function security_text(){
+         if(true == getenv('SECURITY_TXT_ENABLED')){
+            $response = new Response('Contact: '. getenv('SECURITY_CONTACT') .'
+Acknowledgments: '. getenv('SECURITY_ACKNOWLEDGEMENTS').'
+Preferred-Languages: en
+Canonical: '. getenv('INSTANCE_URL') .'.well-known/security.txt
+Policy: '. getenv('SECURITY_POLICY'));
+
+         $response->headers->set('Content-Type', 'text/plain');
+         }else{
+            $response = new Response(json_encode([
+                'error_message' => 'security_dot_txt_not_enabled',
+            ]));
+
+            $response->headers->set('Content-Type', 'application/json');
+         }
+
+         return $response;
+     }
 
     /**
      * Matches /upload exactly.
