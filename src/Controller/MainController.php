@@ -28,7 +28,7 @@ class MainController extends AbstractController
                 'name' => getenv('INSTANCE_NAME'),
                 'url' => getenv('INSTANCE_URL'),
                 'contact' => getenv('INSTANCE_CONTACT'),
-                'has_file_handler' => getenv('INSTANCE_FILE_HANDLER_ENABLED')
+                'has_file_handler' => getenv('INSTANCE_FILE_HANDLER_ENABLED'),
             ],
             'instance_stats' => [
                 $stats_array,
@@ -41,7 +41,7 @@ class MainController extends AbstractController
 
         $response->headers->set('Content-Type', 'application/json');
 
-        return new $response;
+        return new $response();
     }
 
     /**
@@ -56,7 +56,7 @@ class MainController extends AbstractController
         ]));
 
         $response->headers->set('Content-Type', 'application/json');
-        
+
         return $response;
     }
 
