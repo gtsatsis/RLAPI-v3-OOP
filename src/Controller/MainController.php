@@ -40,7 +40,7 @@ class MainController extends AbstractController
         ]));
 
         $response->headers->set('Content-Type', 'application/json');
-        
+
         return new $response;
     }
 
@@ -51,7 +51,13 @@ class MainController extends AbstractController
      */
     public function upload_index_page()
     {
-        return new Response('Upload Index');
+        $response = new Response(json_encode([
+            'error_message' => 'route_not_in_use',
+        ]));
+
+        $response->headers->set('Content-Type', 'application/json');
+        
+        return $response;
     }
 
     /**
