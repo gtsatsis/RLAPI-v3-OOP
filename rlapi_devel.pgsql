@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Ubuntu 10.6-0ubuntu0.18.04.1)
--- Dumped by pg_dump version 10.6 (Ubuntu 10.6-0ubuntu0.18.04.1)
+-- Dumped from database version 10.8 (Ubuntu 10.8-0ubuntu0.18.04.1)
+-- Dumped by pg_dump version 10.8 (Ubuntu 10.8-0ubuntu0.18.04.1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -12,6 +12,7 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
@@ -59,6 +60,20 @@ CREATE TABLE public.buckets (
 ALTER TABLE public.buckets OWNER TO rlapi_devel;
 
 --
+-- Name: domains; Type: TABLE; Schema: public; Owner: rlapi_devel
+--
+
+CREATE TABLE public.domains (
+    id uuid,
+    domain_name text,
+    official boolean,
+    wildcard boolean
+);
+
+
+ALTER TABLE public.domains OWNER TO postgres;
+
+--
 -- Name: files; Type: TABLE; Schema: public; Owner: rlapi_devel
 --
 
@@ -69,7 +84,8 @@ CREATE TABLE public.files (
     user_id uuid,
     token uuid,
     md5 text,
-    sha1 text
+    sha1 text,
+    deleted boolean
 );
 
 
@@ -88,6 +104,22 @@ CREATE TABLE public.password_resets (
 
 
 ALTER TABLE public.password_resets OWNER TO rlapi_devel;
+
+--
+-- Name: promo_codes; Type: TABLE; Schema: public; Owner: rlapi_devel
+--
+
+CREATE TABLE public.promo_codes (
+    id uuid,
+    code text,
+    uses integer,
+    max_uses integer,
+    promo_tier text,
+    expired boolean
+);
+
+
+ALTER TABLE public.promo_codes OWNER TO postgres;
 
 --
 -- Name: tiers; Type: TABLE; Schema: public; Owner: rlapi_devel
@@ -169,10 +201,18 @@ COPY public.buckets (user_id, bucket_name, allocated_domain) FROM stdin;
 
 
 --
+-- Data for Name: domains; Type: TABLE DATA; Schema: public; Owner: rlapi_devel
+--
+
+COPY public.domains (id, domain_name, official, wildcard) FROM stdin;
+\.
+
+
+--
 -- Data for Name: files; Type: TABLE DATA; Schema: public; Owner: rlapi_devel
 --
 
-COPY public.files (filename, originalfilename, "timestamp", user_id, token, md5, sha1) FROM stdin;
+COPY public.files (filename, originalfilename, "timestamp", user_id, token, md5, sha1, deleted) FROM stdin;
 \.
 
 
@@ -185,13 +225,19 @@ COPY public.password_resets (id, email, expiry_date, used) FROM stdin;
 
 
 --
+-- Data for Name: promo_codes; Type: TABLE DATA; Schema: public; Owner: rlapi_devel
+--
+
+COPY public.promo_codes (id, code, uses, max_uses, promo_tier, expired) FROM stdin;
+\.
+
+
+--
 -- Data for Name: tiers; Type: TABLE DATA; Schema: public; Owner: rlapi_devel
 --
 
 COPY public.tiers (tier, maximum_filesize, api_keys, private_domains, users_per_bucket, bucket_limit) FROM stdin;
-free	1048576	3	0	0	0
-premium	262144000	10	2	8	2
-deluxe	524288000	999	999	16	16
+free	104857600	3	0	0	0
 \.
 
 
@@ -220,6 +266,19 @@ COPY public.verification_emails (user_id, verification_id, email, used) FROM std
 
 
 --
--- PostgreSQL database dump complete
+-- Name: TABLE domains; Type: ACL; Schema: public; Owner: rlapi_devel
 --
 
+GRANT ALL ON TABLE public.domains TO rlapi_devel;
+
+
+--
+-- Name: TABLE promo_codes; Type: ACL; Schema: public; Owner: rlapi_devel
+--
+
+GRANT ALL ON TABLE public.promo_codes TO rlapi_devel;
+
+
+--
+-- PostgreSQL database dump complete
+--
