@@ -29,7 +29,7 @@ class FileUtils
         return $fileName;
     }
 
-    public function isUnique($filename, $s3Endpoint)
+    public function isUnique($filename)
     {
 
         $statement = pg_prepare($this->dbconn, 'is_filename_unique', 'SELECT COUNT(*) FROM files WHERE filename = $1');
