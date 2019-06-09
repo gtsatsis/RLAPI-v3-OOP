@@ -27,7 +27,12 @@ Installing:
 	5. Create an account and an API key, then verify and upload.
 
 ### Security
+
 Found a security issue? Want to make sure it's patched? Contact us via our [HackerOne Page](https://hackerone.com/ratelimited)
+
+### Agreement of Good Faith
+
+Please don't use this for illegal services. Pretty please?
 
 ### Original Development Team
 
