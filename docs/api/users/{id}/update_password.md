@@ -25,7 +25,7 @@ The following is the response that, that curl command would give.
 
 ### Errors
 
-This endpoint can error out with the following code(s): 1002.
+This endpoint can error out with the following code(s): `1002`.
 
 #### `1002`
 

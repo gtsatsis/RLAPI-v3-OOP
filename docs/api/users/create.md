@@ -23,3 +23,24 @@ The following is the response that, that curl command would give.
     }
 }
 ```
+
+### Errors
+
+
+This endpoint can error out with the following code(s): `0`, `1012`, `1013`.
+
+#### `0`
+
+Code `0` means that registrations are disabled for this instance.
+
+If you are the administrator, you can enable them using the `.env` file, by setting `REGISTRATIONS` to `true`.
+
+#### `1012`
+
+Code `1012` means that a user with that username, or email already exists in the system.
+
+#### `1013`
+
+Code `1013` means that the password provided is not sufficient in length.
+
+By default, RLAPI will refuse to accept passwords smaller than 8 characters.
