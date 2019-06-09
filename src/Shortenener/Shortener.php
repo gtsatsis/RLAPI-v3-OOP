@@ -4,7 +4,6 @@ namespace App\Uploader;
 
 use App\Models\User;
 use App\Utils\Auth;
-use App\Utils\FileUtils;
 use Symfony\Component\Dotenv\Dotenv;
 use Ramsey\Uuid\Uuid;
 
@@ -26,36 +25,29 @@ class Shortener
         $this->authentication = new Auth();
     }
 
-    public function shorten($api_key, $url){
-
+    public function shorten($api_key, $url)
+    {
         $authentication = $this->authentication->shorten_authentication($api_key);
 
         if ($authentication) {
-
             $parsed_url = parse_url($url);
 
-            if(!$this->url_is_safe($parsed_url['host'])){
+            if (!$this->url_is_safe($parsed_url['host'])) {
                 $url = [
                     'url' => $url,
                     'safe' => false,
                 ];
-            }else{
+            } else {
                 $url = [
                     'url' => $url,
                     'safe' => true,
                 ];
             }
 
-
             $id = Uuid::uuid4();
             $id = $id->toString();
 
             /* Not done */
-
-            
         }
-
     }
 }
-
-?>
