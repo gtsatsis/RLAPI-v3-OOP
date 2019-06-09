@@ -45,32 +45,58 @@ class User
     {
         $getter = new Getters();
 
-        if (!$getter->check_if_user_exists($username, $email)) {
-            if (strlen($password) >= 8) {
-                $password = password_hash($password, PASSWORD_BCRYPT);
+        if ('true' == getenv('REGISTRATIONS')) {
+            if (!$getter->check_if_user_exists($username, $email)) {
+                if (strlen($password) >= 8) {
+                    $password = password_hash($password, PASSWORD_BCRYPT);
 
-                $user_id = Uuid::uuid4();
-                $user_id = $user_id->toString();
+                    $user_id = Uuid::uuid4();
+                    $user_id = $user_id->toString();
 
-                if (true == getenv('PROMOS') && !is_null($optional_params['promo_code'])) {
-                    pg_prepare($this->dbconn, 'fetch_promo_code', 'SELECT * FROM promo_codes WHERE code = $1 AND expired = false');
-                    $execute_prepared_statement = pg_execute($this->dbconn, 'fetch_promo_code', array($optional_params['promo_code']));
+                    if ('true' == getenv('PROMOS') && !is_null($optional_params['promo_code'])) {
+                        pg_prepare($this->dbconn, 'fetch_promo_code', 'SELECT * FROM promo_codes WHERE code = $1 AND expired = false');
+                        $execute_prepared_statement = pg_execute($this->dbconn, 'fetch_promo_code', array($optional_params['promo_code']));
 
-                    $promo_results = pg_fetch_array($execute_prepared_statement);
+                        $promo_results = pg_fetch_array($execute_prepared_statement);
 
-                    if (is_null($promo_results['id'])) {
-                        return [
-                            'success' => false,
-                            'error_message' => 'no_promo_found',
-                        ];
-                    } elseif ($promo_results['uses'] >= $promo_results['max_uses']) {
-                        return [
-                            'success' => false,
-                            'error_message' => 'promo_out_of_uses',
-                        ];
+                        if (is_null($promo_results['id'])) {
+                            return [
+                                'success' => false,
+                                'error_message' => 'no_promo_found',
+                            ];
+                        } elseif ($promo_results['uses'] >= $promo_results['max_uses']) {
+                            return [
+                                'success' => false,
+                                'error_message' => 'promo_out_of_uses',
+                            ];
+                        } else {
+                            pg_prepare($this->dbconn, 'create_user', 'INSERT INTO users (id, username, password, email, tier, is_admin, is_blocked, verified) VALUES ($1, $2, $3, $4, $5, false, false, false)');
+                            $execute_prepared_statement = pg_execute($this->dbconn, 'create_user', array($user_id, $username, $password, $email, $promo_results['promo_tier']));
+
+                            if ($execute_prepared_statement) {
+                                $send_verification_email = $this->user_send_verify_email($email, $user_id, $username);
+
+                                $this->sqreen->sqreen_signup_track($email);
+
+                                if ($send_verification_email) {
+                                    pg_prepare($this->dbconn, 'add_promo_use', 'UPDATE promo_codes SET uses = uses + 1 WHERE code = $1');
+                                    pg_execute($this->dbconn, 'add_promo_use', array($optional_params['promo_code']));
+
+                                    return [
+                                        'success' => true,
+                                        'status' => 'created',
+                                        'account' => [
+                                            'id' => $user_id,
+                                            'username' => $username,
+                                            'email' => $email,
+                                        ],
+                                    ];
+                                }
+                            }
+                        }
                     } else {
-                        pg_prepare($this->dbconn, 'create_user', 'INSERT INTO users (id, username, password, email, tier, is_admin, is_blocked, verified) VALUES ($1, $2, $3, $4, $5, false, false, false)');
-                        $execute_prepared_statement = pg_execute($this->dbconn, 'create_user', array($user_id, $username, $password, $email, $promo_results['promo_tier']));
+                        pg_prepare($this->dbconn, 'create_user', "INSERT INTO users (id, username, password, email, tier, is_admin, is_blocked, verified) VALUES ($1, $2, $3, $4, 'free', false, false, false)");
+                        $execute_prepared_statement = pg_execute($this->dbconn, 'create_user', array($user_id, $username, $password, $email));
 
                         if ($execute_prepared_statement) {
                             $send_verification_email = $this->user_send_verify_email($email, $user_id, $username);
@@ -78,9 +104,6 @@ class User
                             $this->sqreen->sqreen_signup_track($email);
 
                             if ($send_verification_email) {
-                                pg_prepare($this->dbconn, 'add_promo_use', 'UPDATE promo_codes SET uses = uses + 1 WHERE code = $1');
-                                pg_execute($this->dbconn, 'add_promo_use', array($optional_params['promo_code']));
-
                                 return [
                                     'success' => true,
                                     'status' => 'created',
@@ -91,45 +114,30 @@ class User
                                     ],
                                 ];
                             }
+                        } else {
+                            throw new \Exception('Error Processing create_user Request');
                         }
                     }
                 } else {
-                    pg_prepare($this->dbconn, 'create_user', "INSERT INTO users (id, username, password, email, tier, is_admin, is_blocked, verified) VALUES ($1, $2, $3, $4, 'free', false, false, false)");
-                    $execute_prepared_statement = pg_execute($this->dbconn, 'create_user', array($user_id, $username, $password, $email));
-
-                    if ($execute_prepared_statement) {
-                        $send_verification_email = $this->user_send_verify_email($email, $user_id, $username);
-
-                        $this->sqreen->sqreen_signup_track($email);
-
-                        if ($send_verification_email) {
-                            return [
-                                'success' => true,
-                                'status' => 'created',
-                                'account' => [
-                                    'id' => $user_id,
-                                    'username' => $username,
-                                    'email' => $email,
-                                ],
-                            ];
-                        }
-                    } else {
-                        throw new \Exception('Error Processing create_user Request');
-                    }
+                    return [
+                        'success' => false,
+                        'error_code' => 1013,
+                        'error_message' => 'insufficient_password_length',
+                    ];
                 }
             } else {
                 return [
-                    'success' => false,
-                    'error_code' => 1013,
-                    'error_message' => 'insufficient_password_length',
-                ];
+                        'success' => false,
+                        'error_code' => 1012,
+                        'error_message' => 'user_email_or_name_exists',
+                    ];
             }
         } else {
             return [
-                    'success' => false,
-                    'error_code' => 1012,
-                    'error_message' => 'user_email_or_name_exists',
-                ];
+                'success' => false,
+                'error_code' => 0,
+                'error_message' => 'registrations_not_enabled',
+            ];
         }
     }
 
