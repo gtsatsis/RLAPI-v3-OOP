@@ -17,3 +17,11 @@ The following is the response that, that curl command would give.
     "success":true
 }
 ```
+
+### Errors
+
+This endpoint can error out with the following code(s): `1002`.
+
+#### `1002`
+
+Code `1002` means that the user id provided in {id}, and the password provided in the request body do not match with what we have in the database.
