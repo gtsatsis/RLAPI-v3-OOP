@@ -113,6 +113,7 @@ Policy: '.getenv('SECURITY_POLICY'));
      * Matches /api exactly.
      *
      * @Route("/api", name="api_endpoint_deprecated")
+     * @Route("/api/upload/pomf", name="upload_api_endpoint_deprecated")
      */
     public function api_endpoint_deprecated()
     {
