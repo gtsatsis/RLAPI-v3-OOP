@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Uploader;
+namespace App\Shortener;
 
 use App\Models\User;
 use App\Utils\Auth;
