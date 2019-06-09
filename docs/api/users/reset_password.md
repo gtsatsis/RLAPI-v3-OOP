@@ -6,7 +6,7 @@ Resetting a password can be done via the API by using the endpoint `/users/reset
 
 The following is an example of a request made in cURL.
 
-`curl https://api.ratelimited.me/users/reset_password'username=example' -d 'email=example@example.com'`
+`curl https://api.ratelimited.me/users/reset_password -d 'email=example@example.com'`
 
 #### How a response would look like
 
