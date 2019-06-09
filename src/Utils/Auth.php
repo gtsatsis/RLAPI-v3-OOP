@@ -159,6 +159,35 @@ class Auth
 
     /* End Upload Authentication Function */
 
+    public function shorten_authentication(string $api_key)
+    {
+        pg_prepare($this->dbconn, 'get_user_by_api_key_2', 'SELECT * FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1 LIMIT 1)');
+        $execute_prepared_statement = pg_execute($this->dbconn, 'get_user_by_api_key_2', array($api_key));
+
+        $user = pg_fetch_array($execute_prepared_statement);
+
+        if (null != $user) {
+            if ('t' == $user['verified']) {
+                if ('f' == $user['is_blocked'] || empty($user['is_blocked'])) {
+                    $this->sqreen->sqreen_auth_track(true, $user['email']);
+                    $this->sqreen->sqreen_track_shorten($user['id']);
+
+                    return true;
+                } else {
+                    $this->sqreen->sqreen_auth_track(false, $user['email']);
+
+                    return false;
+                }
+            } else {
+                $this->sqreen->sqreen_auth_track(false, $user['email']);
+
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function api_key_is_admin(string $api_key)
     {
         pg_prepare($this->dbconn, 'api_key_is_admin', 'SELECT is_admin FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1)');
