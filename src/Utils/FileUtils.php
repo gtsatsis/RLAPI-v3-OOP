@@ -31,9 +31,13 @@ class FileUtils
 
     public function isUnique($filename, $s3Endpoint)
     {
-        $headers = get_headers($s3Endpoint.$filename);
 
-        if ('404' == substr($headers[0], 9, 3)) {
+        $statement = pg_prepare($this->dbconn, 'is_filename_unique', 'SELECT COUNT(*) FROM files WHERE filename = $1');
+        $executePreparedStatement = pg_execute($this->dbconn, 'is_filename_unique', array($filename));
+        
+        $result = pg_fetch_array($executePreparedStatement);
+
+        if($result[0] == 0){
             return true;
         }
 

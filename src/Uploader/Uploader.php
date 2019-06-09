@@ -61,7 +61,7 @@ class Uploader
                 $file_name_is_unique = false;
 
                 while (!$file_name_is_unique) {
-                    if ($fileUtils->isUnique($file_name, getenv('S3_ENDPOINT').'/'.$this->bucket.'/')) {
+                    if ($fileUtils->isUnique($file_name)) {
                         $file_name_is_unique = true;
                     } else {
                         $file_name_is_unique = false;
