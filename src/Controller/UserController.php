@@ -126,11 +126,11 @@ class UserController extends AbstractController
     }
 
     /**
-     * Matches /users/{id}/password exactly.
+     * Matches /users/{id}/update_password exactly.
      *
      * @Route("/users/{id}/update_password", name="set_user_password")
      */
-    public function update_user_password(Request $request, $id)
+    public function set_user_password(Request $request, $id)
     {
         $users = new User();
         $auth = new Auth();

@@ -46,14 +46,6 @@ class Shortener
                 ];
             }
 
-            /**
-             * @Dieter Rams#0420 is to blame for this; Will be removed in the next commit.
-             *  _   _    __ _  __ _ _   _ 
-             * | | | |  / _` |/ _` | | | |
-             * | |_| | | (_| | (_| | |_| |
-             * \__,_|  \__, |\__,_|\__, |
-             *          |___/       |___/ 
-             */
 
             $id = Uuid::uuid4();
             $id = $id->toString();
