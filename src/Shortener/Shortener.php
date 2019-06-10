@@ -51,7 +51,7 @@ class Shortener
         if ($authentication) {
             $parsed_url = parse_url($url);
 
-            if (!$this->url_is_safe($parsed_url['host'])) {
+            if ('false' == $this->url_is_safe($parsed_url['host'])) {
                 $url = [
                     'url' => $url,
                     'safe' => false,
