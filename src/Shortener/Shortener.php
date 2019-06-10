@@ -4,6 +4,7 @@ namespace App\Shortener;
 
 use App\Models\User;
 use App\Utils\Auth;
+use App\Utils\FileUtils;
 use Symfony\Component\Dotenv\Dotenv;
 use Ramsey\Uuid\Uuid;
 
@@ -12,6 +13,8 @@ class Shortener
     private $dbconn;
 
     private $authentication;
+
+    private $util;
 
     public function __construct()
     {
@@ -23,9 +26,25 @@ class Shortener
         $this->dbconn = pg_connect('host='.getenv('DB_HOST').' port=5432 dbname='.getenv('DB_NAME').' user='.getenv('DB_USERNAME').' password='.getenv('DB_PASSWORD'));
 
         $this->authentication = new Auth();
+
+        $this->util = new FileUtils();
     }
 
-    public function shorten($api_key, $url)
+    public function url_is_safe($domain)
+    {
+        $statement = pg_prepare($this->dbconn, 'check_banned_domain', 'SELECT COUNT(*) FROM banned_domains_short WHERE domain = $1');
+        $executePreparedStatement = pg_execute($this->dbconn, 'check_banned_domain', array($domain));
+
+        $result = pg_fetch_array($executePreparedStatement);
+
+        if (0 == $result[0]) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function shorten($api_key, $url, $custom_ending=null)
     {
         $authentication = $this->authentication->shorten_authentication($api_key);
 
@@ -47,7 +66,44 @@ class Shortener
             $id = Uuid::uuid4();
             $id = $id->toString();
 
-            /* Not done */
+            $short_name = $this->util->generateShortName();
+            $short_name_is_unique = false;
+
+            while (!$short_name_is_unique) {
+                if ($this->util->isShortUnique($short_name)) {
+                    $short_name_is_unique = true;
+                } else {
+                    $short_name_is_unique = false;
+                    $short_name = $this->util->generateShortName();
+                }
+            }
+            if(!empty($custom_ending)){
+                $short_name = $short_name.$custom_ending;
+            }
+
+            $this->util->log_short($api_key, $id, $short_name, $url['url'], $url['safe']);
+
+            return [
+                'action' => 'shorten',
+                'result' => $short_name,
+            ];
+        }else{
+            return [
+                    'success' => false,
+                    'error_message' => 'Invalid Credentials',
+            ];
         }
+    }
+
+    public function lookup($short_name)
+    {
+        $statement = pg_prepare($this->dbconn, "look_up_short_url", "SELECT url FROM shortened_urls WHERE short_name = $1");
+        $executePreparedStatement = pg_execute($this->dbconn, "look_up_short_url", array($short_name));
+        $result = pg_fetch_array($executePreparedStatement);
+
+        return [
+            'action' => 'lookup',
+            'result' => $result[0],
+        ];
     }
 }
