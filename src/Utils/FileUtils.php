@@ -32,7 +32,7 @@ class FileUtils
     public function generateShortName()
     {
         // Generate a random name
-        $short_name = substr(str_shuffle(str_repeat(getenv('SHORTENER_DICTIONARY'), getenv('SHORTENER_LENGTH'))), 0, getenv('FILENAME_LENGTH'));
+        $short_name = substr(str_shuffle(str_repeat(getenv('SHORTENER_DICTIONARY'), getenv('SHORTENER_LENGTH'))), 0, getenv('SHORTENER_LENGTH'));
 
         return '~.'.$short_name; // Shortener identifies shortURL vs fileName by using `~.` as the "filename" and the extension as the identifier. Hacky, but works.
     }
