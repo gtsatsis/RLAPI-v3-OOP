@@ -84,7 +84,7 @@ class FileUtils
         }
     }
 
-    public function log_short($api_key)
+    public function log_short($api_key, $id, $short_name, $url, $url_safe)
     {
         $users = new User();
 
