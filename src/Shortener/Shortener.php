@@ -44,7 +44,7 @@ class Shortener
         return false;
     }
 
-    public function shorten($api_key, $url, $custom_ending = null, $domain='https://ratelimited.me')
+    public function shorten($api_key, $url, $custom_ending = null, $domain = 'https://ratelimited.me')
     {
         $authentication = $this->authentication->shorten_authentication($api_key);
 
