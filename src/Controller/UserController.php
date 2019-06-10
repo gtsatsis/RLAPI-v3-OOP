@@ -261,17 +261,17 @@ class UserController extends AbstractController
         $auth = new Auth();
 
         if ($auth->isValidUUID($id)) {
-            if($request->query->has('key')){
+            if ($request->query->has('key')) {
                 $get_uploads = $user->get_user_uploads($id, $request->query->get('key'));
 
                 $response = new Response(json_encode($get_uploads));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
-            }else{
+            } else {
                 $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
                 $response->headers->set('Content-Type', 'application/json');
-    
+
                 return $response;
             }
         } else {
