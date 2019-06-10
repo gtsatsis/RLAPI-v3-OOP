@@ -15,7 +15,7 @@ class ShortenerController extends AbstractController
 {
     private $auth;
 
-    private $shortner;
+    private $shortener;
 
     public function __construct()
     {
