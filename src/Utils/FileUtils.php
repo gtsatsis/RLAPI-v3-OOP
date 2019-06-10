@@ -91,7 +91,7 @@ class FileUtils
         $user_id = $users->get_user_by_api_key($api_key);
 
         if (!empty($user_id)) {
-            pg_prepare($this->dbconn, 'log_short', 'INSERT INTO shortened_urls VALUES ($1, $2, $3, $4, $5, $6, $7)');
+            pg_prepare($this->dbconn, 'log_short', 'INSERT INTO shortened_urls (user_id, token, id, short_name, url, url_safe, timestamp) VALUES ($1, $2, $3, $4, $5, $6, $7)');
             /* user_id, token, short_id, short_name, url, url_safe, timestamp */
             $executePreparedStatement = pg_execute($this->dbconn, 'log_short', array($user_id[0], $api_key, $id, $short_name, $url, $url_safe, time()));
 
