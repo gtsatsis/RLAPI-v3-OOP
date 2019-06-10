@@ -38,10 +38,10 @@ class Shortener
         $result = pg_fetch_array($executePreparedStatement);
 
         if (0 == $result[0]) {
-            return true;
+            return 'true';
         }
 
-        return false;
+        return 'false';
     }
 
     public function shorten($api_key, $url, $custom_ending = null, $domain = 'https://ratelimited.me')
