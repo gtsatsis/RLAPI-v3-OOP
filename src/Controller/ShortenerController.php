@@ -82,7 +82,7 @@ class ShortenerController extends AbstractController
     {
         if ($request->query->has('short_name')) {
             if (!empty($request->query->get('short_name'))) {
-                $lookup = $this->shorterner->lookup($request->query->get('short_name'));
+                $lookup = $this->shortener->lookup($request->query->get('short_name'));
                 $response = new Response(json_encode($lookup));
                 $response->headers->set('Content-Type', 'application/json');
 
