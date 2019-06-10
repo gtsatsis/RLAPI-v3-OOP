@@ -44,7 +44,7 @@ class Shortener
         return false;
     }
 
-    public function shorten($api_key, $url, $custom_ending=null)
+    public function shorten($api_key, $url, $custom_ending = null)
     {
         $authentication = $this->authentication->shorten_authentication($api_key);
 
@@ -77,7 +77,7 @@ class Shortener
                     $short_name = $this->util->generateShortName();
                 }
             }
-            if(!empty($custom_ending)){
+            if (!empty($custom_ending)) {
                 $short_name = $short_name.$custom_ending;
             }
 
@@ -87,7 +87,7 @@ class Shortener
                 'action' => 'shorten',
                 'result' => $short_name,
             ];
-        }else{
+        } else {
             return [
                     'success' => false,
                     'error_message' => 'Invalid Credentials',
@@ -97,8 +97,8 @@ class Shortener
 
     public function lookup($short_name)
     {
-        $statement = pg_prepare($this->dbconn, "look_up_short_url", "SELECT url FROM shortened_urls WHERE short_name = $1");
-        $executePreparedStatement = pg_execute($this->dbconn, "look_up_short_url", array($short_name));
+        $statement = pg_prepare($this->dbconn, 'look_up_short_url', 'SELECT url FROM shortened_urls WHERE short_name = $1');
+        $executePreparedStatement = pg_execute($this->dbconn, 'look_up_short_url', array($short_name));
         $result = pg_fetch_array($executePreparedStatement);
 
         return [
