@@ -34,10 +34,18 @@ class ShortenerController extends AbstractController
         if ($request->query->has('key') && $request->query->has('url')) {
             if ($this->auth->isValidUUID($request->query->get('key'))) {
                 if (!empty($request->query->get('url'))) {
-                    if ($request->query->has('custom_ending')) {
-                        $shorten = $this->shortener->shorten($request->query->get('key'), $request->query->get('url'), $request->query->get('custom_ending'));
-                    } else {
-                        $shorten = $this->shortener->shorten($request->query->get('key'), $request->query->get('url'));
+                    if($request->query->has('domain')){
+                        if ($request->query->has('custom_ending')) {
+                            $shorten = $this->shortener->shorten($request->query->get('key'), $request->query->get('url'), $request->query->get('custom_ending'), $request->query->get('domain'));
+                        } else {
+                            $shorten = $this->shortener->shorten($request->query->get('key'), $request->query->get('url'), null, $request->query->get('domain'));
+                        }
+                    }else{
+                        if ($request->query->has('custom_ending')) {
+                            $shorten = $this->shortener->shorten($request->query->get('key'), $request->query->get('url'), $request->query->get('custom_ending'));
+                        } else {
+                            $shorten = $this->shortener->shorten($request->query->get('key'), $request->query->get('url'));
+                        }
                     }
 
                     $response = new Response(json_encode($shorten));
