@@ -71,8 +71,7 @@ class DomainsController extends AbstractController
 
                 return $response;
             }
-        }else{
-            
+        } else {
             $response = new Response(json_encode(['message' => 'you_did_not_supply_a_request_body']));
             $response->headers->set('Content-Type', 'application/json');
 
