@@ -61,8 +61,11 @@ S3_BUCKET= # S3 Bucket
 Set these to your Minio stock preferences. Make sure to create a bucket for RLAPI within Minio (or just use AWS like a cloud-based nerd).
 
 ```
-FILENAME_DICTIONARY=0123456789abcdefghijklmnopqrstuvwxyz
+FILENAME_DICTIONARY=0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
 FILENAME_LENGTH=10
+
+SHORTENER_DICTIONARY=0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
+SHORTENER_LENGTH=4
 ```
 
 The default for these are good enough, change them if you need to.
