@@ -119,7 +119,8 @@ class Domains
         $dnsController = new \Spatie\Dns\Dns($txt_record['name']);
         $dns_record = $dnsController->getRecords('TXT');
 
-        if(1==2 && $txt_record['contents'])
+        $extract_quote_part = preg_match("/(?:(?:\"(?:\\\\\"|[^\"])+\")|(?:'(?:\\\'|[^'])+'))/is",$dns_record,$extract_quote_part);
+        if($extract_quote_part == '"'.$txt_record['contents'].'"')
         {
             pg_prepare($this->dbconn, "verify_domain", "UPDATE domains SET verified = true WHERE domain_name = $1");
             pg_execute($this->dbconn, "verify_domain", array($domain));
@@ -135,7 +136,7 @@ class Domains
             return [
                 'domains' => [
                     $domain => [
-                        'verified' => false.var_dump($dns_record),
+                        'verified' => false,
                     ],
                 ],
             ];
