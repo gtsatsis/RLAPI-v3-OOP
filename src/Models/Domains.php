@@ -52,6 +52,8 @@ class Domains
     
     public function add_domain($api_key, $domain, $wildcard, $public)
     {
+        $users = new User();
+
         if ($this->authentication->api_key_is_admin($api_key)) {
             if ($this->is_valid_domain_name($domain)){
                 $id = Uuid::uuid4();
