@@ -29,7 +29,8 @@
         "symfony/validator": "4.2.*",
         "symfony/web-link": "4.2.*",
         "symfony/yaml": "4.2.*",
-        "bugsnag/bugsnag-symfony": "^1.5"
+        "bugsnag/bugsnag-symfony": "^1.5",
+        "spatie/dns": "^1.4"
     },
     "require-dev": {
         "symfony/debug-pack": "*",
