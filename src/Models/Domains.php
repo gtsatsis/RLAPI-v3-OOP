@@ -120,8 +120,8 @@ class Domains
         $dns_record = $dnsController->getRecords('TXT');
 
         preg_match("/(?:(?:\"(?:\\\\\"|[^\"])+\")|(?:'(?:\\\'|[^'])+'))/is",$dns_record,$extracted_quote_part);
-        if($extracted_quote_part == '"'.$txt_record['contents'].'"')
-        {preg_match("/(?:(?:\"(?:\\\\\"|[^\"])+\")|(?:'(?:\\\'|[^'])+'))/is",$haystack,$match);
+        if($extracted_quote_part[0] == '"'.$txt_record['contents'].'"')
+        {
             pg_prepare($this->dbconn, "verify_domain", "UPDATE domains SET verified = true WHERE domain_name = $1");
             pg_execute($this->dbconn, "verify_domain", array($domain));
 
