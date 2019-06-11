@@ -24,9 +24,33 @@ class DomainsController extends AbstractController
         $domains = new Domains();
 
         if($request->request->has('api_key') && $request->request->has('domain')){
-            if($request->request->has('wildcard') && $request->request->has('public')){
+            if($request->request->has('wildcard') && $request->request->has('public') && $request->request->has('bucket')){
 
-                $domain_add = $domains->add_domain($request->request->get('api_key'), $request->request->get('domain'), $request->request->get('wildcard'), $request->request->get('public'));
+                $domain_add = $domains->add_domain($request->request->get('api_key'), $request->request->get('domain'), $request->request->get('wildcard'), $request->request->get('public'), $request->request->get('bucket'));
+                $response = new Response(json_encode($domain_add));
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+
+            }elseif($request->request->has('wildcard') && $request->request->has('public')){
+
+                $domain_add = $domains->add_domain($request->request->get('api_key'), $request->request->get('domain'), $request->request->get('wildcard'), $request->request->get('public'), getenv('S3_BUCKET'));
+                $response = new Response(json_encode($domain_add));
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+
+            }elseif($request->request->has('wildcard') && $request->request->has('bucket')){
+
+                $domain_add = $domains->add_domain($request->request->get('api_key'), $request->request->get('domain'), $request->request->get('wildcard'), true, $request->request->get('bucket'));
+                $response = new Response(json_encode($domain_add));
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+
+            }elseif($request->request->has('public') && $request->request->has('bucket')){
+
+                $domain_add = $domains->add_domain($request->request->get('api_key'), $request->request->get('domain'), false, $request->request->get('public'), $request->request->get('bucket'));
                 $response = new Response(json_encode($domain_add));
                 $response->headers->set('Content-Type', 'application/json');
 
@@ -48,9 +72,17 @@ class DomainsController extends AbstractController
 
                 return $response;
 
+            }elseif($request->request->has('bucket')){
+
+                $domain_add = $domains->add_domain($request->request->get('api_key'), $request->request->get('domain'), false, true, $request->request->get('bucket'));
+                $response = new Response(json_encode($domain_add));
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+
             }else{
 
-                $domain_add = $domains->add_domain($request->request->get('api_key'), $request->request->get('domain'), false, true);
+                $domain_add = $domains->add_domain($request->request->get('api_key'), $request->request->get('domain'), false, true, getenv('S3_BUCKET'));
                 $response = new Response(json_encode($domain_add));
                 $response->headers->set('Content-Type', 'application/json');
 

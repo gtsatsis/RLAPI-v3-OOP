@@ -50,7 +50,7 @@ class Domains
 
     }
     
-    public function add_domain($api_key, $domain, $wildcard, $public)
+    public function add_domain($api_key, $domain, $wildcard, $public, $bucket)
     {
         $users = new User();
 
@@ -74,8 +74,16 @@ class Domains
                     $public = 'f';
                 }
 
-                pg_prepare($this->dbconn, "insert_domain", "INSERT INTO domains (id, user_id, api_key, domain_name, official, wildcard, public, verified, verification_hash) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)");
-                $execute = pg_execute($this->dbconn, "insert_domain", array($id, $user['id'], $api_key, $domain, 'f', $wildcard, $public, 'f', $verification_hash));
+                if($bucket != getenv('S3_BUCKET')){ /* If the bucket isn't the default one */
+                    if($this->authentication->owns_bucket($user['id'], $bucket)){ /* Check if the bucket specified is owned by this user */
+                        $bucket = $bucket; /* If it is, do nothing */
+                    }else{
+                        $bucket = getenv('S3_BUCKET'); /* Else, set the bucket to default */
+                    }
+                }
+
+                pg_prepare($this->dbconn, "insert_domain", "INSERT INTO domains (id, user_id, api_key, domain_name, official, wildcard, public, verified, verification_hash, bucket) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)");
+                $execute = pg_execute($this->dbconn, "insert_domain", array($id, $user['id'], $api_key, $domain, 'f', $wildcard, $public, 'f', $verification_hash, $bucket));
                 if($execute){
                     return [
                         'success' => true,
@@ -91,8 +99,9 @@ class Domains
                                     'name' => 'rl-verify-'.mb_substr($verification_hash, 0, 4),
                                     'contents' => $verification_hash
                                 ],
-                            ]
-                        ]
+                                'bucket' => $bucket,
+                            ],
+                        ],
                     ];
                 }else{
                     throw new Exception('Something went horribly wrong while inserting domain into database');
