@@ -52,7 +52,7 @@ class Domains
     {
         $users = new User();
 
-        if ($this->authentication->api_key_is_admin($api_key)) {
+        if ($this->authentication->isValidUUID($api_key)) {
             if ($this->is_valid_domain_name($domain)) {
                 $id = Uuid::uuid4();
                 $id = $id->toString();
@@ -66,7 +66,7 @@ class Domains
                     $wildcard = 'f';
                 }
 
-                if (true == $public) {
+                if (true == $public || $this->authentication->domain_allowance($user['id'])) {
                     $public = 't';
                 } else {
                     $public = 'f';

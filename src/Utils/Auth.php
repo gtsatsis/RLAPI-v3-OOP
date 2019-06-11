@@ -91,6 +91,25 @@ class Auth
         }
     }
 
+    public function domain_allowance(string $user_id)
+    {
+        pg_prepare($this->dbconn, 'get_domain_allowance', 'SELECT private_domains FROM tiers WHERE tier = (SELECT tier FROM users WHERE id = $1)');
+
+        $execute_prepared_statement = pg_execute($this->dbconn, 'get_domain_allowance', array($user_id));
+        $domain_allowance = pg_fetch_array($execute_prepared_statement);
+
+        pg_prepare($this->dbconn, 'get_current_domains', 'SELECT COUNT(*) FROM domains WHERE user_id = $1');
+        $execute_prepared_statement = pg_execute($this->dbconn, 'get_current_domains', array($user_id));
+
+        $current_domains = pg_fetch_array($execute_prepared_statement);
+
+        if ($domain_allowance[0] >= $current_domains[0]) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     public function user_api_key_allowance(string $user_id)
     {
         pg_prepare($this->dbconn, 'get_api_key_allowance', 'SELECT api_keys FROM tiers WHERE tier = (SELECT tier FROM users WHERE id = $1)');
