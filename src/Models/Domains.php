@@ -48,12 +48,24 @@ class Domains
             && preg_match("/^[^\.]{1,63}(\.[^\.]{1,63})*$/", $domain_name); //length of each label
     }
 
+    public function domain_already_exists($domain)
+    {
+        pg_prepare($this->dbconn, "check_if_domain_already_exists", "SELECT COUNT(*) FROM domains WHERE domain_name = $1");
+        $count = pg_fetch_array(pg_execute($this->dbconn, "check_if_domain_already_exists", array($domain)));
+
+        if($count[0] == 0){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
     public function add_domain($api_key, $domain, $wildcard, $public, $bucket)
     {
         $users = new User();
 
         if ($this->authentication->isValidUUID($api_key)) {
-            if ($this->is_valid_domain_name($domain)) {
+            if ($this->is_valid_domain_name($domain) && !domain_already_exists($domain)) {
                 $id = Uuid::uuid4();
                 $id = $id->toString();
 
