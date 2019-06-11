@@ -5,7 +5,6 @@ namespace App\Controller;
 require_once __DIR__.'/../../vendor/autoload.php';
 
 use App\Models\Domains;
-use App\Utils\Auth;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,74 +19,57 @@ class DomainsController extends AbstractController
      */
     public function create_user_domain(Request $request)
     {
-
         $domains = new Domains();
 
-        if($request->request->has('api_key') && $request->request->has('domain')){
-            if($request->request->has('wildcard') && $request->request->has('public') && $request->request->has('bucket')){
-
+        if ($request->request->has('api_key') && $request->request->has('domain')) {
+            if ($request->request->has('wildcard') && $request->request->has('public') && $request->request->has('bucket')) {
                 $domain_add = $domains->add_domain($request->request->get('api_key'), $request->request->get('domain'), $request->request->get('wildcard'), $request->request->get('public'), $request->request->get('bucket'));
                 $response = new Response(json_encode($domain_add));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
-
-            }elseif($request->request->has('wildcard') && $request->request->has('public')){
-
+            } elseif ($request->request->has('wildcard') && $request->request->has('public')) {
                 $domain_add = $domains->add_domain($request->request->get('api_key'), $request->request->get('domain'), $request->request->get('wildcard'), $request->request->get('public'), getenv('S3_BUCKET'));
                 $response = new Response(json_encode($domain_add));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
-
-            }elseif($request->request->has('wildcard') && $request->request->has('bucket')){
-
+            } elseif ($request->request->has('wildcard') && $request->request->has('bucket')) {
                 $domain_add = $domains->add_domain($request->request->get('api_key'), $request->request->get('domain'), $request->request->get('wildcard'), true, $request->request->get('bucket'));
                 $response = new Response(json_encode($domain_add));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
-
-            }elseif($request->request->has('public') && $request->request->has('bucket')){
-
+            } elseif ($request->request->has('public') && $request->request->has('bucket')) {
                 $domain_add = $domains->add_domain($request->request->get('api_key'), $request->request->get('domain'), false, $request->request->get('public'), $request->request->get('bucket'));
                 $response = new Response(json_encode($domain_add));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
-
-            }elseif($request->request->has('public')){
-
+            } elseif ($request->request->has('public')) {
                 $domain_add = $domains->add_domain($request->request->get('api_key'), $request->request->get('domain'), false, $request->request->get('public'));
                 $response = new Response(json_encode($domain_add));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
-
-            }elseif($request->request->has('wildcard')){
-
+            } elseif ($request->request->has('wildcard')) {
                 $domain_add = $domains->add_domain($request->request->get('api_key'), $request->request->get('domain'), $request->request->get('wildcard'), true);
                 $response = new Response(json_encode($domain_add));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
-
-            }elseif($request->request->has('bucket')){
-
+            } elseif ($request->request->has('bucket')) {
                 $domain_add = $domains->add_domain($request->request->get('api_key'), $request->request->get('domain'), false, true, $request->request->get('bucket'));
                 $response = new Response(json_encode($domain_add));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
-
-            }else{
-
+            } else {
                 $domain_add = $domains->add_domain($request->request->get('api_key'), $request->request->get('domain'), false, true, getenv('S3_BUCKET'));
                 $response = new Response(json_encode($domain_add));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
-
             }
         }
     }
@@ -108,5 +90,4 @@ class DomainsController extends AbstractController
 
         return $response;
     }
-    
 }
