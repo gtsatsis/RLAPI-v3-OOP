@@ -47,6 +47,18 @@ CREATE TABLE public.addons (
 ALTER TABLE public.addons OWNER TO rlapi_devel;
 
 --
+-- Name: banned_domains_short; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.banned_domains_short (
+    id uuid,
+    domain text
+);
+
+
+ALTER TABLE public.banned_domains_short OWNER TO postgres;
+
+--
 -- Name: buckets; Type: TABLE; Schema: public; Owner: rlapi_devel
 --
 
@@ -60,14 +72,20 @@ CREATE TABLE public.buckets (
 ALTER TABLE public.buckets OWNER TO rlapi_devel;
 
 --
--- Name: domains; Type: TABLE; Schema: public; Owner: rlapi_devel
+-- Name: domains; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.domains (
     id uuid,
     domain_name text,
     official boolean,
-    wildcard boolean
+    wildcard boolean,
+    public boolean,
+    verified boolean,
+    verification_hash text,
+    user_id uuid,
+    api_key uuid,
+    bucket text
 );
 
 
@@ -106,7 +124,7 @@ CREATE TABLE public.password_resets (
 ALTER TABLE public.password_resets OWNER TO rlapi_devel;
 
 --
--- Name: promo_codes; Type: TABLE; Schema: public; Owner: rlapi_devel
+-- Name: promo_codes; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.promo_codes (
@@ -120,6 +138,23 @@ CREATE TABLE public.promo_codes (
 
 
 ALTER TABLE public.promo_codes OWNER TO postgres;
+
+--
+-- Name: shortened_urls; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.shortened_urls (
+    user_id uuid,
+    token uuid,
+    id uuid,
+    short_name text,
+    url text,
+    url_safe boolean,
+    "timestamp" integer
+);
+
+
+ALTER TABLE public.shortened_urls OWNER TO postgres;
 
 --
 -- Name: tiers; Type: TABLE; Schema: public; Owner: rlapi_devel
@@ -193,6 +228,14 @@ COPY public.addons (user_id, whitelabel_enabled) FROM stdin;
 
 
 --
+-- Data for Name: banned_domains_short; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.banned_domains_short (id, domain) FROM stdin;
+\.
+
+
+--
 -- Data for Name: buckets; Type: TABLE DATA; Schema: public; Owner: rlapi_devel
 --
 
@@ -201,10 +244,10 @@ COPY public.buckets (user_id, bucket_name, allocated_domain) FROM stdin;
 
 
 --
--- Data for Name: domains; Type: TABLE DATA; Schema: public; Owner: rlapi_devel
+-- Data for Name: domains; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.domains (id, domain_name, official, wildcard) FROM stdin;
+COPY public.domains (id, domain_name, official, wildcard, public, verified, verification_hash, user_id, api_key, bucket) FROM stdin;
 \.
 
 
@@ -225,10 +268,18 @@ COPY public.password_resets (id, email, expiry_date, used) FROM stdin;
 
 
 --
--- Data for Name: promo_codes; Type: TABLE DATA; Schema: public; Owner: rlapi_devel
+-- Data for Name: promo_codes; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.promo_codes (id, code, uses, max_uses, promo_tier, expired) FROM stdin;
+\.
+
+
+--
+-- Data for Name: shortened_urls; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.shortened_urls (user_id, token, id, short_name, url, url_safe, "timestamp") FROM stdin;
 \.
 
 
@@ -237,7 +288,6 @@ COPY public.promo_codes (id, code, uses, max_uses, promo_tier, expired) FROM std
 --
 
 COPY public.tiers (tier, maximum_filesize, api_keys, private_domains, users_per_bucket, bucket_limit) FROM stdin;
-free	104857600	3	0	0	0
 \.
 
 
@@ -266,17 +316,31 @@ COPY public.verification_emails (user_id, verification_id, email, used) FROM std
 
 
 --
--- Name: TABLE domains; Type: ACL; Schema: public; Owner: rlapi_devel
+-- Name: TABLE banned_domains_short; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.banned_domains_short TO rlapi_devel;
+
+
+--
+-- Name: TABLE domains; Type: ACL; Schema: public; Owner: postgres
 --
 
 GRANT ALL ON TABLE public.domains TO rlapi_devel;
 
 
 --
--- Name: TABLE promo_codes; Type: ACL; Schema: public; Owner: rlapi_devel
+-- Name: TABLE promo_codes; Type: ACL; Schema: public; Owner: postgres
 --
 
 GRANT ALL ON TABLE public.promo_codes TO rlapi_devel;
+
+
+--
+-- Name: TABLE shortened_urls; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON TABLE public.shortened_urls TO rlapi_devel;
 
 
 --
