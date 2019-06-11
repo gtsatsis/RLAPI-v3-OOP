@@ -50,12 +50,12 @@ class Domains
 
     public function domain_already_exists($domain)
     {
-        pg_prepare($this->dbconn, "check_if_domain_already_exists", "SELECT COUNT(*) FROM domains WHERE domain_name = $1");
-        $count = pg_fetch_array(pg_execute($this->dbconn, "check_if_domain_already_exists", array($domain)));
+        pg_prepare($this->dbconn, 'check_if_domain_already_exists', 'SELECT COUNT(*) FROM domains WHERE domain_name = $1');
+        $count = pg_fetch_array(pg_execute($this->dbconn, 'check_if_domain_already_exists', array($domain)));
 
-        if($count[0] == 0){
+        if (0 == $count[0]) {
             return false;
-        }else{
+        } else {
             return true;
         }
     }
