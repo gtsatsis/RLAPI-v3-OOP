@@ -53,7 +53,7 @@ class Domains
     public function add_domain($api_key, $domain, $wildcard, $public)
     {
         if ($this->authentication->api_key_is_admin($api_key)) {
-            if ($this->is_valid_domain($domain)){
+            if ($this->is_valid_domain_name($domain)){
                 $id = Uuid::uuid4();
                 $id = $id->toString();
 
@@ -119,7 +119,7 @@ class Domains
         {
             pg_prepare($this->dbconn, "verify_domain", "UPDATE domains SET verified = true WHERE domain_name = $1");
             pg_execute($this->dbconn, "verify_domain", array($domain));
-            
+
             return [
                 'domains' => [
                     $domain => [
