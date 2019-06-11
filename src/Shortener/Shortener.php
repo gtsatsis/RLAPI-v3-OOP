@@ -81,9 +81,9 @@ class Shortener
                 $short_name = $short_name.$custom_ending;
             }
 
-            if($url['safe'] == 'true'){
+            if ('true' == $url['safe']) {
                 $this->util->log_short($api_key, $id, $short_name, $url['url'], true);
-            }else{
+            } else {
                 $this->util->log_short($api_key, $id, $short_name, $url['url'], 'f');
             }
 
