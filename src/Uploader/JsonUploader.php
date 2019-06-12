@@ -45,7 +45,7 @@ class JsonUploader
                     'success' => true,
                     'upload' => [
                         'id' => $id,
-                        'url' => $id,
+                        'url' => $url,
                     ],
                 ];
             } else {
