@@ -36,7 +36,7 @@ class JsonUploader
                 $url = '~json.'.$id;
 
                 pg_prepare($this->dbconn, 'get_user_by_api_key', 'SELECT user_id FROM tokens WHERE token = $1');
-                $user_id = pg_fetch_array(pg_execute($this->dbconn, 'get_user_by_api_key'));
+                $user_id = pg_fetch_array(pg_execute($this->dbconn, 'get_user_by_api_key', array($api_key)));
 
                 pg_prepare($this->dbconn, 'upload_json', 'INSERT INTO json_uploads (user_id, api_key, id, url, json, timestamp) VALUES ($1, $2, $3, $4, $5, $6)');
                 pg_execute($this->dbconn, 'upload_json', array($user_id['user_id'], $api_key, $id, $url, $json, time()));
