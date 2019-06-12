@@ -84,35 +84,30 @@ class DomainsController extends AbstractController
      *
      * @Route("/domains/delete/{domain}", name="delete_domain")
      */
-
-     public function delete_domain(Request $request, $domain)
-     {
+    public function delete_domain(Request $request, $domain)
+    {
         $domains = new Domains();
 
-        if($request->request->has('api_key')){
-
-            if($this->authentication->isValidUUID($request->request->get('api_key'))){
-                $domain_delete = $domains->remove_domain($request->request->get('api_key'), $domain); 
+        if ($request->request->has('api_key')) {
+            if ($this->authentication->isValidUUID($request->request->get('api_key'))) {
+                $domain_delete = $domains->remove_domain($request->request->get('api_key'), $domain);
                 $response = new Response(json_encode($domain_delete));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
-            }else{
+            } else {
                 $response = new Response(json_encode(['message' => 'api_key_not_in_uuid_format']));
                 $response->headers->set('Content-Type', 'application/json');
-    
+
                 return $response;
             }
-            
-        }else{
+        } else {
             $response = new Response(json_encode(['message' => 'you_did_not_supply_an_api_key']));
             $response->headers->set('Content-Type', 'application/json');
 
             return $response;
         }
-        
-     }
-
+    }
 
     /**
      * Matches /domains/verify exactly.

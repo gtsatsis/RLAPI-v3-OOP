@@ -5,7 +5,6 @@ namespace App\Models;
 require_once __DIR__.'/../../vendor/autoload.php';
 
 use Symfony\Component\Dotenv\Dotenv;
-use App\Models\User;
 use App\Utils\Auth;
 use App\Utils\SqreenLib;
 use Ramsey\Uuid\Uuid;
@@ -164,16 +163,14 @@ class Domains
 
     public function remove_domain($api_key, $domain)
     {
-        if($this->authentication->api_key_is_admin($api_key) || $this->authentication->is_domain_owner($api_key, $domain)){
+        if ($this->authentication->api_key_is_admin($api_key) || $this->authentication->is_domain_owner($api_key, $domain)) {
+            pg_prepare($this->dbconn, 'delete_domain', 'DELETE FROM domains WHERE domain_name = $1');
+            pg_execute($this->dbconn, 'delete_domain', array($domain));
 
-            pg_prepare($this->dbconn, "delete_domain", "DELETE FROM domains WHERE domain_name = $1");
-            pg_execute($this->dbconn, "delete_domain", array($domain));
-            
             return [
                 'success' => true,
             ];
-
-        }else{
+        } else {
             return [
                 'success' => false,
                 'error_message' => 'insufficient_permissions',
