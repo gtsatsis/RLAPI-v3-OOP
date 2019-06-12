@@ -4,7 +4,6 @@ namespace App\Uploader;
 
 use App\Models\User;
 use App\Utils\Auth;
-use App\Utils\FileUtils;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Dotenv\Dotenv;
 
@@ -28,22 +27,19 @@ class JsonUploader
 
     public function upload($api_key, $json)
     {
-
-        if($this->authentication->upload_authentication($api_key)){
-
+        if ($this->authentication->upload_authentication($api_key)) {
             $json_array = json_decode($json);
 
-            if(json_last_error() == JSON_ERROR_NONE && strlen($json) < getenv('JSON_UPLOADER_MAXCHARS')){
-
+            if (JSON_ERROR_NONE == json_last_error() && strlen($json) < getenv('JSON_UPLOADER_MAXCHARS')) {
                 $id = Uuid::uuid4();
                 $id = $id->toString();
                 $url = '~json.'.$id;
 
-                pg_prepare($this->dbconn, "get_user_by_api_key", "SELECT user_id FROM tokens WHERE token = $1");
-                $user_id = pg_fetch_array(pg_execute($this->dbconn, "get_user_by_api_key"));
+                pg_prepare($this->dbconn, 'get_user_by_api_key', 'SELECT user_id FROM tokens WHERE token = $1');
+                $user_id = pg_fetch_array(pg_execute($this->dbconn, 'get_user_by_api_key'));
 
-                pg_prepare($this->dbconn, "upload_json", "INSERT INTO json_uploads (user_id, api_key, id, url, json, timestamp) VALUES ($1, $2, $3, $4, $5, $6)");
-                pg_execute($this->dbconn, "upload_json", array($user_id['user_id'], $api_key, $id, $url, $json, time()));
+                pg_prepare($this->dbconn, 'upload_json', 'INSERT INTO json_uploads (user_id, api_key, id, url, json, timestamp) VALUES ($1, $2, $3, $4, $5, $6)');
+                pg_execute($this->dbconn, 'upload_json', array($user_id['user_id'], $api_key, $id, $url, $json, time()));
 
                 return [
                     'success' => true,
@@ -52,21 +48,17 @@ class JsonUploader
                         'url' => $id,
                     ],
                 ];
-
-            }else{
+            } else {
                 return [
                     'success' => false,
                     'error_message' => 'invalid_json',
                 ];
             }
-
-        }else{
+        } else {
             return [
                 'success' => false,
                 'error_message' => 'unauthorized',
             ];
         }
-
     }
-
 }

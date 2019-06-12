@@ -210,12 +210,12 @@ class UploadController extends AbstractController
      */
     public function upload_json(Request $request)
     {
-        if(getenv('JSON_UPLOADER_ENABLED')){
+        if (getenv('JSON_UPLOADER_ENABLED')) {
             $authentication = new Auth();
 
-            if($request->query->has('key')){
-                if($authentication->isValidUUID($request->query->get('key'))){
-                    if($request->request->has('data')){
+            if ($request->query->has('key')) {
+                if ($authentication->isValidUUID($request->query->get('key'))) {
+                    if ($request->request->has('data')) {
                         $jsonUploader = new JsonUploader();
                         $upload_json = $jsonUploader->upload($request->query->get('key'), $request->request->get('data'));
 
@@ -223,36 +223,37 @@ class UploadController extends AbstractController
                         $response->headers->set('Content-Type', 'application/json');
 
                         return $response;
-                    }else{
+                    } else {
                         $response = new Response(json_encode([
                             'success' => false,
                             'error_message' => 'request_does_not_have_json_data',
                         ]));
-    
+
                         $response->headers->set('Content-Type', 'application/json');
+
                         return $response;
                     }
-                }else{
+                } else {
                     $response = new Response(json_encode([
                         'success' => false,
                         'error_message' => 'key_not_in_uuid_format',
                     ]));
 
                     $response->headers->set('Content-Type', 'application/json');
+
                     return $response;
                 }
-            }elseif($request->headers->has('Authorization')){
-
+            } elseif ($request->headers->has('Authorization')) {
             }
-        }else{
+        } else {
             $response = new Response(json_encode([
                 'success' => false,
                 'error_message' => 'This instance does not support the JSON Uploader feature.',
             ]));
 
             $response->headers->set('Content-Type', 'application/json');
+
             return $response;
         }
     }
-
 }
