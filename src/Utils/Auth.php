@@ -253,7 +253,7 @@ class Auth
         pg_prepare($this->dbconn, 'get_user_by_api_key', 'SELECT user_id FROM tokens WHERE token = $1');
         $api_key_owner = pg_fetch_array(pg_execute($this->dbconn, 'get_user_by_api_key', array($api_key)));
 
-        if ($user_id[0] == $api_Key_owner[0]) {
+        if ($user_id[0] == $api_key_owner[0] && !empty($user_id[0]) && !empty($api_key_owner[0])) {
             return true;
         } else {
             return false;
