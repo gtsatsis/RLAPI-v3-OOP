@@ -202,4 +202,57 @@ class UploadController extends AbstractController
             return $response;
         }
     }
+
+    /**
+     * Matches /upload/json.
+     *
+     * @Route("/upload/json", name="upload_json")
+     */
+    public function upload_json(Request $request)
+    {
+        if(getenv('JSON_UPLOADER_ENABLED')){
+            $authentication = new Auth();
+
+            if($request->query->has('key')){
+                if($authentication->isValidUUID($request->query->get('key'))){
+                    if($request->request->has('data')){
+                        $jsonUploader = new JsonUploader();
+                        $upload_json = $jsonUploader->upload($request->query->get('key'), $request->request->get('data'));
+
+                        $response = new Response(json_encode($upload_json));
+                        $response->headers->set('Content-Type', 'application/json');
+
+                        return $response;
+                    }else{
+                        $response = new Response(json_encode([
+                            'success' => false,
+                            'error_message' => 'request_does_not_have_json_data',
+                        ]));
+    
+                        $response->headers->set('Content-Type', 'application/json');
+                        return $response;
+                    }
+                }else{
+                    $response = new Response(json_encode([
+                        'success' => false,
+                        'error_message' => 'key_not_in_uuid_format',
+                    ]));
+
+                    $response->headers->set('Content-Type', 'application/json');
+                    return $response;
+                }
+            }elseif($request->headers->has('Authorization')){
+
+            }
+        }else{
+            $response = new Response(json_encode([
+                'success' => false,
+                'error_message' => 'This instance does not support the JSON Uploader feature.',
+            ]));
+
+            $response->headers->set('Content-Type', 'application/json');
+            return $response;
+        }
+    }
+
 }
