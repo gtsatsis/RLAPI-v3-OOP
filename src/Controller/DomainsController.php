@@ -5,6 +5,7 @@ namespace App\Controller;
 require_once __DIR__.'/../../vendor/autoload.php';
 
 use App\Models\Domains;
+use App\Utils\Auth;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,6 +13,13 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DomainsController extends AbstractController
 {
+
+    public function __construct()
+    {
+
+        $this->authentication = new Auth();
+
+    }
     /**
      * Matches /domains/add exactly.
      *
