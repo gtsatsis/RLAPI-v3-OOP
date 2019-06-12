@@ -5,6 +5,7 @@ namespace App\Controller;
 require_once __DIR__.'/../../vendor/autoload.php';
 
 use App\Uploader\Uploader;
+use App\Uploader\JsonUploader;
 use App\Utils\Auth;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
