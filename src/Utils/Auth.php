@@ -246,16 +246,16 @@ class Auth
     }
 
     public function is_domain_owner($api_key, $domain)
-    {   
-        pg_prepare($this->dbconn, "get_domain_owner", "SELECT user_id FROM domains WHERE domain_name = $1");
-        $user_id = pg_fetch_array(pg_execute($this->dbconn, "get_domain_owner", array($domain)));
+    {
+        pg_prepare($this->dbconn, 'get_domain_owner', 'SELECT user_id FROM domains WHERE domain_name = $1');
+        $user_id = pg_fetch_array(pg_execute($this->dbconn, 'get_domain_owner', array($domain)));
 
-        pg_prepare($this->dbconn, "get_user_by_api_key", "SELECT user_id FROM tokens WHERE token = $1");
-        $api_key_owner = pg_fetch_array(pg_execute($this->dbconn, "get_user_by_api_key", array($api_key)));
+        pg_prepare($this->dbconn, 'get_user_by_api_key', 'SELECT user_id FROM tokens WHERE token = $1');
+        $api_key_owner = pg_fetch_array(pg_execute($this->dbconn, 'get_user_by_api_key', array($api_key)));
 
-        if($user_id[0] == $api_Key_owner[0]){
+        if ($user_id[0] == $api_Key_owner[0]) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
