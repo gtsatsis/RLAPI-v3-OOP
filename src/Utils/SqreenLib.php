@@ -34,6 +34,13 @@ class SqreenLib
         }
     }
 
+    public function sqreen_track_shorten($identifier)
+    {
+        if (getenv('SQREEN_ENABLED')) {
+            \sqreen\track('app.ratelimited.rlapi.shorten', ['properties' => ['user_id' => $identifier]]);
+        }
+    }
+
     public function sqreen_track_password_reset()
     {
         if (getenv('SQREEN_ENABLED')) {

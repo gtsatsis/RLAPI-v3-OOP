@@ -58,10 +58,10 @@ class MainController extends AbstractController
     public function security_text()
     {
         if (true == getenv('SECURITY_TXT_ENABLED')) {
-            $response = new Response('Contact: '.getenv('SECURITY_CONTACT').
-                'Acknowledgments: '.getenv('SECURITY_ACKNOWLEDGEMENTS').
-                'Preferred-Languages: en'.
-                'Canonical: '.getenv('INSTANCE_URL').'.well-known/security.txt'.
+            $response = new Response('Contact: '.getenv('SECURITY_CONTACT')."\n".
+                'Acknowledgments: '.getenv('SECURITY_ACKNOWLEDGEMENTS')."\n".
+                'Preferred-Languages: en'."\n".
+                'Canonical: '.getenv('INSTANCE_URL').'.well-known/security.txt'."\n".
                 'Policy: '.getenv('SECURITY_POLICY'));
 
             $response->headers->set('Content-Type', 'text/plain');

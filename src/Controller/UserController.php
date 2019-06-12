@@ -126,11 +126,11 @@ class UserController extends AbstractController
     }
 
     /**
-     * Matches /users/{id}/password exactly.
+     * Matches /users/{id}/update_password exactly.
      *
      * @Route("/users/{id}/update_password", name="set_user_password")
      */
-    public function update_user_password(Request $request, $id)
+    public function set_user_password(Request $request, $id)
     {
         $users = new User();
         $auth = new Auth();
@@ -261,12 +261,19 @@ class UserController extends AbstractController
         $auth = new Auth();
 
         if ($auth->isValidUUID($id)) {
-            $get_uploads = $user->get_user_uploads($id);
+            if ($request->query->has('key')) {
+                $get_uploads = $user->get_user_uploads($id, $request->query->get('key'));
 
-            $response = new Response(json_encode($get_uploads));
-            $response->headers->set('Content-Type', 'application/json');
+                $response = new Response(json_encode($get_uploads));
+                $response->headers->set('Content-Type', 'application/json');
 
-            return $response;
+                return $response;
+            } else {
+                $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+            }
         } else {
             $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
             $response->headers->set('Content-Type', 'application/json');

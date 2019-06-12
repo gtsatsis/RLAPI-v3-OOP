@@ -91,6 +91,25 @@ class Auth
         }
     }
 
+    public function domain_allowance(string $user_id)
+    {
+        pg_prepare($this->dbconn, 'get_domain_allowance', 'SELECT private_domains FROM tiers WHERE tier = (SELECT tier FROM users WHERE id = $1)');
+
+        $execute_prepared_statement = pg_execute($this->dbconn, 'get_domain_allowance', array($user_id));
+        $domain_allowance = pg_fetch_array($execute_prepared_statement);
+
+        pg_prepare($this->dbconn, 'get_current_domains', 'SELECT COUNT(*) FROM domains WHERE user_id = $1');
+        $execute_prepared_statement = pg_execute($this->dbconn, 'get_current_domains', array($user_id));
+
+        $current_domains = pg_fetch_array($execute_prepared_statement);
+
+        if ($domain_allowance[0] >= $current_domains[0]) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     public function user_api_key_allowance(string $user_id)
     {
         pg_prepare($this->dbconn, 'get_api_key_allowance', 'SELECT api_keys FROM tiers WHERE tier = (SELECT tier FROM users WHERE id = $1)');
@@ -159,6 +178,35 @@ class Auth
 
     /* End Upload Authentication Function */
 
+    public function shorten_authentication(string $api_key)
+    {
+        pg_prepare($this->dbconn, 'get_user_by_api_key_2', 'SELECT * FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1 LIMIT 1)');
+        $execute_prepared_statement = pg_execute($this->dbconn, 'get_user_by_api_key_2', array($api_key));
+
+        $user = pg_fetch_array($execute_prepared_statement);
+
+        if (null != $user) {
+            if ('t' == $user['verified']) {
+                if ('f' == $user['is_blocked'] || empty($user['is_blocked'])) {
+                    $this->sqreen->sqreen_auth_track(true, $user['email']);
+                    $this->sqreen->sqreen_track_shorten($user['id']);
+
+                    return true;
+                } else {
+                    $this->sqreen->sqreen_auth_track(false, $user['email']);
+
+                    return false;
+                }
+            } else {
+                $this->sqreen->sqreen_auth_track(false, $user['email']);
+
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public function api_key_is_admin(string $api_key)
     {
         pg_prepare($this->dbconn, 'api_key_is_admin', 'SELECT is_admin FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1)');
@@ -195,5 +243,20 @@ class Auth
         }
 
         return true;
+    }
+
+    public function is_domain_owner($api_key, $domain)
+    {
+        pg_prepare($this->dbconn, 'get_domain_owner', 'SELECT user_id FROM domains WHERE domain_name = $1');
+        $user_id = pg_fetch_array(pg_execute($this->dbconn, 'get_domain_owner', array($domain)));
+
+        pg_prepare($this->dbconn, 'get_user_by_api_key', 'SELECT user_id FROM tokens WHERE token = $1');
+        $api_key_owner = pg_fetch_array(pg_execute($this->dbconn, 'get_user_by_api_key', array($api_key)));
+
+        if ($user_id[0] == $api_key_owner[0] && !empty($user_id[0]) && !empty($api_key_owner[0])) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
