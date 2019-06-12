@@ -65,7 +65,7 @@ class Domains
         $users = new User();
 
         if ($this->authentication->isValidUUID($api_key)) {
-            if ($this->is_valid_domain_name($domain) && !domain_already_exists($domain)) {
+            if ($this->is_valid_domain_name($domain) && !$this->domain_already_exists($domain)) {
                 $id = Uuid::uuid4();
                 $id = $id->toString();
 
