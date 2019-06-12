@@ -13,13 +13,11 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DomainsController extends AbstractController
 {
-
     public function __construct()
     {
-
         $this->authentication = new Auth();
-
     }
+
     /**
      * Matches /domains/add exactly.
      *
