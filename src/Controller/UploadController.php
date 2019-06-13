@@ -304,6 +304,10 @@ class UploadController extends AbstractController
                     'success' => false,
                     'error_message' => 'no_auth_method_provided',
                 ]));
+
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
             }
         } else {
             $response = new Response(json_encode([
