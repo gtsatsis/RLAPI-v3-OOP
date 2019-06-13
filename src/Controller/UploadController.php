@@ -299,6 +299,11 @@ class UploadController extends AbstractController
                     return $response;
                 }
             } elseif ($request->headers->has('Authorization')) {
+            }else{
+                $response = new Response(json_encode([
+                    'success' => false,
+                    'error_message' => 'no_auth_method_provided',
+                ]));
             }
         } else {
             $response = new Response(json_encode([
