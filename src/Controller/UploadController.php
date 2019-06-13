@@ -263,7 +263,6 @@ class UploadController extends AbstractController
      *
      * @Route("/upload/json/{$json_id}/update", name="update_json")
      */
-
     public function update_json(Request $request, $json_id)
     {
         if (getenv('JSON_UPLOADER_ENABLED')) {
