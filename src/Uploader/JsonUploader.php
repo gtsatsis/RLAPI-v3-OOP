@@ -61,4 +61,64 @@ class JsonUploader
             ];
         }
     }
+
+    public function update($api_key, $json_id, $json)
+    {
+
+        if ($this->authentication->upload_authentication($api_key)) {
+            $json_array = json_decode($json);
+
+            if (JSON_ERROR_NONE == json_last_error() && strlen($json) < getenv('JSON_UPLOADER_MAXCHARS')) {
+
+                pg_prepare($this->dbconn, 'get_user_by_api_key', 'SELECT user_id FROM tokens WHERE token = $1');
+                $user_id = pg_fetch_array(pg_execute($this->dbconn, 'get_user_by_api_key', array($api_key)));
+                
+                if($this->owns_json($user_id, $json_id)){
+
+                    pg_prepare($this->dbconn, "update_json", "UPDATE json_uploads SET json = $1 WHERE id = $2");
+                    pg_execute($this->dbconn, "update_json", array($json, $json_id));
+
+                    $url = '~json.'.$json_id;
+                    
+                    return [
+                        'success' => true,
+                        'json_object' => [
+                            $json_id => [
+                                'updated' => true,
+                                'url' => $url,
+                            ],
+                        ],
+                    ];
+                
+                }else{
+                    return [
+                        'success' => false,
+                        'error_message' => 'unauthorized',
+                    ];
+                }
+            } else {
+                return [
+                    'success' => false,
+                    'error_message' => 'invalid_json',
+                ];
+            }
+        } else {
+            return [
+                'success' => false,
+                'error_message' => 'unauthorized',
+            ];
+        }
+    }
+
+    public function owns_json($user_id, $json_id)
+    {
+        pg_prepare($this->dbconn, "owns_json", "SELECT COUNT(*) FROM json_uploads WHERE user_id = $1 AND id = $2");
+        $owns_json = pg_fetch_array(pg_execute($this->dbconn, "owns_json", array($user_id, $json_id)));
+
+        if($owns_json[0] == 1){
+            return true;
+        }else{
+            return false;
+        }
+    }
 }
