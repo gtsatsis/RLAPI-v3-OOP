@@ -311,5 +311,4 @@ class UploadController extends AbstractController
             return $response;
         }
     }
-
 }

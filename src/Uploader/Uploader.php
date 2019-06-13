@@ -2,7 +2,6 @@
 
 namespace App\Uploader;
 
-use App\Models\User;
 use App\Utils\Auth;
 use App\Utils\FileUtils;
 use Symfony\Component\Dotenv\Dotenv;
