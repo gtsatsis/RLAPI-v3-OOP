@@ -271,22 +271,97 @@ class UploadController extends AbstractController
 
             if ($request->query->has('key')) {
                 if ($authentication->isValidUUID($request->query->get('key'))) {
-                    if ($request->request->has('data')) {
+                    if($authentication->isValidUUID($json_id)){
+                        if ($request->request->has('data')) {
+                            $jsonUploader = new JsonUploader();
+                            $upload_json = $jsonUploader->update($request->query->get('key'), $json_id, $request->request->get('data'));
+
+                            $response = new Response(json_encode($upload_json));
+                            $response->headers->set('Content-Type', 'application/json');
+
+                            return $response;
+                        }else{
+                            $response = new Response(json_encode([
+                                'success' => false,
+                                'error_message' => 'request_does_not_have_json_data',
+                            ]));
+    
+                            $response->headers->set('Content-Type', 'application/json');
+    
+                            return $response;
+                        }
+                    } else {
+                        $response = new Response(json_encode([
+                            'success' => false,
+                            'error_message' => 'invalid_json_id',
+                        ]));
+
+                        $response->headers->set('Content-Type', 'application/json');
+
+                        return $response;
+                    }
+                } else {
+                    $response = new Response(json_encode([
+                        'success' => false,
+                        'error_message' => 'key_not_in_uuid_format',
+                    ]));
+
+                    $response->headers->set('Content-Type', 'application/json');
+
+                    return $response;
+                }
+            } elseif ($request->headers->has('Authorization')) {
+            }else{
+                $response = new Response(json_encode([
+                    'success' => false,
+                    'error_message' => 'no_auth_method_provided',
+                ]));
+
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+            }
+        } else {
+            $response = new Response(json_encode([
+                'success' => false,
+                'error_message' => 'This instance does not support the JSON Uploader feature.',
+            ]));
+
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
+    }
+
+    /**
+     * Matches /upload/json/json_id/delete.
+     *
+     * @Route("/upload/json/{json_id}/delete", name="delete_json_noSlash")
+     * @Route("/upload/json/{json_id}/delete/", name="delete_json_withSlash")
+     */
+    public function delete_json(Request $request, $json_id)
+    {
+        if (getenv('JSON_UPLOADER_ENABLED')) {
+            $authentication = new Auth();
+
+            if ($request->query->has('key')) {
+                if ($authentication->isValidUUID($request->query->get('key'))) {
+                    if($authentication->isValidUUID($json_id)){
                         $jsonUploader = new JsonUploader();
-                        $upload_json = $jsonUploader->update($request->query->get('key'), $json_id, $request->request->get('data'));
+                        $upload_json = $jsonUploader->delete($request->query->get('key'), $json_id);
 
                         $response = new Response(json_encode($upload_json));
                         $response->headers->set('Content-Type', 'application/json');
 
                         return $response;
-                    } else {
+                    }else{
                         $response = new Response(json_encode([
                             'success' => false,
-                            'error_message' => 'request_does_not_have_json_data',
+                            'error_message' => 'invalid_json_id',
                         ]));
-
+    
                         $response->headers->set('Content-Type', 'application/json');
-
+    
                         return $response;
                     }
                 } else {
