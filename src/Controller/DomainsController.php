@@ -192,6 +192,7 @@ class DomainsController extends AbstractController
      */
     public function domain_official(Request $request, $domain)
     {
+        $domains = new Domains();
         if($request->request->has('api_key')){
             if ($this->authentication->isValidUUID($request->request->get('api_key'))) {
                 if($this->authentication->api_key_is_admin($request->request->get('api_key'))){
