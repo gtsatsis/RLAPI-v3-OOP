@@ -4,7 +4,6 @@ namespace App\Utils;
 
 require_once __DIR__.'/../../vendor/autoload.php';
 
-use App\Models\User;
 use Symfony\Component\Dotenv\Dotenv;
 
 class Auth
