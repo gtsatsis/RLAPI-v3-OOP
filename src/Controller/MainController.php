@@ -33,7 +33,7 @@ class MainController extends AbstractController
             'instance_stats' => [
                 $stats_array,
             ],
-            'sotware_info' => [
+            'software_info' => [
                 'name' => 'RLAPI',
                 'version' => 3,
             ],

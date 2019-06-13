@@ -177,4 +177,54 @@ class Domains
             ];
         }
     }
+
+    public function set_privacy($domain, $api_key, $privacy)
+    {
+        if ($this->authentication->api_key_is_admin($api_key) || $this->authentication->is_domain_owner($api_key, $domain)) {
+            if ('private' == $privacy) {
+                $privacy_secondary = 'false';
+            } else {
+                $privacy_secondary = 'true';
+            }
+
+            pg_prepare($this->dbconn, 'set_domain_privacy', 'UPDATE domains SET public = $1 WHERE domain_name = $2');
+            pg_execute($this->dbconn, 'set_domain_privacy', array($privacy_secondary, $domain));
+
+            return [
+                'success' => true,
+                'domains' => [
+                    $domain => [
+                        'privacy' => $privacy,
+                    ],
+                ],
+            ];
+        } else {
+            return [
+                'success' => false,
+                'error_message' => 'not_domain_owner',
+            ];
+        }
+    }
+
+    public function set_official_status($domain, $official)
+    {
+        if ('true' == $official || 'false' == $official) {
+            pg_prepare($this->dbconn, 'set_domain_official_status', 'UPDATE domains SET official = $1 WHERE domain_name = $2');
+            pg_execute($this->dbconn, 'set_domain_official_status', array($official, $domain));
+
+            return [
+                'success' => true,
+                'domains' => [
+                    $domain => [
+                        'official' => $official,
+                    ],
+                ],
+            ];
+        } else {
+            return [
+                'success' => false,
+                'error_message' => 'official_must_be_bool',
+            ];
+        }
+    }
 }
