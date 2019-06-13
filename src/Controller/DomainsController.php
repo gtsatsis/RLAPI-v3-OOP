@@ -134,49 +134,45 @@ class DomainsController extends AbstractController
 
     /**
      * Matches /domains/{domain}/privacy exactly.
-     * 
+     *
      * @Route("/domains/{domain}/privacy", name="domain_privacy")
      */
     public function domain_privacy(Request $request, $domain)
     {
         $domains = new Domains();
-        if($request->request->has('api_key')){
+        if ($request->request->has('api_key')) {
             if ($this->authentication->isValidUUID($request->request->get('api_key'))) {
-                if($request->request->has('privacy')){
-                    if($request->request->get('privacy') == 'public'){
-
+                if ($request->request->has('privacy')) {
+                    if ('public' == $request->request->get('privacy')) {
                         $set_privacy = $domains->set_privacy($domain, $request->request->get('api_key'), 'public');
                         $response = new Response(json_encode($set_privacy));
                         $response->headers->set('Content-Type', 'application/json');
 
                         return $response;
-                    }elseif($request->request->get('privacy') == 'private'){
-
+                    } elseif ('private' == $request->request->get('privacy')) {
                         $set_privacy = $domains->set_privacy($domain, $request->request->get('api_key'), 'private');
                         $response = new Response(json_encode($set_privacy));
                         $response->headers->set('Content-Type', 'application/json');
 
                         return $response;
-                    }else{
+                    } else {
                         $response = new Response(json_encode(['message' => 'privacy_must_be_public_or_private']));
                         $response->headers->set('Content-Type', 'application/json');
 
                         return $response;
                     }
-                }else{
+                } else {
                     $response = new Response(json_encode(['message' => 'privacy_is_missing']));
                     $response->headers->set('Content-Type', 'application/json');
 
                     return $response;
                 }
-            
             } else {
                 $response = new Response(json_encode(['message' => 'api_key_not_in_uuid_format']));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
             }
-
         } else {
             $response = new Response(json_encode(['message' => 'you_did_not_supply_an_api_key']));
             $response->headers->set('Content-Type', 'application/json');
@@ -187,21 +183,23 @@ class DomainsController extends AbstractController
 
     /**
      * Matches /domains/{domain}/official exactly.
-     * 
+     *
      * @Route("/domains/{domain}/official", name="domain_official")
      */
     public function domain_official(Request $request, $domain)
     {
         $domains = new Domains();
-        if($request->request->has('api_key')){
+
+        if ($request->request->has('api_key')) {
+
             if ($this->authentication->isValidUUID($request->request->get('api_key'))) {
-                if($this->authentication->api_key_is_admin($request->request->get('api_key'))){
+                if ($this->authentication->api_key_is_admin($request->request->get('api_key'))) {
                     $set_official_status = $domains->set_official_status($domain, $request->request->get('official'));
                     $response = new Response(json_encode($set_official_status));
                     $response->headers->set('Content-Type', 'application/json');
 
                     return $response;
-                }else{
+                } else {
                     $response = new Response(json_encode(['success' => false, 'message' => 'unauthorized']));
                     $response->headers->set('Content-Type', 'application/json');
 
