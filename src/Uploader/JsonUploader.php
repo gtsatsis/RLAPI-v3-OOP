@@ -108,7 +108,7 @@ class JsonUploader
     public function owns_json($user_id, $json_id)
     {
         pg_prepare($this->dbconn, 'owns_json', 'SELECT COUNT(*) FROM json_uploads WHERE user_id = $1 AND id = $2');
-        $owns_json = pg_fetch_array(pg_execute($this->dbconn, 'owns_json', array($user_id, $json_id)));
+        $owns_json = pg_fetch_array(pg_execute($this->dbconn, 'owns_json', array($user_id[0], $json_id)));
 
         if (1 == $owns_json[0]) {
             return true;
