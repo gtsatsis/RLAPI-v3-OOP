@@ -109,7 +109,7 @@ class JsonUploader
     {
         pg_prepare($this->dbconn, 'get_user_by_api_key', 'SELECT user_id FROM tokens WHERE token = $1');
         $user_id = pg_fetch_array(pg_execute($this->dbconn, 'get_user_by_api_key', array($api_key)));
-        
+
         if ($this->owns_json($user_id[0], $json_id)) {
             pg_prepare($this->dbconn, 'delete_json_object', 'DELETE FROM json_uploads WHERE id = $1');
             pg_execute($this->dbconn, 'delete_json_object', array($json_id));
