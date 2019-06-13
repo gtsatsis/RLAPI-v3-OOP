@@ -259,11 +259,11 @@ class UploadController extends AbstractController
     }
 
     /**
-     * Matches /upload/json/jsonId/update.
-     * 
-     * @Route("/upload/json/{$jsonId}/update", name="update_json")
+     * Matches /upload/json/json_id/update.
+     *
+     * @Route("/upload/json/{json_id}/update/", name="update_json")
      */
-    public function update_json(Request $request, $jsonId)
+    public function update_json(Request $request, $json_id)
     {
         if (getenv('JSON_UPLOADER_ENABLED')) {
             $authentication = new Auth();
