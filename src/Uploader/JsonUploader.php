@@ -2,7 +2,6 @@
 
 namespace App\Uploader;
 
-use App\Models\User;
 use App\Utils\Auth;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Dotenv\Dotenv;
