@@ -271,7 +271,7 @@ class UploadController extends AbstractController
 
             if ($request->query->has('key')) {
                 if ($authentication->isValidUUID($request->query->get('key'))) {
-                    if($authentication->isValidUUID($json_id)){
+                    if ($authentication->isValidUUID($json_id)) {
                         if ($request->request->has('data')) {
                             $jsonUploader = new JsonUploader();
                             $upload_json = $jsonUploader->update($request->query->get('key'), $json_id, $request->request->get('data'));
@@ -280,14 +280,14 @@ class UploadController extends AbstractController
                             $response->headers->set('Content-Type', 'application/json');
 
                             return $response;
-                        }else{
+                        } else {
                             $response = new Response(json_encode([
                                 'success' => false,
                                 'error_message' => 'request_does_not_have_json_data',
                             ]));
-    
+
                             $response->headers->set('Content-Type', 'application/json');
-    
+
                             return $response;
                         }
                     } else {
@@ -311,7 +311,7 @@ class UploadController extends AbstractController
                     return $response;
                 }
             } elseif ($request->headers->has('Authorization')) {
-            }else{
+            } else {
                 $response = new Response(json_encode([
                     'success' => false,
                     'error_message' => 'no_auth_method_provided',
@@ -334,8 +334,8 @@ class UploadController extends AbstractController
     }
 
     /**
-     * Matches /upload/json/json_id/delete
-     * 
+     * Matches /upload/json/json_id/delete.
+     *
      * @Route("/upload/json/{json_id}/delete", name="delete_json_noSlash")
      * @Route("/upload/json/{json_id}/delete/", name="delete_json_withSlash")
      */
@@ -346,7 +346,7 @@ class UploadController extends AbstractController
 
             if ($request->query->has('key')) {
                 if ($authentication->isValidUUID($request->query->get('key'))) {
-                    if($authentication->isValidUUID($json_id)){
+                    if ($authentication->isValidUUID($json_id)) {
                         $jsonUploader = new JsonUploader();
                         $upload_json = $jsonUploader->delete($request->query->get('key'), $json_id);
 
@@ -354,14 +354,14 @@ class UploadController extends AbstractController
                         $response->headers->set('Content-Type', 'application/json');
 
                         return $response;
-                    }else{
+                    } else {
                         $response = new Response(json_encode([
                             'success' => false,
                             'error_message' => 'invalid_json_id',
                         ]));
-    
+
                         $response->headers->set('Content-Type', 'application/json');
-    
+
                         return $response;
                     }
                 } else {
