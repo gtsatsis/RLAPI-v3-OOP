@@ -88,7 +88,10 @@ class User
                                         'account' => [
                                             'id' => $user_id,
                                             'username' => $username,
-                                            'email' => $email,
+                                            'email' => [
+                                                'address' => $email,
+                                                'verified' => false,
+                                            ],
                                         ],
                                     ];
                                 }
