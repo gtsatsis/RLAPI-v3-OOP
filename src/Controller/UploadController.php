@@ -261,6 +261,7 @@ class UploadController extends AbstractController
     /**
      * Matches /upload/json/json_id/update.
      *
+     * @Route("/upload/json/{json_id}/update", name="update_json")
      * @Route("/upload/json/{json_id}/update/", name="update_json")
      */
     public function update_json(Request $request, $json_id)
