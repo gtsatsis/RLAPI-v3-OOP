@@ -334,8 +334,8 @@ class UploadController extends AbstractController
     }
 
     /**
-     * Matches /upload/json/json_id/delete.
-     *
+     * Matches /upload/json/json_id/delete
+     * 
      * @Route("/upload/json/{json_id}/delete", name="delete_json_noSlash")
      * @Route("/upload/json/{json_id}/delete/", name="delete_json_withSlash")
      */
