@@ -106,12 +106,12 @@ class FileUtils
 
     public function get_file_owner($file_name, $user_id, $api_key)
     {
-        pg_prepare($this->dbconn, "get_file_owner", "SELECT COUNT(*) FROM files WHERE filename = $1 AND token = $2 AND user_id = $3");
-        $count = pg_fetch_array(pg_execute($this->dbconn, "get_file_owner", array($file_name, $api_key, $user_id)));
+        pg_prepare($this->dbconn, 'get_file_owner', 'SELECT COUNT(*) FROM files WHERE filename = $1 AND token = $2 AND user_id = $3');
+        $count = pg_fetch_array(pg_execute($this->dbconn, 'get_file_owner', array($file_name, $api_key, $user_id)));
 
-        if($count[0] == 1){
+        if (1 == $count[0]) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
@@ -120,16 +120,16 @@ class FileUtils
     {
         $s3 = new S3Client([
             'version' => 'latest',
-            'region'  => 'us-east-1'
+            'region' => 'us-east-1',
         ]);
 
         $s3->deleteObject([
             'Bucket' => getenv('S3_BUCKET'),
-            'Key'    => $file_name,
+            'Key' => $file_name,
         ]);
 
-        pg_prepare($this->dbconn, "mark_file_as_deleted", "UPDATE files SET deleted = true WHERE filename = $1");
-        pg_execute($this->dbconn, "mark_file_as_deleted", array($file_name));
+        pg_prepare($this->dbconn, 'mark_file_as_deleted', 'UPDATE files SET deleted = true WHERE filename = $1');
+        pg_execute($this->dbconn, 'mark_file_as_deleted', array($file_name));
 
         return [
             'success' => true,
