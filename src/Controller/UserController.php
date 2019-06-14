@@ -284,47 +284,46 @@ class UserController extends AbstractController
     }
 
     /**
-     * Matches /users/{user_id}/uploads/{file_name}/delete
-     * 
+     * Matches /users/{user_id}/uploads/{file_name}/delete.
+     *
      * @Route("/users/{user_id}/uploads/{file_name}/delete}", name="delete_user_upload")
      */
     public function delete_user_upload(Request $request, $user_id, $file_name)
     {
         $file_util = new FileUtils();
         if ($auth->isValidUUID($id)) {
-            if($request->request->has('api_key')){
-                if($auth->isValidUUID($request->request->get('api_key'))){
-                    if($file_util->get_file_owner($file_name, $user_id, $request->request->get('api_key'))){
+            if ($request->request->has('api_key')) {
+                if ($auth->isValidUUID($request->request->get('api_key'))) {
+                    if ($file_util->get_file_owner($file_name, $user_id, $request->request->get('api_key'))) {
                         $delete_file = $file_util->delete_file($file_name);
 
                         $response = new Response(json_encode($delete_file));
                         $response->headers->set('Content-Type', 'application/json');
 
                         return $response;
-                    }else{
+                    } else {
                         $response = new Response(json_encode(array('success' => false, 'error' => ['error_message' => 'Unauthorized'])));
                         $response->headers->set('Content-Type', 'application/json');
 
                         return $response;
                     }
-                }else{
+                } else {
                     $response = new Response(json_encode(array('success' => false, 'error' => ['error_message' => 'API Key is not in the UUID format'])));
                     $response->headers->set('Content-Type', 'application/json');
 
                     return $response;
                 }
-            }else{
+            } else {
                 $response = new Response(json_encode(array('success' => false, 'error' => ['error_message' => 'Request is missing the api_key body argument.'])));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
             }
-        }else{
+        } else {
             $response = new Response(json_encode(array('success' => false, 'error' => ['error_message' => 'Not a valid User ID.'])));
             $response->headers->set('Content-Type', 'application/json');
 
             return $response;
         }
-
     }
 }
