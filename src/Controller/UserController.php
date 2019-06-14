@@ -286,7 +286,7 @@ class UserController extends AbstractController
     /**
      * Matches /users/{user_id}/uploads/{file_name}/delete.
      *
-     * @Route("/users/{user_id}/uploads/{file_name}/delete}", name="delete_user_upload")
+     * @Route("/users/{user_id}/uploads/{file_name}/delete", name="delete_user_upload")
      */
     public function delete_user_upload(Request $request, $user_id, $file_name)
     {
