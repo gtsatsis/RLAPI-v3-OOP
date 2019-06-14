@@ -291,6 +291,7 @@ class UserController extends AbstractController
     public function delete_user_upload(Request $request, $user_id, $file_name)
     {
         $file_util = new FileUtils();
+        $auth = new Auth();
         if ($auth->isValidUUID($id)) {
             if ($request->request->has('api_key')) {
                 if ($auth->isValidUUID($request->request->get('api_key'))) {
