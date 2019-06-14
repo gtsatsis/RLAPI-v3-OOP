@@ -292,7 +292,7 @@ class UserController extends AbstractController
     {
         $file_util = new FileUtils();
         $auth = new Auth();
-        if ($auth->isValidUUID($id)) {
+        if ($auth->isValidUUID($user_id)) {
             if ($request->request->has('api_key')) {
                 if ($auth->isValidUUID($request->request->get('api_key'))) {
                     if ($file_util->get_file_owner($file_name, $user_id, $request->request->get('api_key'))) {
