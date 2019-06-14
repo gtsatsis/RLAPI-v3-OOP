@@ -119,8 +119,11 @@ class FileUtils
     public function delete_file($file_name)
     {
         $s3 = new S3Client([
-            'version' => 'latest',
-            'region' => 'us-east-1',
+            'version' => 'latest', // Latest S3 version
+            'region' => 'us-east-1', // The service's region
+            'endpoint' => getenv('S3_ENDPOINT'), // API to point to
+            'credentials' => new \Aws\Credentials\Credentials(getenv('S3_API_KEY'), getenv('S3_API_SECRET')), // Credentials
+            'use_path_style_endpoint' => true, // Minio Compatible (https://minio.io)
         ]);
 
         $s3->deleteObject([
