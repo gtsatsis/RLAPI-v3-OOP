@@ -341,7 +341,7 @@ class UserController extends AbstractController
          if($request->query->has('key')){
             if($auth->isValidUUID($request->query->get('key'))){
                 $get_user_id = $getter->get_user_by_api_key($request->query->get('key'));
-                $response = new Response(json_encode(['success' => true, 'user_id' => $get_user_id['user_id']]));
+                $response = new Response(json_encode(['success' => true, 'user_id' => $get_user_id['id']]));
                 $response->headers->set('Content-Type', 'application/json');
                 return $response;
             }else{
