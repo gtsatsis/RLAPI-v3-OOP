@@ -4,6 +4,7 @@ namespace App\Models;
 
 require_once __DIR__.'/../../vendor/autoload.php';
 
+use App\Utils\Getters;
 use App\Utils\Auth;
 use Symfony\Component\Dotenv\Dotenv;
 
@@ -12,6 +13,8 @@ class Buckets
     private $dbconn;
 
     private $s3;
+
+    private $getter;
 
     public function __construct()
     {
@@ -33,12 +36,16 @@ class Buckets
                 'use_path_style_endpoint' => true, // Minio Compatible (https://minio.io)
             ]
         );
+
+        $this->getter = new Getters();
     }
 
     /* Begin Create Bucket Function */
 
-    public function create_new_user_bucket(string $user_id, string $bucket_name, string $password, string $allocated_domain = null)
+    public function create_new_user_bucket(string $bucket_name, string $username, string $password, string $allocated_domain = null)
     {
+        $user_id = $this->getter->get_user_id_by_username($username);
+        
         if ($this->authentication->validate_password($user_id, $password)) {
             if ($this->authentication->bucket_allowance($user_id)) {
                 $create_bucket = $this->s3->createBucket(['ACL' => 'public-read', 'Bucket' => $bucket_name, 'CreateBucketConfiguration' => ['LocationConstraint' => 'us-east-1']]);
@@ -80,8 +87,10 @@ class Buckets
 
     /* Begin Delete Bucket Function */
 
-    public function delete_user_bucket(string $user_id, string $bucket_name, string $password, string $allocated_domain = null)
+    public function delete_user_bucket(string $bucket_id, string $username, string $password)
     {
+        $user_id = $this->getter->get_user_id_by_username($username);
+
         if ($this->authentication->validate_password($user_id, $password)) {
             if ($this->authentication->owns_bucket($user_id, $bucket_name)) {
                 $delete_bucket = $this->s3->deleteBucket(['Bucket' => $bucket_name]);
