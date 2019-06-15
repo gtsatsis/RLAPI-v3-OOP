@@ -222,10 +222,10 @@ class Auth
         }
     }
 
-    public function owns_bucket(string $user_id, $bucket_name)
+    public function owns_bucket(string $user_id, $bucket_id)
     {
-        pg_prepare($this->dbconn, 'owns_bucket', 'SELECT COUNT(*) FROM buckets WHERE user_id = $1 AND bucket_name = $2');
-        $execute_prepared_statement = pg_execute($this->dbconn, 'owns_bucket', array($user_id, $bucket_name));
+        pg_prepare($this->dbconn, 'owns_bucket', 'SELECT COUNT(*) FROM buckets WHERE user_id = $1 AND id = $2');
+        $execute_prepared_statement = pg_execute($this->dbconn, 'owns_bucket', array($user_id, $bucket_id));
 
         $count = pg_fetch_array($execute_prepared_statement);
         if (1 == $count[0]) {

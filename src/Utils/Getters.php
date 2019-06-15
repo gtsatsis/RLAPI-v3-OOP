@@ -32,6 +32,18 @@ class Getters
         }
     }
 
+    public function get_bucket_name_by_id($bucket_id)
+    {
+        pg_prepare($this->dbconn, "get_bucket_name_by_id", "SELECT id FROM buckets WHERE bucket = $1");
+        $result = pg_fetch_array(pg_execute($this->dbconn, "get_bucket_name_by_id", array($bucket_id)));
+
+        if(!empty($result[0])){
+            return $result[0];
+        }else{
+            return false;
+        }
+    }
+
     public function check_if_user_exists(string $username, string $user_email)
     {
         pg_prepare($this->dbconn, 'check_if_user_exists', 'SELECT COUNT(*) FROM users WHERE username = $1 OR email = $2');
