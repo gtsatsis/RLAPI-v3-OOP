@@ -337,9 +337,9 @@ class UserController extends AbstractController
     {
         $auth = new Auth();
         $getter = new Getters();
-         if($request->request->has('api_key')){
-            if($auth->isValidUUID($request->request->get('api_key'))){
-                $get_user_id = $getter->get_user_by_api_key($request->request->get('api_key'));
+         if($request->query->has('key')){
+            if($auth->isValidUUID($request->query->get('key'))){
+                $get_user_id = $getter->get_user_by_api_key($request->query->get('key'));
                 $response = new Response(json_encode(['success' => true, 'user_id' => $get_user_id['user_id']]));
                 $response->headers->set('Content-Type', 'application/json');
                 return $response;
