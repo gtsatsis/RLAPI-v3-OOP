@@ -7,6 +7,7 @@ require_once __DIR__.'/../../vendor/autoload.php';
 use App\Models\User;
 use App\Utils\Auth;
 use App\Utils\FileUtils;
+use App\Utils\Getters;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
