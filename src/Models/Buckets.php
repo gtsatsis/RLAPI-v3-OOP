@@ -45,7 +45,7 @@ class Buckets
     public function create_new_user_bucket(string $bucket_name, string $username, string $password, string $allocated_domain = null)
     {
         $user_id = $this->getter->get_user_id_by_username($username);
-        
+
         if ($this->authentication->validate_password($user_id, $password)) {
             if ($this->authentication->bucket_allowance($user_id)) {
                 $create_bucket = $this->s3->createBucket(['ACL' => 'public-read', 'Bucket' => $bucket_name, 'CreateBucketConfiguration' => ['LocationConstraint' => 'us-east-1']]);
