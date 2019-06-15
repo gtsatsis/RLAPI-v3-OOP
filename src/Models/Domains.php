@@ -231,10 +231,10 @@ class Domains
     public function set_domain_bucket($api_key, $domain, $bucket)
     {
         if ($this->authentication->api_key_is_admin($api_key) || $this->authentication->is_domain_owner($api_key, $domain)) {
-            if($this->authentication->owns_bucket_by_name_api_key($api_key, $bucket)){
-
+            if ($this->authentication->owns_bucket_by_name_api_key($api_key, $bucket)) {
                 pg_prepare($this->dbconn, 'set_domain_bucket', 'UPDATE domains SET bucket = $1 WHERE domain_name = $2');
                 pg_execute($this->dbconn, 'set_domain_bucket', array($bucket, $domain));
+
                 return [
                     'success' => true,
                     'domains' => [
@@ -243,13 +243,13 @@ class Domains
                         ],
                     ],
                 ];
-            }else{
+            } else {
                 return [
                     'success' => false,
                     'error_message' => 'not_bucket_owner',
                 ];
             }
-        }else{
+        } else {
             return [
                 'success' => false,
                 'error_message' => 'not_domain_owner',
