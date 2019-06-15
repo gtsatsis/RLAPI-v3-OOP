@@ -235,6 +235,19 @@ class Auth
         }
     }
 
+    public function owns_bucket_by_name_api_key(string $api_key, $bucket)
+    {
+        pg_prepare($this->dbconn, 'owns_bucket', 'SELECT COUNT(*) FROM buckets WHERE api_key = $1 AND bucket = $2');
+        $execute_prepared_statement = pg_execute($this->dbconn, 'owns_bucket', array($api_key, $bucket));
+
+        $count = pg_fetch_array($execute_prepared_statement);
+        if (1 == $count[0]) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public function isValidUUID($uuid)
     {
         if (!is_string($uuid) || (1 !== preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/', $uuid))) {
