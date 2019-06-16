@@ -49,8 +49,28 @@ class Buckets
             if (!$this->bucket_exists($bucket_name) && getenv('S3_BUCKET') != $bucket_name) {
                 $create_bucket = $this->s3->createBucket(['ACL' => 'public-read', 'Bucket' => $bucket_name, 'CreateBucketConfiguration' => ['LocationConstraint' => 'us-east-1']]);
                 if (!empty($create_bucket)) {
-                    pg_prepare($this->dbconn, 'insert_bucket', 'INSERT INTO buckets (id, user_id, api_key, bucket) VALUES ($1, $2, $3, $4)');
-                    pg_execute($this->dbconn, 'insert_bucket', array($bucket_id, $user['id'], $api_key, $bucket_name));
+                    $bucket_data = [
+                        'owner' => [
+                            'id' => $user['id'],
+                            'api_key' => $api_key,
+                        ],
+                        'users' => [
+                            $user['id'] => [
+                                'permissions' => [
+                                    'rlapi.custom.bucket.permission.priority' => 200,
+                                    'rlapi.custom.bucket.upload' => true,
+                                    'rlapi.custom.bucket.manage' => true,
+                                    'rlapi.custom.bucket.user.add' => true,
+                                    'rlapi.custom.bucket.user.remove' => true,
+                                    'rlapi.custom.bucket.user.block' => true,
+                                    'rlapi.custom.bucket.user.unblock' => true,
+                                ],
+                            ],
+                        ],
+                    ];
+                    $bucket_data = json_encode($bucket_data);
+                    pg_prepare($this->dbconn, 'insert_bucket', 'INSERT INTO buckets (id, user_id, api_key, bucket, data) VALUES ($1, $2, $3, $4, $5)');
+                    pg_execute($this->dbconn, 'insert_bucket', array($bucket_id, $user['id'], $api_key, $bucket_name, $bucket_data));
 
                     return [
                         'success' => true,
