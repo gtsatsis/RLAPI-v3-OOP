@@ -35,8 +35,7 @@ class UploadController extends AbstractController
             if ($auth->isValidUUID($request->query->get('key'))) {
                 if (array_key_exists('files', $_FILES)) {
                     if (!is_null($_FILES['files'])) {
-
-                        if($auth->upload_to_cb_allowed($request->query->get('key'), $request->query->get('bucket'))){
+                        if ($auth->upload_to_cb_allowed($request->query->get('key'), $request->query->get('bucket'))) {
                             /* Initiate the Uploader Object */
                             $uploader = new Uploader($request->query->get('bucket'));
 
@@ -54,7 +53,7 @@ class UploadController extends AbstractController
                                 'error_message' => 'You are not authorized by the bucket administrator.',
                             ]));
                             $response->headers->set('Content-Type', 'application/json');
-        
+
                             return $response;
                         }
                     } else {
@@ -63,7 +62,7 @@ class UploadController extends AbstractController
                             'error_message' => 'no_file_provided',
                         ]));
                         $response->headers->set('Content-Type', 'application/json');
-    
+
                         return $response;
                     }
                 } else {
@@ -72,7 +71,7 @@ class UploadController extends AbstractController
                         'error_message' => 'no_file_provided',
                     ]));
                     $response->headers->set('Content-Type', 'application/json');
-    
+
                     return $response;
                 }
             } else {
@@ -81,11 +80,10 @@ class UploadController extends AbstractController
                     'error_message' => 'key_not_uuid_format',
                 ]));
                 $response->headers->set('Content-Type', 'application/json');
-    
+
                 return $response;
             }
-
-        } elseif($request->query->has('key')) {
+        } elseif ($request->query->has('key')) {
             if ($auth->isValidUUID($request->query->get('key'))) {
                 if (array_key_exists('files', $_FILES)) {
                     if (!is_null($_FILES['files'])) {
@@ -97,14 +95,14 @@ class UploadController extends AbstractController
                         $response = new Response(json_encode($uploadFile));
                         $response->headers->set('Content-Type', 'application/json');
 
-                        return $response;      
+                        return $response;
                     } else {
                         $response = new Response(json_encode([
                             'success' => false,
                             'error_message' => 'no_file_provided',
                         ]));
                         $response->headers->set('Content-Type', 'application/json');
-    
+
                         return $response;
                     }
                 } else {
@@ -113,7 +111,7 @@ class UploadController extends AbstractController
                         'error_message' => 'no_file_provided',
                     ]));
                     $response->headers->set('Content-Type', 'application/json');
-    
+
                     return $response;
                 }
             } else {
@@ -122,9 +120,9 @@ class UploadController extends AbstractController
                     'error_message' => 'key_not_uuid_format',
                 ]));
                 $response->headers->set('Content-Type', 'application/json');
-    
+
                 return $response;
-            }                  
+            }
         } elseif ($request->headers->has('Authorization')) {
             if ($auth->isValidUUID($request->headers->get('Authorization'))) {
                 if (array_key_exists('files', $_FILES)) {

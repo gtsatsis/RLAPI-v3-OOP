@@ -281,13 +281,13 @@ class Auth
         $bucket_data = pg_fetch_array();
         $bucket_data = json_decode($bucket_data);
 
-        if(array_key_exists($user['id'], $bucket_data)){
-            if($bucket_data['users'][$user['id']]['rlapi.custom.bucket.upload'] == true){
+        if (array_key_exists($user['id'], $bucket_data)) {
+            if (true == $bucket_data['users'][$user['id']]['rlapi.custom.bucket.upload']) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
-        }else{
+        } else {
             return false;
         }
     }

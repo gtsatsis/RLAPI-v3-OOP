@@ -242,7 +242,7 @@ class Domains
                 $bucket_data['domains'][$domain] = ['added' => ['on' => time(), 'by' => $api_key]];
 
                 $bucket_data = json_encode($bucket_data);
-                
+
                 pg_prepare($this->dbconn, 'update_bucket_data', 'UPDATE buckets SET data = $1 WHERE bucket = $2');
                 pg_execute($this->dbconn, 'update_bucket_data', array($bucket_data, $bucket));
 
