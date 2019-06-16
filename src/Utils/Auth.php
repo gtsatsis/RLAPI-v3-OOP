@@ -277,8 +277,8 @@ class Auth
         pg_prepare($this->dbconn, 'fetch_user_upload_to_cb', "SELECT * FROM users WHERE is_blocked = false AND id = (SELECT user_id FROM tokens WHERE token = $1)");
         $user = pg_fetch_array(pg_execute($this->dbconn, 'fetch_user_upload_to_cb', array($api_key)));
 
-        pg_prepare(pg_execute($this->dbconn, 'fetch_bucket_data', "SELECT data FROM buckets WHERE bucket = $1"));
-        $bucket_data = pg_fetch_array($this->dbconn, 'fetch_bucket_data', array($bucket));
+        pg_prepare($this->dbconn, 'fetch_bucket_data', "SELECT data FROM buckets WHERE bucket = $1");
+        $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data', array($bucket)));
         $bucket_data = json_decode($bucket_data[0]);
 
         if(array_key_exists($user['id'], $bucket_data)){
