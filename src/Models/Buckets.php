@@ -69,7 +69,8 @@ class Buckets
                       },
                       {
                         "Action": [
-                          "s3:*Object"
+                          "s3:PutObject",
+                          "s3:GetObject"
                         ],
                         "Effect": "Allow",
                         "Principal": {
