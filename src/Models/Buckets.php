@@ -48,7 +48,7 @@ class Buckets
         if ($this->authentication->bucket_allowance($api_key) || $this->authentication->api_key_is_admin($api_key)) {
             $user = $this->getter->get_user_by_api_key($api_key);
             if (!$this->bucket_exists($bucket_name) && getenv('S3_BUCKET') != $bucket_name) {
-                $create_bucket = $this->s3->createBucket(['ACL' => 'public-read', 'Bucket' => $bucket_name, 'CreateBucketConfiguration' => ['LocationConstraint' => 'us-east-1']]);
+                $create_bucket = $this->s3->createBucket(['ACL' => 'public', 'Bucket' => $bucket_name, 'CreateBucketConfiguration' => ['LocationConstraint' => 'us-east-1']]);
                 if (!empty($create_bucket)) {
                     $bucket_data = [
                         'owner' => [
