@@ -49,44 +49,8 @@ class Buckets
             $user = $this->getter->get_user_by_api_key($api_key);
             if (!$this->bucket_exists($bucket_name) && getenv('S3_BUCKET') != $bucket_name) {
                 $create_bucket = $this->s3->createBucket(['ACL' => 'public', 'Bucket' => $bucket_name, 'CreateBucketConfiguration' => ['LocationConstraint' => 'us-east-1']]);
-                $policyRO = '{
-                    "Version": "2012-10-17",
-                    "Statement": [
-                      {
-                        "Action": [
-                          "s3:ListBucket"
-                        ],
-                        "Effect": "Allow",
-                        "Principal": {
-                          "AWS": [
-                            "*"
-                          ]
-                        },
-                        "Resource": [
-                          "arn:aws:s3:::%s"
-                        ],
-                        "Sid": ""
-                      },
-                      {
-                        "Action": [
-                          "s3:PutObject",
-                          "s3:GetObject"
-                        ],
-                        "Effect": "Allow",
-                        "Principal": {
-                          "AWS": [
-                            "*"
-                          ]
-                        },
-                        "Resource": [
-                          "arn:aws:s3:::%s/*"
-                        ],
-                        "Sid": ""
-                      }
-                    ]
-                  }
-                  ';
-                $this->s3->putBucketPolicy(['Bucket' => $bucket_name, 'Policy' => sprintf($policyRO, $bucket_name, $bucket_name)]);
+                $s3Policy = '{"Version": "2012-10-17","Statement": [{"Action": ["s3:ListBucket"],"Effect": "Allow","Principal": {"AWS": ["*"]},"Resource": ["arn:aws:s3:::%s"],"Sid": ""},{"Action": ["s3:PutObject","s3:GetObject", "s3:DeleteObject"],"Effect": "Allow","Principal": {"AWS": ["*"]},"Resource": ["arn:aws:s3:::%s/*"],"Sid": ""}]}';
+                $this->s3->putBucketPolicy(['Bucket' => $bucket_name, 'Policy' => sprintf($s3Policy, $bucket_name, $bucket_name)]);
                 if (!empty($create_bucket)) {
                     $bucket_data = [
                         'owner' => [
