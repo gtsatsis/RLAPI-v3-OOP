@@ -50,41 +50,23 @@ class Buckets
             if (!$this->bucket_exists($bucket_name) && getenv('S3_BUCKET') != $bucket_name) {
                 $create_bucket = $this->s3->createBucket(['ACL' => 'public', 'Bucket' => $bucket_name, 'CreateBucketConfiguration' => ['LocationConstraint' => 'us-east-1']]);
                 $policyRO = $policyReadOnly = '{
-                    "Version": "2012-10-17",
-                    "Statement": [
-                      {
-                        "Action": [
-                          "s3:GetBucketLocation",
-                          "s3:ListBucket"
-                        ],
-                        "Effect": "Allow",
-                        "Principal": {
-                          "AWS": [
-                            "*"
-                          ]
-                        },
-                        "Resource": [
-                          "arn:aws:s3:::%s"
-                        ],
-                        "Sid": ""
-                      },
-                      {
-                        "Action": [
-                          "s3:GetObject"
-                        ],
-                        "Effect": "Allow",
-                        "Principal": {
-                          "AWS": [
-                            "*"
-                          ]
-                        },
-                        "Resource": [
-                          "arn:aws:s3:::%s/*"
-                        ],
-                        "Sid": ""
-                      }
-                    ]
-                  }
+                    {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Sid": "ListObjectsInBucket",
+                                "Effect": "Allow",
+                                "Action": ["s3:ListBucket"],
+                                "Resource": ["arn:aws:s3:::%s"]
+                            },
+                            {
+                                "Sid": "AllObjectActions",
+                                "Effect": "Allow",
+                                "Action": "s3:*Object",
+                                "Resource": ["arn:aws:s3:::%s/*"]
+                            }
+                        ]
+                    }
                   ';
                 $this->s3->putBucketPolicy(['Bucket' => $bucket_name, 'Policy' => sprintf($policyRO, $bucket, $bucket)]);
                 if (!empty($create_bucket)) {
