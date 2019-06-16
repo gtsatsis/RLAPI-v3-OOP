@@ -68,7 +68,7 @@ class Uploader
                 $file_sha1_hash = sha1_file(implode('', $file['tmp_name']));
                 $file_original_name = implode('', $file['name']);
 
-                $fileUtils->log_object($api_key, $file_name, $file_original_name, $file_md5_hash, $file_sha1_hash);
+                $fileUtils->log_object($api_key, $file_name, $file_original_name, $file_md5_hash, $file_sha1_hash, $this->bucket);
 
                 if (move_uploaded_file(implode('', $file['tmp_name']), getenv('TMP_STORE').$file_name)) {
                     $file_loc = getenv('TMP_STORE').$file_name;

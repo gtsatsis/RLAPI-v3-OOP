@@ -235,6 +235,17 @@ class Domains
                 pg_prepare($this->dbconn, 'set_domain_bucket', 'UPDATE domains SET bucket = $1 WHERE domain_name = $2');
                 pg_execute($this->dbconn, 'set_domain_bucket', array($bucket, $domain));
 
+                pg_prepare($this->dbconn, 'get_bucket_data', 'SELECT data FROM buckets WHERE bucket = $1');
+                $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'get_bucket_data', array($bucket)));
+
+                $bucket_data = json_decode($bucket_data[0]);
+                $bucket_data['domains'][$domain] = ['added' => ['on' => time(), 'by' => $api_key]];
+
+                $bucket_data = json_encode($bucket_data);
+                
+                pg_prepare($this->dbconn, 'update_bucket_data', 'UPDATE buckets SET data = $1 WHERE bucket = $2');
+                pg_execute($this->dbconn, 'update_bucket_data', array($bucket_data, $bucket));
+
                 return [
                     'success' => true,
                     'domains' => [
