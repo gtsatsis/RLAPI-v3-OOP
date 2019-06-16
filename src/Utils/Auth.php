@@ -279,7 +279,7 @@ class Auth
 
         pg_prepare($this->dbconn, 'fetch_bucket_data', "SELECT data FROM buckets WHERE bucket = $1");
         $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data', array($bucket)));
-        $bucket_data = json_decode($bucket_data[0]);
+        $bucket_data = json_decode($bucket_data[0], true);
 
         if(array_key_exists($user['id'], $bucket_data['users'])){
             if($bucket_data['users'][$user['id']]['rlapi.custom.bucket.upload'] == true){
