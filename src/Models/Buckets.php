@@ -42,16 +42,15 @@ class Buckets
         );
     }
 
-
     public function create($api_key, $bucket_name)
     {
-        if($this->authentication->bucket_allowance($api_key) || $this->authentication->api_key_is_admin($api_key)){
+        if ($this->authentication->bucket_allowance($api_key) || $this->authentication->api_key_is_admin($api_key)) {
             $user = $this->getter->get_user_by_api_key();
-            if(!$this->bucket_exists($bucket_name) && getenv('S3_BUCKET') != $bucket_name){
-                $create_bucket = $this->s3->createBucket(['ACL' => 'public-read', 'Bucket' => $bucket_name, 'CreateBucketConfiguration' => ['LocationConstraint' => 'us-east-1']]);;
-                if(!empty($create_bucket)){
-                    pg_prepare($this->dbconn, "insert_bucket", "INSERT INTO buckets (id, user_id, api_key, bucket) VALUES ($1, $2, $3, $4)");
-                    pg_execute($this->dbconn, "insert_bucket", array($bucket_id, $user['id'], $api_key, $bucket_name));
+            if (!$this->bucket_exists($bucket_name) && getenv('S3_BUCKET') != $bucket_name) {
+                $create_bucket = $this->s3->createBucket(['ACL' => 'public-read', 'Bucket' => $bucket_name, 'CreateBucketConfiguration' => ['LocationConstraint' => 'us-east-1']]);
+                if (!empty($create_bucket)) {
+                    pg_prepare($this->dbconn, 'insert_bucket', 'INSERT INTO buckets (id, user_id, api_key, bucket) VALUES ($1, $2, $3, $4)');
+                    pg_execute($this->dbconn, 'insert_bucket', array($bucket_id, $user['id'], $api_key, $bucket_name));
 
                     return [
                         'success' => true,
@@ -64,40 +63,37 @@ class Buckets
                             ],
                         ],
                     ];
-                }else{
+                } else {
                     throw new \Exception('Bucket Creation Failed');
                 }
-            }else{
+            } else {
                 return [
                     'success' => false,
                     'error' => [
-                        'error_message' => 'Bucket' . $bucket_name . 'already exists.',
+                        'error_message' => 'Bucket'.$bucket_name.'already exists.',
                     ],
                 ];
             }
-        }else{
-
+        } else {
         }
-    } 
-
-
+    }
 
     /* Begin Delete Bucket Function */
 
     public function delete($api_key, $bucket_id)
     {
         $user = $this->getter->get_user_by_api_key();
-        if($this->authentication->user_owns_bucket($user['id'], $bucket_id) || $this->authentication->api_key_is_admin($api_key)){
+        if ($this->authentication->user_owns_bucket($user['id'], $bucket_id) || $this->authentication->api_key_is_admin($api_key)) {
             pg_prepare($this->dbconn, 'fetch_bucket', 'SELECT * FROM buckets WHERE id = $1');
             $bucket_details = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket', array($bucket_id)));
             $delete_bucket = $this->s3->deleteBucket(['Bucket' => $bucket_details['bucket']]);
-            pg_prepare($this->dbconn, "delete_bucket", "DELETE FROM buckets WHERE id = $1");
+            pg_prepare($this->dbconn, 'delete_bucket', 'DELETE FROM buckets WHERE id = $1');
             pg_execute($this->dbconn, 'delete_bucket', array($bucket_id));
 
             return [
-                'success' => true
+                'success' => true,
             ];
-        }else{
+        } else {
             return [
                 'success' => false,
                 'error' => [
@@ -109,12 +105,12 @@ class Buckets
 
     public function bucket_exists($bucket_name)
     {
-        pg_prepare($this->dbconn, "bucket_exists", "SELECT COUNT(*) FROM buckets WHERE bucket = $1");
-        $array = pg_fetch_array(pg_execute($this->dbconn, "bucket_exists", array($bucket_name)));
+        pg_prepare($this->dbconn, 'bucket_exists', 'SELECT COUNT(*) FROM buckets WHERE bucket = $1');
+        $array = pg_fetch_array(pg_execute($this->dbconn, 'bucket_exists', array($bucket_name)));
 
-        if($array[0] == 1){
+        if (1 == $array[0]) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
