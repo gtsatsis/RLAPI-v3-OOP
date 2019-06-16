@@ -109,7 +109,7 @@ class Buckets
                     ];
                     $bucket_data = json_encode($bucket_data);
                     $bucket_id = Uuid::uuid4();
-                    $bucket_id = $bucket_id->toString();;
+                    $bucket_id = $bucket_id->toString();
                     pg_prepare($this->dbconn, 'insert_bucket', 'INSERT INTO buckets (id, user_id, api_key, bucket, data) VALUES ($1, $2, $3, $4, $5)');
                     pg_execute($this->dbconn, 'insert_bucket', array($bucket_id, $user['id'], $api_key, $bucket_name, $bucket_data));
 
