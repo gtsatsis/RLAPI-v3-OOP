@@ -71,15 +71,15 @@ class Auth
         }
     }
 
-    public function bucket_allowance(string $user_id)
+    public function bucket_allowance(string $api_key)
     {
-        pg_prepare($this->dbconn, 'get_bucket_allowance', 'SELECT bucket_limit FROM tiers WHERE tier = (SELECT tier FROM users WHERE id = $1)');
+        pg_prepare($this->dbconn, 'get_bucket_allowance', 'SELECT bucket_limit FROM tiers WHERE tier = (SELECT tier FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1))');
 
-        $execute_prepared_statement = pg_execute($this->dbconn, 'get_bucket_allowance', array($user_id));
+        $execute_prepared_statement = pg_execute($this->dbconn, 'get_bucket_allowance', array($api_key));
         $bucket_allowance = pg_fetch_array($execute_prepared_statement);
 
-        pg_prepare($this->dbconn, 'get_current_buckets', 'SELECT COUNT(*) FROM buckets WHERE user_id = $1');
-        $execute_prepared_statement = pg_execute($this->dbconn, 'get_current_buckets', array($user_id));
+        pg_prepare($this->dbconn, 'get_current_buckets', 'SELECT COUNT(*) FROM buckets WHERE user_id = (SELECT user_id FROM tokens WHERE token = $1');
+        $execute_prepared_statement = pg_execute($this->dbconn, 'get_current_buckets', array($api_key));
 
         $current_buckets = pg_fetch_array($execute_prepared_statement);
 

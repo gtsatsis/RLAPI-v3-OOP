@@ -68,9 +68,9 @@ class Getters
 
     public function get_user_by_api_key(string $api_key)
     {
-        $this->prepared = false;
+        static $prepared;
 
-        if (!$this->prepared) {
+        if ($prepared != true) {
             $prepareStatement = pg_prepare($this->dbconn, 'get_user_by_api_key', 'SELECT * FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1 LIMIT 1)');
             $this->prepared = true;
         }

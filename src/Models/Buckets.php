@@ -14,6 +14,8 @@ class Buckets
 
     private $s3;
 
+    private $authentication;
+
     private $getter;
 
     public function __construct()
@@ -27,6 +29,8 @@ class Buckets
 
         $this->authentication = new Auth();
 
+        $this->getter = new Getters();
+
         $this->s3 = new \Aws\S3\S3Client(
             [
                 'version' => 'latest', // Latest S3 version
@@ -36,91 +40,82 @@ class Buckets
                 'use_path_style_endpoint' => true, // Minio Compatible (https://minio.io)
             ]
         );
-
-        $this->getter = new Getters();
     }
 
-    /* Begin Create Bucket Function */
 
-    public function create_new_user_bucket(string $bucket_name, string $username, string $password, string $allocated_domain = null)
+    public function create($api_key, $bucket_name)
     {
-        $user_id = $this->getter->get_user_id_by_username($username);
+        if($this->authentication->bucket_allowance($api_key) || $this->authentication->api_key_is_admin($api_key)){
+            $user = $this->getter->get_user_by_api_key();
+            if(!$this->bucket_exists($bucket_name) && getenv('S3_BUCKET') != $bucket_name){
+                $create_bucket = $this->s3->createBucket(['ACL' => 'public-read', 'Bucket' => $bucket_name, 'CreateBucketConfiguration' => ['LocationConstraint' => 'us-east-1']]);;
+                if(!empty($create_bucket)){
+                    pg_prepare($this->dbconn, "insert_bucket", "INSERT INTO buckets (id, user_id, api_key, bucket) VALUES ($1, $2, $3, $4)");
+                    pg_execute($this->dbconn, "insert_bucket", array($bucket_id, $user['id'], $api_key, $bucket_name));
 
-        if ($this->authentication->validate_password($user_id, $password)) {
-            if ($this->authentication->bucket_allowance($user_id)) {
-                $create_bucket = $this->s3->createBucket(['ACL' => 'public-read', 'Bucket' => $bucket_name, 'CreateBucketConfiguration' => ['LocationConstraint' => 'us-east-1']]);
-
-                if (null != $create_bucket) {
-                    pg_prepare($this->dbconn, 'insert_bucket', 'INSERT INTO buckets (user_id, bucket_name, allocated_domain) VALUES ($1, $2, $3)');
-                    $execute_prepared_statement = pg_execute($this->dbconn, 'insert_bucket', array($user_id, $bucket_name, $allocated_domain));
-
-                    if ($execute_prepared_statement) {
-                        return [
-                                'success' => true,
-                                'bucket' => [
-                                    'location' => $create_bucket->get('Location'),
+                    return [
+                        'success' => true,
+                        'buckets' => [
+                            $bucket_name => [
+                                'owner' => [
+                                    'username' => $user['username'],
+                                    'email' => $user['email'],
                                 ],
-                            ];
-                    } else {
-                        throw new Exception('Error Processing create_new_user_bucket Request: SQL');
-                    }
-                } else {
-                    throw new Exception('Error Processing create_new_user_bucket Request');
+                            ],
+                        ],
+                    ];
+                }else{
+                    throw new \Exception('Bucket Creation Failed');
                 }
-            } else {
+            }else{
                 return [
                     'success' => false,
-                    'error_code' => 1122,
-                    'error_message' => 'private_bucket_allowance_reached',
+                    'error' => [
+                        'error_message' => 'Bucket' . $bucket_name . 'already exists.',
+                    ],
                 ];
             }
-        } else {
+        }else{
+
+        }
+    } 
+
+
+
+    /* Begin Delete Bucket Function */
+
+    public function delete($api_key, $bucket_id)
+    {
+        $user = $this->getter->get_user_by_api_key();
+        if($this->authentication->user_owns_bucket($user['id'], $bucket_id) || $this->authentication->api_key_is_admin($api_key)){
+            pg_prepare($this->dbconn, 'fetch_bucket', 'SELECT * FROM buckets WHERE id = $1');
+            $bucket_details = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket', array($bucket_id)));
+            $delete_bucket = $this->s3->deleteBucket(['Bucket' => $bucket_details['bucket']]);
+            pg_prepare($this->dbconn, "delete_bucket", "DELETE FROM buckets WHERE id = $1");
+            pg_execute($this->dbconn, 'delete_bucket', array($bucket_id));
+
+            return [
+                'success' => true
+            ];
+        }else{
             return [
                 'success' => false,
-                'error_code' => 1002,
-                'error_message' => 'invalid_user_id_or_password',
+                'error' => [
+                    'error_message' => 'Unauthorized',
+                ],
             ];
         }
     }
 
-    /* End Create Bucket Function */
-
-    /* Begin Delete Bucket Function */
-
-    public function delete_user_bucket(string $bucket_id, string $username, string $password)
+    public function bucket_exists($bucket_name)
     {
-        $user_id = $this->getter->get_user_id_by_username($username);
+        pg_prepare($this->dbconn, "bucket_exists", "SELECT COUNT(*) FROM buckets WHERE bucket = $1");
+        $array = pg_fetch_array(pg_execute($this->dbconn, "bucket_exists", array($bucket_name)));
 
-        if ($this->authentication->validate_password($user_id, $password)) {
-            if ($this->authentication->owns_bucket($user_id, $bucket_id)) {
-                $bucket_name = $this->getter->get_bucket_name_by_id($bucket_id);
-                $delete_bucket = $this->s3->deleteBucket(['Bucket' => $bucket_name]);
-
-                if (null != $delete_bucket) {
-                    pg_prepare($this->dbconn, 'delete_bucket', 'DELETE FROM buckets WHERE bucket_name = $1');
-                    $execute_prepared_statement = pg_execute($this->dbconn, 'delete_bucket', array($bucket_name));
-
-                    if ($execute_prepared_statement) {
-                        return [
-                            'success' => true,
-                        ];
-                    } else {
-                        throw new Exception('Error Processing delete_bucket Request: sql');
-                    }
-                }
-            } else {
-                return [
-                    'success' => false,
-                    'error_code' => 1100,
-                    'error_message' => 'unauthorized_not_owner',
-                ];
-            }
-        } else {
-            return [
-                'success' => false,
-                'error_code' => 1002,
-                'error_message' => 'invalid_user_id_or_password',
-            ];
+        if($array[0] == 1){
+            return true;
+        }else{
+            return false;
         }
     }
 }
