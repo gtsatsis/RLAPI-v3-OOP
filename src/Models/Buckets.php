@@ -6,6 +6,7 @@ require_once __DIR__.'/../../vendor/autoload.php';
 
 use App\Utils\Getters;
 use App\Utils\Auth;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Dotenv\Dotenv;
 
 class Buckets
@@ -69,6 +70,8 @@ class Buckets
                         ],
                     ];
                     $bucket_data = json_encode($bucket_data);
+                    $bucket_id = Uuid::uuid4();
+                    $bucket_id = $bucket_id->toString();;
                     pg_prepare($this->dbconn, 'insert_bucket', 'INSERT INTO buckets (id, user_id, api_key, bucket, data) VALUES ($1, $2, $3, $4, $5)');
                     pg_execute($this->dbconn, 'insert_bucket', array($bucket_id, $user['id'], $api_key, $bucket_name, $bucket_data));
 
@@ -76,6 +79,7 @@ class Buckets
                         'success' => true,
                         'buckets' => [
                             $bucket_name => [
+                                'id' => $bucket_id,
                                 'owner' => [
                                     'username' => $user['username'],
                                     'email' => $user['email'],
