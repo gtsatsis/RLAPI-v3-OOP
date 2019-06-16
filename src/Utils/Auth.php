@@ -271,4 +271,24 @@ class Auth
             return false;
         }
     }
+
+    public function upload_to_cb_allowed($api_key, $bucket)
+    {
+        pg_prepare();
+        $user = pg_fetch_array();
+
+        pg_prepare();
+        $bucket_data = pg_fetch_array();
+        $bucket_data = json_decode($bucket_data);
+
+        if(array_key_exists($user['id'], $bucket_data)){
+            if($bucket_data['users'][$user['id']]['rlapi.custom.bucket.upload'] == true){
+                return true;
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
 }
