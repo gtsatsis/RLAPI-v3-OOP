@@ -8,12 +8,20 @@ use App\Uploader\Uploader;
 use App\Uploader\JsonUploader;
 use App\Utils\Auth;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class UploadController extends AbstractController
 {
+    public function __construct()
+    {
+        /* Load the env file */
+        $dotenv = new Dotenv();
+        $dotenv->load(__DIR__.'/../../.env');
+    }
+
     /**
      * Matches /upload/pomf exactly.
      *
@@ -41,7 +49,7 @@ class UploadController extends AbstractController
                             return $response;
                         } else {
                             $api_key = $request->query->get('key');
-                            $uploader = new Uploader();
+                            $uploader = new Uploader(getenv('S3_BUCKET'));
 
                             $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
@@ -92,7 +100,7 @@ class UploadController extends AbstractController
 
                             return $response;
                         } else {
-                            $uploader = new Uploader();
+                            $uploader = new Uploader(getenv('S3_BUCKET'));
                             $api_key = $request->headers->get('Authorization');
                             $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 

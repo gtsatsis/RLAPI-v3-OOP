@@ -16,7 +16,7 @@ class Uploader
 
     private $authentication;
 
-    public function __construct($bucket = null)
+    public function __construct($bucket)
     {
         /* Load the env file */
         $dotenv = new Dotenv();
@@ -35,11 +35,7 @@ class Uploader
             ]
         );
 
-        if (null == $bucket) {
-            $this->bucket = getenv('S3_BUCKET');
-        } else {
             $this->bucket = $bucket;
-        }
 
         $this->authentication = new Auth();
     }
