@@ -282,7 +282,7 @@ class Auth
         $bucket_data = json_decode($bucket_data[0], true);
 
         if(array_key_exists($user['id'], $bucket_data['users'])){
-            if($bucket_data['users'][$user['id']]['rlapi.custom.bucket.upload'] == true){
+            if($bucket_data['users'][$user['id']]['permissions']['rlapi.custom.bucket.upload'] == true){
                 return true;
             }else{
                 return false;
