@@ -107,7 +107,7 @@ class Buckets
     public function delete($api_key, $bucket_id)
     {
         $user = $this->getter->get_user_by_api_key($api_key);
-        if ($this->authentication->user_owns_bucket($user['id'], $bucket_id) || $this->authentication->api_key_is_admin($api_key)) {
+        if ($this->authentication->owns_bucket($user['id'], $bucket_id) || $this->authentication->api_key_is_admin($api_key)) {
             pg_prepare($this->dbconn, 'fetch_bucket', 'SELECT * FROM buckets WHERE id = $1');
             $bucket_details = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket', array($bucket_id)));
             $delete_bucket = $this->s3->deleteBucket(['Bucket' => $bucket_details['bucket']]);
