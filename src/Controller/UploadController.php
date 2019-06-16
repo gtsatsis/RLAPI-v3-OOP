@@ -35,86 +35,84 @@ class UploadController extends AbstractController
             if ($auth->isValidUUID($request->query->get('key'))) {
                 if (array_key_exists('files', $_FILES)) {
                     if (!is_null($_FILES['files'])) {
-                            /* Initiate the Uploader Object */
-                            $uploader = new Uploader($request->query->get('bucket'));
+                        /* Initiate the Uploader Object */
+                        $uploader = new Uploader($request->query->get('bucket'));
 
-                            /* Get the API key from the query, then proceed to the uploader */
-                            $api_key = $request->query->get('key');
-                            $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
+                        /* Get the API key from the query, then proceed to the uploader */
+                        $api_key = $request->query->get('key');
+                        $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-                            $response = new Response(json_encode($uploadFile));
-                            $response->headers->set('Content-Type', 'application/json');
+                        $response = new Response(json_encode($uploadFile));
+                        $response->headers->set('Content-Type', 'application/json');
 
-                            return $response;
-                        } else {
-                            $response = new Response(json_encode([
+                        return $response;
+                    } else {
+                        $response = new Response(json_encode([
                                 'success' => false,
                                 'error_message' => 'no_file_provided',
                             ]));
-                            $response->headers->set('Content-Type', 'application/json');
-    
-                            return $response;
-                        }
-                    } else {
-                        $response = new Response(json_encode([
-                            'success' => false,
-                            'error_message' => 'no_file_provided',
-                        ]));
                         $response->headers->set('Content-Type', 'application/json');
-    
+
                         return $response;
                     }
                 } else {
                     $response = new Response(json_encode([
-                        'success' => false,
-                        'error_message' => 'key_not_uuid_format',
-                    ]));
+                            'success' => false,
+                            'error_message' => 'no_file_provided',
+                        ]));
                     $response->headers->set('Content-Type', 'application/json');
-    
+
                     return $response;
                 }
+            } else {
+                $response = new Response(json_encode([
+                        'success' => false,
+                        'error_message' => 'key_not_uuid_format',
+                    ]));
+                $response->headers->set('Content-Type', 'application/json');
 
-            } elseif($request->query->has('key')) {
-                if ($auth->isValidUUID($request->query->get('key'))) {
-                    if (array_key_exists('files', $_FILES)) {
-                        if (!is_null($_FILES['files'])) {
-                            $api_key = $request->query->get('key');
-                            $uploader = new Uploader(getenv('S3_BUCKET'));
+                return $response;
+            }
+        } elseif ($request->query->has('key')) {
+            if ($auth->isValidUUID($request->query->get('key'))) {
+                if (array_key_exists('files', $_FILES)) {
+                    if (!is_null($_FILES['files'])) {
+                        $api_key = $request->query->get('key');
+                        $uploader = new Uploader(getenv('S3_BUCKET'));
 
-                            $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
+                        $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-                            $response = new Response(json_encode($uploadFile));
-                            $response->headers->set('Content-Type', 'application/json');
+                        $response = new Response(json_encode($uploadFile));
+                        $response->headers->set('Content-Type', 'application/json');
 
-                            return $response;      
-                        } else {
-                            $response = new Response(json_encode([
+                        return $response;
+                    } else {
+                        $response = new Response(json_encode([
                                 'success' => false,
                                 'error_message' => 'no_file_provided',
                             ]));
-                            $response->headers->set('Content-Type', 'application/json');
-    
-                            return $response;
-                        }
-                    } else {
-                        $response = new Response(json_encode([
-                            'success' => false,
-                            'error_message' => 'no_file_provided',
-                        ]));
                         $response->headers->set('Content-Type', 'application/json');
-    
+
                         return $response;
                     }
                 } else {
                     $response = new Response(json_encode([
+                            'success' => false,
+                            'error_message' => 'no_file_provided',
+                        ]));
+                    $response->headers->set('Content-Type', 'application/json');
+
+                    return $response;
+                }
+            } else {
+                $response = new Response(json_encode([
                         'success' => false,
                         'error_message' => 'key_not_uuid_format',
                     ]));
-                    $response->headers->set('Content-Type', 'application/json');
-    
-                    return $response;
-                }  
-                    
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+            }
         } elseif ($request->headers->has('Authorization')) {
             if ($auth->isValidUUID($request->headers->get('Authorization'))) {
                 if (array_key_exists('files', $_FILES)) {
