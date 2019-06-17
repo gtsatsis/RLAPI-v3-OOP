@@ -32,7 +32,7 @@ class Getters
         }
     }
 
-    public function get_user_id_by_api_key(string $apikey)
+    public function get_user_id_by_api_key(string $api_key)
     {
         pg_prepare($this->dbconn, 'get_user_id_by_api_key', 'SELECT user_id FROM tokens WHERE token = $1');
         $result = pg_fetch_array(pg_execute($this->dbconn, 'get_user_id_by_api_key', array($api_key)));
