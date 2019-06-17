@@ -274,7 +274,7 @@ class Auth
 
     public function upload_to_cb_allowed($api_key, $bucket)
     {
-        pg_prepare($this->dbconn, 'fetch_user_upload_to_cb', "SELECT * FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1 LIMIT 1) LIMIT 1");
+        pg_prepare($this->dbconn, 'fetch_user_upload_to_cb', "SELECT * FROM users WHERE is_blocked IS NOT true AND id = (SELECT user_id FROM tokens WHERE token = $1 LIMIT 1) LIMIT 1");
         $user = pg_fetch_array(pg_execute($this->dbconn, 'fetch_user_upload_to_cb', array($api_key)));
 
         pg_prepare($this->dbconn, 'fetch_bucket_data', "SELECT data FROM buckets WHERE bucket = $1");
