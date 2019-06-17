@@ -3,7 +3,7 @@
 namespace App\Utils;
 
 use App\Models\User;
-use App\Utils\Sqreen;
+use App\Utils\SqreenLib;
 use Aws\S3\S3Client;
 use Symfony\Component\Dotenv\Dotenv;
 
@@ -19,7 +19,7 @@ class FileUtils
         $dotenv->load(__DIR__.'/../../.env');
         /* Connect to database */
         $this->dbconn = pg_connect('host='.getenv('DB_HOST').' port=5432 dbname='.getenv('DB_NAME').' user='.getenv('DB_USERNAME').' password='.getenv('DB_PASSWORD'));
-        $this->sqreen = new Sqreen();
+        $this->sqreen = new SqreenLib();
     }
 
     public function generateFileName($extension)
