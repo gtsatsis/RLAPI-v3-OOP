@@ -274,25 +274,27 @@ class Auth
 
     public function upload_to_cb_allowed($api_key, $bucket)
     {
-        pg_prepare($this->dbconn, 'fetch_user_upload_to_cb', "SELECT * FROM users WHERE is_blocked IS NOT true AND id = (SELECT user_id FROM tokens WHERE token = $1 LIMIT 1) LIMIT 1");
+        pg_prepare($this->dbconn, 'fetch_user_upload_to_cb', 'SELECT * FROM users WHERE is_blocked IS NOT true AND id = (SELECT user_id FROM tokens WHERE token = $1 LIMIT 1) LIMIT 1');
         $user = pg_fetch_array(pg_execute($this->dbconn, 'fetch_user_upload_to_cb', array($api_key)));
 
-        pg_prepare($this->dbconn, 'fetch_bucket_data', "SELECT data FROM buckets WHERE bucket = $1");
+        pg_prepare($this->dbconn, 'fetch_bucket_data', 'SELECT data FROM buckets WHERE bucket = $1');
         $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data', array($bucket)));
         $bucket_data = json_decode($bucket_data[0], true);
 
-        if(array_key_exists($user['id'], $bucket_data['users'])){
-            if($bucket_data['users'][$user['id']]['permissions']['rlapi.custom.bucket.upload'] == true){
+        if (array_key_exists($user['id'], $bucket_data['users'])) {
+            if (true == $bucket_data['users'][$user['id']]['permissions']['rlapi.custom.bucket.upload']) {
                 $this->sqreen->sqreen_auth_track(true, $user['email']);
                 $this->sqreen->sqreen_track_upload($user['email']);
 
                 return true;
-            }else{
+            } else {
                 $this->sqreen->sqreen_auth_track(false, $user['email']);
+
                 return false;
             }
-        }else{
+        } else {
             $this->sqreen->sqreen_auth_track(false, $user['email']);
+
             return false;
         }
     }
