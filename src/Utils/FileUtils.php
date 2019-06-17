@@ -3,13 +3,13 @@
 namespace App\Utils;
 
 use App\Models\User;
-use App\Utils\SqreenLib;
 use Aws\S3\S3Client;
 use Symfony\Component\Dotenv\Dotenv;
 
 class FileUtils
 {
     private $dbconn;
+
     private $sqreen;
 
     public function __construct()

@@ -84,16 +84,16 @@ class BucketsController extends AbstractController
         }
     }
 
-    /** 
+    /**
      * Matches /buckets/{bucket_id}/uploads/{file_name}/delete.
-     * 
+     *
      * @Route("/buckets/{bucket_id}/uploads/{file_name}/delete", name="delete_file")
      */
     public function delete_file(Request $request, $bucket_id, $file_name)
     {
         $file_utils = new FileUtils();
-        if($request->request->has('api_key')){
-            if ($this->authentication->isValidUUID($bucket_id) && $this->authentication->isValidUUID($request->request->get('api_key'))){
+        if ($request->request->has('api_key')) {
+            if ($this->authentication->isValidUUID($bucket_id) && $this->authentication->isValidUUID($request->request->get('api_key'))) {
                 $bucket_name = $this->getter->getBucketNameFromID($bucket_id);
                 if ($file_utils->get_file_owner($file_name, $this->getter->get_user_id_by_api_key($request->request->get('api_key')), $request->request->get('api_key'), $bucket_name)) {
                     $delete_file = $file_utils->delete_file($file_name, $bucket_name);
@@ -101,19 +101,19 @@ class BucketsController extends AbstractController
                     $response->headers->set('Content-Type', 'application/json');
 
                     return $response;
-                }else{
+                } else {
                     $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Unauthorized']]));
                     $response->headers->set('Content-Type', 'application/json');
 
                     return $response;
                 }
-            }else{
+            } else {
                 $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'API key and Bucket ID not in UUID format']]));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
             }
-        }else{
+        } else {
             $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Missing required parameters', 'required' => ['api_key']]]));
             $response->headers->set('Content-Type', 'application/json');
 
