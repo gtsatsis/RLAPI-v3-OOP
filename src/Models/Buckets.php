@@ -222,7 +222,7 @@ class Buckets
         $bucket_data = json_decode($bucket_data[0], true);
 
         if (array_key_exists($user['id'], $bucket_data['users'])) {
-            return $bucket_data['users'][$user['id']['permissions']];
+            return $bucket_data['users'][$user['id']]['permissions'];
         }else{
             return [false];
         }
