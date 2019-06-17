@@ -215,7 +215,7 @@ class Buckets
     public function get_permissions($api_key, $bucket_id)
     {
         pg_prepare($this->dbconn, 'fetch_user_get_permissions', 'SELECT * FROM users WHERE is_blocked IS NOT true AND id = (SELECT user_id FROM tokens WHERE token = $1 LIMIT 1) LIMIT 1');
-        $user = pg_fetch_array(pg_execute($this->dbconn, 'fetch_user_get_permisions', array($api_key)));
+        $user = pg_fetch_array(pg_execute($this->dbconn, 'fetch_user_get_permissions', array($api_key)));
     
         pg_prepare($this->dbconn, 'fetch_bucket_data_get_permissions', 'SELECT data FROM buckets WHERE id = $1');
         $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data_get_permissions', array($bucket_id)));
