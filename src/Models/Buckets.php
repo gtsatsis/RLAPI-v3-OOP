@@ -132,8 +132,8 @@ class Buckets
     {
         pg_prepare($this->dbconn, 'fetch_user_by_username', 'SELECT * FROM users WHERE is_blocked IS NOT true AND username = $1 LIMIT 1');
         $user = pg_fetch_array(pg_execute($this->dbconn, 'fetch_user_by_username', array($username)));
-    
-        if(!empty($user['id'])){
+
+        if (!empty($user['id'])) {
             pg_prepare($this->dbconn, 'fetch_bucket_data', 'SELECT data FROM buckets WHERE id = $1');
             $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data', array($bucket_id)));
             $bucket_data = json_decode($bucket_data[0], true);
@@ -164,14 +164,14 @@ class Buckets
                             'added' => [
                                 $username => [
                                     'permissions' => [
-                                        'rlapi.custom.bucket.permission.priority' => 1, 
+                                        'rlapi.custom.bucket.permission.priority' => 1,
                                         'rlapi.custom.bucket.upload' => true,
-                                        'rlapi.custom.bucket.manage' => false, 
+                                        'rlapi.custom.bucket.manage' => false,
                                         'rlapi.custom.bucket.user.add' => false,
                                         'rlapi.custom.bucket.user.remove' => false,
-                                        'rlapi.custom.bucket.user.block' => false, 
+                                        'rlapi.custom.bucket.user.block' => false,
                                         'rlapi.custom.bucket.user.unblock' => false,
-                                        'rlapi.custom.bucket.file.delete' => 'none', 
+                                        'rlapi.custom.bucket.file.delete' => 'none',
                                     ],
                                 ],
                             ],
@@ -179,7 +179,7 @@ class Buckets
                     ],
                 ],
             ];
-        }else{
+        } else {
             return ['success' => false, 'error_message' => 'invalid username'];
         }
     }
@@ -207,7 +207,7 @@ class Buckets
 
         if (array_key_exists($user['id'], $bucket_data['users'])) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
@@ -216,14 +216,14 @@ class Buckets
     {
         pg_prepare($this->dbconn, 'fetch_user_get_permissions', 'SELECT * FROM users WHERE is_blocked IS NOT true AND id = (SELECT user_id FROM tokens WHERE token = $1 LIMIT 1) LIMIT 1');
         $user = pg_fetch_array(pg_execute($this->dbconn, 'fetch_user_get_permissions', array($api_key)));
-    
+
         pg_prepare($this->dbconn, 'fetch_bucket_data_get_permissions', 'SELECT data FROM buckets WHERE id = $1');
         $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data_get_permissions', array($bucket_id)));
         $bucket_data = json_decode($bucket_data[0], true);
 
         if (array_key_exists($user['id'], $bucket_data['users'])) {
             return $bucket_data['users'][$user['id']['permissions']];
-        }else{
+        } else {
             return [false];
         }
     }
