@@ -35,7 +35,7 @@ class Uploader
             ]
         );
 
-            $this->bucket = $bucket;
+        $this->bucket = $bucket;
 
         $this->authentication = new Auth();
     }
