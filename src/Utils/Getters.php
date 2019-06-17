@@ -32,6 +32,18 @@ class Getters
         }
     }
 
+    public function get_user_id_by_api_key(string $apikey)
+    {
+        pg_prepare($this->dbconn, 'get_user_id_by_api_key', 'SELECT user_id FROM tokens WHERE token = $1');
+        $result = pg_fetch_array(pg_execute($this->dbconn, 'get_user_id_by_api_key', array($api_key)));
+
+        if (!empty($result[0])) {
+            return $result[0];
+        } else {
+            return false;
+        }
+    }
+
     public function get_bucket_name_by_id($bucket_id)
     {
         pg_prepare($this->dbconn, 'get_bucket_name_by_id', 'SELECT id FROM buckets WHERE bucket = $1');

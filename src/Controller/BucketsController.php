@@ -94,7 +94,7 @@ class BucketsController extends AbstractController
         $file_utils = new FileUtils();
         if($request->request->has('api_key')){
             if ($this->authentication->isValidUUID($bucket_id) && $this->authentication->isValidUUID($request->request->get('api_key'))){
-                if ($file_utils->get_file_owner($file_name, $user_id, $request->request->get('api_key'), $this->getter->getBucketNameFromID($bucket_id))) {
+                if ($file_utils->get_file_owner($file_name, $this->getter->get_user_id_by_api_key($request->request->get('api_key')), $request->request->get('api_key'), $this->getter->getBucketNameFromID($bucket_id))) {
                     $delete_file = $file_utils->delete_file($request->request->get('api_key'), $bucket_id, $file_name);
                     $response = new Response(json_encode($delete_file));
                     $response->headers->set('Content-Type', 'application/json');
