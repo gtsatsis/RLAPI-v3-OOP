@@ -157,7 +157,7 @@ class Auth
             if ('t' == $user['verified']) {
                 if ('f' == $user['is_blocked'] || empty($user['is_blocked'])) {
                     $this->sqreen->sqreen_auth_track(true, $user['email']);
-                    $this->sqreen->sqreen_track_upload($user['id']);
+                    $this->sqreen->sqreen_track_upload($user['email']);
 
                     return true;
                 } else {
@@ -188,7 +188,7 @@ class Auth
             if ('t' == $user['verified']) {
                 if ('f' == $user['is_blocked'] || empty($user['is_blocked'])) {
                     $this->sqreen->sqreen_auth_track(true, $user['email']);
-                    $this->sqreen->sqreen_track_shorten($user['id']);
+                    $this->sqreen->sqreen_track_shorten($user['email']);
 
                     return true;
                 } else {
@@ -283,11 +283,16 @@ class Auth
 
         if(array_key_exists($user['id'], $bucket_data['users'])){
             if($bucket_data['users'][$user['id']]['permissions']['rlapi.custom.bucket.upload'] == true){
+                $this->sqreen->sqreen_auth_track(true, $user['email']);
+                $this->sqreen->sqreen_track_upload($user['email']);
+
                 return true;
             }else{
+                $this->sqreen->sqreen_auth_track(false, $user['email']);
                 return false;
             }
         }else{
+            $this->sqreen->sqreen_auth_track(false, $user['email']);
             return false;
         }
     }

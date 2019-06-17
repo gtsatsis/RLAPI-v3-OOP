@@ -30,14 +30,21 @@ class SqreenLib
     public function sqreen_track_upload($identifier)
     {
         if (getenv('SQREEN_ENABLED')) {
-            \sqreen\track('app.ratelimited.rlapi.upload', ['properties' => ['user_id' => $identifier]]);
+            \sqreen\track('app.ratelimited.rlapi.upload', ['properties' => ['email' => $identifier]]);
         }
     }
 
     public function sqreen_track_shorten($identifier)
     {
         if (getenv('SQREEN_ENABLED')) {
-            \sqreen\track('app.ratelimited.rlapi.shorten', ['properties' => ['user_id' => $identifier]]);
+            \sqreen\track('app.ratelimited.rlapi.shorten', ['properties' => ['email' => $identifier]]);
+        }
+    }
+
+    public function sqreen_track_file_delete()
+    {
+        if (getenv('SQREEN_ENABLED')) {
+            \sqreen\track('app.ratelimited.rlapi.file.deleted');
         }
     }
 

@@ -296,8 +296,8 @@ class UserController extends AbstractController
         if ($auth->isValidUUID($user_id)) {
             if ($request->request->has('api_key')) {
                 if ($auth->isValidUUID($request->request->get('api_key'))) {
-                    if ($file_util->get_file_owner($file_name, $user_id, $request->request->get('api_key'))) {
-                        $delete_file = $file_util->delete_file($file_name);
+                    if ($file_util->get_file_owner($file_name, $user_id, $request->request->get('api_key'), getenv('S3_BUCKET'))) {
+                        $delete_file = $file_util->delete_file($file_name, getenv('S3_BUCKET'));
 
                         $response = new Response(json_encode($delete_file));
                         $response->headers->set('Content-Type', 'application/json');

@@ -7,6 +7,7 @@ require_once __DIR__.'/../../vendor/autoload.php';
 use App\Models\Buckets;
 use App\Utils\Auth;
 use App\Utils\Getters;
+use App\Utils\FileUtils;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -76,6 +77,42 @@ class BucketsController extends AbstractController
                 return $response;
             }
         } else {
+            $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Missing required parameters', 'required' => ['api_key']]]));
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
+    }
+
+    /** 
+     * Matches /buckets/{bucket_id}/uploads/{file_name}/delete.
+     * 
+     * @Route("/buckets/{bucket_id}/uploads/{file_name}/delete", name="delete_file")
+     */
+    public function delete_file(Request $request, $bucket_id, $file_name)
+    {
+        $file_utils = new FileUtils();
+        if($request->request->has('api_key')){
+            if ($this->authentication->isValidUUID($bucket_id) && $this->authentication->isValidUUID($request->request->get('api_key'))){
+                if ($file_util->get_file_owner($file_name, $user_id, $request->request->get('api_key'), $this->getter->getBucketNameFromID($bucket_id))) {
+                    $delete_file = $file_utils->delete_file($request->request->get('api_key'), $bucket_id, $file_name);
+                    $response = new Response(json_encode($delete_file));
+                    $response->headers->set('Content-Type', 'application/json');
+
+                    return $response;
+                }else{
+                    $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Unauthorized']]));
+                    $response->headers->set('Content-Type', 'application/json');
+
+                    return $response;
+                }
+            }else{
+                $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'API key and Bucket ID not in UUID format']]));
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+            }
+        }else{
             $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Missing required parameters', 'required' => ['api_key']]]));
             $response->headers->set('Content-Type', 'application/json');
 

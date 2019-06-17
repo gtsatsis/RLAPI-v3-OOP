@@ -108,6 +108,13 @@ class Getters
         }
     }
 
+    public function getBucketNameFromID($bucket_id)
+    {
+        pg_prepare($this->dbconn, "get_bucket_name_from_id", "SELECT bucket FROM buckets WHERE id = $1");
+        $arr = pg_fetch_array(pg_execute($this->dbconn, "get_bucket_name_from_id", array($bucket_id)));
+        return $arr['bucket'];
+    }
+
     public function get_user_id_by_email(string $user_email)
     {
         $this->prepared = false;
