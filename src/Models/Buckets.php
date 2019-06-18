@@ -131,6 +131,8 @@ class Buckets
             $delete_bucket = $this->s3->deleteBucket(['Bucket' => $bucket_details['bucket']]);
             pg_prepare($this->dbconn, 'delete_bucket', 'DELETE FROM buckets WHERE id = $1');
             pg_execute($this->dbconn, 'delete_bucket', array($bucket_id));
+            pg_prepare($this->dbconn, 'delete_bucket_delete_files', 'UPDATE files SET deleted = true WHERE bucket = $1');
+            pg_execute($this->dbconn, 'delete_bucket_delete_files', array($bucket_details['bucket']));
             return [
                 'success' => true,
             ];
