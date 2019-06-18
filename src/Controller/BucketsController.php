@@ -91,76 +91,70 @@ class BucketsController extends AbstractController
      */
     public function get_users(Request $request, $bucket_id)
     {
-        if($request->isMethod('get')){
+        if ($request->isMethod('get')) {
             if ($request->query->has('key')) {
-                if($this->authentication->isValidUUID($request->query->get('key'))){
-                    if($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->request->get('api_key'), $bucket_id)){
+                if ($this->authentication->isValidUUID($request->query->get('key'))) {
+                    if ($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->request->get('api_key'), $bucket_id)) {
                         $permissions = $this->buckets->get_permissions($request->query->get('key'), $bucket_id);
-                        if($permissions['rlapi.custom.bucket.users.get'] == true){
+                        if (true == $permissions['rlapi.custom.bucket.users.get']) {
                             $get_users = $this->bucket->get_users($bucket_id);
                             $response = new Response(json_encode($get_users));
                             $response->headers->set('Content-Type', 'application/json');
-    
+
                             return $response;
-                        }else{
+                        } else {
                             $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Unauthorized']]));
                             $response->headers->set('Content-Type', 'application/json');
 
                             return $response;
                         }
-                    }else{
+                    } else {
                         $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Unauthorized']]));
                         $response->headers->set('Content-Type', 'application/json');
 
                         return $response;
                     }
-                }else{
-
+                } else {
                     $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Key not in UUID format']]));
                     $response->headers->set('Content-Type', 'application/json');
 
                     return $response;
-
                 }
-                
-            }elseif($request->headers->has('Authorization')){
-                if($this->authentication->isValidUUID($request->headers->get('Authorization'))){
-                    if($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->headers->get('Authorization'), $bucket_id)){
+            } elseif ($request->headers->has('Authorization')) {
+                if ($this->authentication->isValidUUID($request->headers->get('Authorization'))) {
+                    if ($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->headers->get('Authorization'), $bucket_id)) {
                         $permissions = $this->buckets->get_permissions($request->headers->get('Authorization'), $bucket_id);
-                        if($permissions['rlapi.custom.bucket.users.get'] == true){
+                        if (true == $permissions['rlapi.custom.bucket.users.get']) {
                             $get_users = $this->buckets->get_users($bucket_id);
                             $response = new Response(json_encode($get_users));
                             $response->headers->set('Content-Type', 'application/json');
-    
+
                             return $response;
-                        }else{
+                        } else {
                             $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Unauthorized']]));
                             $response->headers->set('Content-Type', 'application/json');
 
                             return $response;
                         }
-                    }else{
+                    } else {
                         $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Unauthorized']]));
                         $response->headers->set('Content-Type', 'application/json');
 
                         return $response;
                     }
-                }else{
-
+                } else {
                     $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Key not in UUID format']]));
                     $response->headers->set('Content-Type', 'application/json');
 
                     return $response;
-
                 }
-            }else{
+            } else {
                 $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'No authentication method provided']]));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
-
             }
-        }else{
+        } else {
             $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Request must be of type GET']]));
             $response->headers->set('Content-Type', 'application/json');
 
@@ -170,40 +164,40 @@ class BucketsController extends AbstractController
 
     /**
      * Matches /buckets/{bucket_id}/users/add.
-     * 
+     *
      * @Route("/buckets/{bucket_id}/users/add", name="add_user")
      */
     public function add_user(Request $request, $bucket_id)
     {
         if ($request->request->has('api_key')) {
             if ($this->authentication->isValidUUID($bucket_id) && $this->authentication->isValidUUID($request->request->get('api_key'))) {
-                if($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->request->get('api_key'), $bucket_id)){
+                if ($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->request->get('api_key'), $bucket_id)) {
                     $permissions = $this->buckets->get_permissions($request->request->get('api_key'), $bucket_id);
-                    if($permissions['rlapi.custom.bucket.user.add'] == true){
+                    if (true == $permissions['rlapi.custom.bucket.user.add']) {
                         $add_user = $this->buckets->add_user($request->request->get('username'), $bucket_id);
                         $response = new Response(json_encode($add_user));
                         $response->headers->set('Content-Type', 'application/json');
 
                         return $response;
-                    }else{
+                    } else {
                         $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Unauthorized']]));
                         $response->headers->set('Content-Type', 'application/json');
 
                         return $response;
                     }
-                }else{
+                } else {
                     $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Unauthorized']]));
                     $response->headers->set('Content-Type', 'application/json');
 
                     return $response;
                 }
-            }else{
+            } else {
                 $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Bucket ID and API key not in UUID format.']]));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
             }
-        }else{
+        } else {
             $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Missing required parameters', 'required' => ['api_key']]]));
             $response->headers->set('Content-Type', 'application/json');
 
