@@ -216,7 +216,7 @@ class BucketsController extends AbstractController
             if ($this->authentication->isValidUUID($bucket_id) && $this->authentication->isValidUUID($request->request->get('api_key'))) {
                 if ($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->request->get('api_key'), $bucket_id)) {
                     $permissions = $this->buckets->get_permissions($request->request->get('api_key'), $bucket_id);
-                    if (true == $permissions['rlapi.custom.bucket.user.remove'] && $this->buckets->actor_permission_higher_than_user($permissions['rlapi.custom.bucket.permission.priority'], $username, $bucket_id)) {
+                    if (true == $permissions['rlapi.custom.bucket.user.remove'] && $this->buckets->actor_permission_higher_than_user($permissions['rlapi.custom.bucket.permission.priority'], $user_name, $bucket_id)) {
                         $remove_user = $this->buckets->remove_user($request->request->get('username'), $bucket_id);
                         $response = new Response(json_encode($remove_user));
                         $response->headers->set('Content-Type', 'application/json');
