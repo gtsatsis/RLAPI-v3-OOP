@@ -191,7 +191,7 @@ class Buckets
     {
         pg_prepare($this->dbconn, 'fetch_bucket_data_get_users', 'SELECT data FROM buckets WHERE id = $1');
         $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data_get_users', array($bucket_id)));
-        
+
         $bucket_data = json_decode($bucket_data[0], true);
 
         return $bucket_data['users'];
