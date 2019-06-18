@@ -84,9 +84,9 @@ class BucketsController extends AbstractController
         }
     }
 
-    /** 
-     * Matches /buckets/{bucket_id}/users.
-     * 
+    /**
+     * Matches /buckets/{bucket_id}/users exactly.
+     *
      * @Route("/buckets/{bucket_id}/users", name="get_users")
      */
     public function get_users(Request $request, $bucket_id)
