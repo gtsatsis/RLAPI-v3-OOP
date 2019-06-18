@@ -121,20 +121,18 @@ class Buckets
                 return ['Key' => $file['filename']];
             }, $files);
             
-           /* Temporary removal for debug purposes.
            $this->s3->deleteObjects([
                 'Bucket'  => $bucket_details['bucket'],
                 'Delete' => [
-                    'Objects' => 
+                    'Objects' => $deleteFiles
                 ],
             ]);
 
             $delete_bucket = $this->s3->deleteBucket(['Bucket' => $bucket_details['bucket']]);
             pg_prepare($this->dbconn, 'delete_bucket', 'DELETE FROM buckets WHERE id = $1');
             pg_execute($this->dbconn, 'delete_bucket', array($bucket_id));
-            */return [
+            return [
                 'success' => true,
-                'files' => $deleteFiles,
             ];
         } else {
             return [
