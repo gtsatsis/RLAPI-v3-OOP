@@ -116,15 +116,15 @@ class Buckets
 
             pg_prepare($this->dbconn, 'get_all_files_in_bucket', 'SELECT filename FROM files WHERE bucket = $1');
             $files = pg_fetch_all(pg_execute($this->dbconn, 'get_all_files_in_bucket', array($bucket_details['bucket'])));
-            
+
             $deleteFiles = array_map(function ($file) {
                 return ['Key' => $file['filename']];
             }, $files);
-            
-           $this->s3->deleteObjects([
-                'Bucket'  => $bucket_details['bucket'],
+
+            $this->s3->deleteObjects([
+                'Bucket' => $bucket_details['bucket'],
                 'Delete' => [
-                    'Objects' => $deleteFiles
+                    'Objects' => $deleteFiles,
                 ],
             ]);
 
@@ -133,6 +133,7 @@ class Buckets
             pg_execute($this->dbconn, 'delete_bucket', array($bucket_id));
             pg_prepare($this->dbconn, 'delete_bucket_delete_files', 'UPDATE files SET deleted = true WHERE bucket = $1');
             pg_execute($this->dbconn, 'delete_bucket_delete_files', array($bucket_details['bucket']));
+
             return [
                 'success' => true,
             ];
@@ -150,7 +151,7 @@ class Buckets
     {
         pg_prepare($this->dbconn, 'fetch_bucket_data_get_users', 'SELECT data FROM buckets WHERE id = $1');
         $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data_get_users', array($bucket_id)));
-        
+
         $bucket_data = json_decode($bucket_data[0], true);
 
         return $bucket_data['users'];
@@ -219,7 +220,7 @@ class Buckets
     {
         pg_prepare($this->dbconn, 'fetch_user_by_username', 'SELECT * FROM users WHERE is_blocked IS NOT true AND username = $1 LIMIT 1');
         $user = pg_fetch_array(pg_execute($this->dbconn, 'fetch_user_by_username', array($username)));
-        
+
         if (!empty($user['id'])) {
             pg_prepare($this->dbconn, 'fetch_bucket_data', 'SELECT data FROM buckets WHERE id = $1');
             $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data', array($bucket_id)));
@@ -235,7 +236,6 @@ class Buckets
             return [
                 'success' => true,
             ];
-
         } else {
             return ['success' => false, 'error_message' => 'invalid username'];
         }
@@ -295,9 +295,9 @@ class Buckets
         $bucket_data = json_decode($bucket_data[0], true);
 
         if (array_key_exists($user['id'], $bucket_data['users'])) {
-            if($actor_permission_level > $bucket_data['users'][$user['id']]['permissions']['rlapi.custom.bucket.permission.priority']){
+            if ($actor_permission_level > $bucket_data['users'][$user['id']]['permissions']['rlapi.custom.bucket.permission.priority']) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
         } else {
