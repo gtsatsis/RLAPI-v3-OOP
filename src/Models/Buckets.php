@@ -146,8 +146,8 @@ class Buckets
         $user = pg_fetch_array(pg_execute($this->dbconn, 'fetch_user_by_username', array($username)));
 
         if (!empty($user['id'])) {
-            pg_prepare($this->dbconn, 'fetch_bucket_data', 'SELECT data FROM buckets WHERE id = $1');
-            $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data', array($bucket_id)));
+            pg_prepare($this->dbconn, 'fetch_bucket_data_add_user', 'SELECT data FROM buckets WHERE id = $1');
+            $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data_add_user', array($bucket_id)));
             $bucket_data = json_decode($bucket_data[0], true);
 
             $bucket_data['users'][$user['id']] = [
