@@ -116,14 +116,16 @@ class Buckets
 
             pg_prepare($this->dbconn, 'get_all_files_in_bucket', 'SELECT filename FROM files WHERE bucket = $1');
             $files = pg_fetch_all(pg_execute($this->dbconn, 'get_all_files_in_bucket', array($bucket_details['bucket'])));
-
+            
+            $deleteFiles = array_map(function ($file) {
+                return ['Key' => $file['filename']];
+            }, $files);
+            
            /* Temporary removal for debug purposes.
            $this->s3->deleteObjects([
                 'Bucket'  => $bucket_details['bucket'],
                 'Delete' => [
-                    'Objects' => array_map(function ($key) {
-                        return ['Key' => $key];
-                    }, $keys)
+                    'Objects' => 
                 ],
             ]);
 
@@ -132,7 +134,7 @@ class Buckets
             pg_execute($this->dbconn, 'delete_bucket', array($bucket_id));
             */return [
                 'success' => true,
-                'files' => $files,
+                'files' => $deleteFiles,
             ];
         } else {
             return [
