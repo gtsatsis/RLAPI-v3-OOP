@@ -63,6 +63,7 @@ class Buckets
                                     'rlapi.custom.bucket.permission.priority' => 200, /* Highest priority, soft-limit of 200 (Bucket Owner). Priorities can be used to allow modification of lower-priority users' permissions. */
                                     'rlapi.custom.bucket.upload' => true, /* bool, can upload */
                                     'rlapi.custom.bucket.manage' => true, /* bool, can manage general bucket settings */
+                                    'rlapi.custom.bucket.users.get' => true, /* bool, can get a list of users in the bucket */
                                     'rlapi.custom.bucket.user.add' => true, /* bool, can add a user */
                                     'rlapi.custom.bucket.user.remove' => true, /* bool, can remove a user */
                                     'rlapi.custom.bucket.user.block' => true, /* bool, can block a user (set upload permission to false) */
@@ -143,6 +144,7 @@ class Buckets
                     'rlapi.custom.bucket.permission.priority' => 1, /* Highest priority, soft-limit of 200 (Bucket Owner). Priorities can be used to allow modification of lower-priority users' permissions. */
                     'rlapi.custom.bucket.upload' => true, /* bool, can upload */
                     'rlapi.custom.bucket.manage' => false, /* bool, can manage general bucket settings */
+                    'rlapi.custom.bucket.users.get' => false, /* bool, can get a list of users in the bucket */
                     'rlapi.custom.bucket.user.add' => false, /* bool, can add a user */
                     'rlapi.custom.bucket.user.remove' => false, /* bool, can remove a user */
                     'rlapi.custom.bucket.user.block' => false, /* bool, can block a user (set upload permission to false) */
@@ -166,7 +168,8 @@ class Buckets
                                     'permissions' => [
                                         'rlapi.custom.bucket.permission.priority' => 1, 
                                         'rlapi.custom.bucket.upload' => true,
-                                        'rlapi.custom.bucket.manage' => false, 
+                                        'rlapi.custom.bucket.manage' => false,
+                                        'rlapi.custom.bucket.users.get' => false, 
                                         'rlapi.custom.bucket.user.add' => false,
                                         'rlapi.custom.bucket.user.remove' => false,
                                         'rlapi.custom.bucket.user.block' => false, 
@@ -182,6 +185,16 @@ class Buckets
         }else{
             return ['success' => false, 'error_message' => 'invalid username'];
         }
+    }
+
+    public function get_users($bucket_id)
+    {
+        pg_prepare($this->dbconn, 'fetch_bucket_data_get_users', 'SELECT data FROM buckets WHERE id = $1');
+        $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data_get_users', array($bucket_id)));
+        
+        $bucket_data = json_decode($bucket_data, true);
+
+        return $bucket_data['users'];
     }
 
     public function bucket_exists($bucket_name)
