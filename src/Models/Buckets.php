@@ -113,10 +113,12 @@ class Buckets
         if ($this->authentication->owns_bucket($user['id'], $bucket_id) || $this->authentication->api_key_is_admin($api_key)) {
             pg_prepare($this->dbconn, 'fetch_bucket', 'SELECT * FROM buckets WHERE id = $1');
             $bucket_details = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket', array($bucket_id)));
+            $keys = $this->s3->listObjects(['Bucket' => $bucket_details['bucket']])->getPath('Contents/*/Key');
+            $this->s3->deleteObjects(['Bucket'  => $bucket_details['bucket'],'Delete' => ['Objects' => array_map(function ($key) {return ['Key' => $key];}, $keys)],]);
+
             $delete_bucket = $this->s3->deleteBucket(['Bucket' => $bucket_details['bucket']]);
             pg_prepare($this->dbconn, 'delete_bucket', 'DELETE FROM buckets WHERE id = $1');
             pg_execute($this->dbconn, 'delete_bucket', array($bucket_id));
-
             return [
                 'success' => true,
             ];
