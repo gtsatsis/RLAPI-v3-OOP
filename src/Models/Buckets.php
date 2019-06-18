@@ -59,6 +59,7 @@ class Buckets
                         ],
                         'users' => [
                             $user['id'] => [
+                                'username' => $user['username'],
                                 'permissions' => [
                                     'rlapi.custom.bucket.permission.priority' => 200, /* Highest priority, soft-limit of 200 (Bucket Owner). Priorities can be used to allow modification of lower-priority users' permissions. */
                                     'rlapi.custom.bucket.upload' => true, /* bool, can upload */
@@ -129,6 +130,16 @@ class Buckets
         }
     }
 
+    public function get_users($bucket_id)
+    {
+        pg_prepare($this->dbconn, 'fetch_bucket_data_get_users', 'SELECT data FROM buckets WHERE id = $1');
+        $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data_get_users', array($bucket_id)));
+        
+        $bucket_data = json_decode($bucket_data[0], true);
+
+        return $bucket_data['users'];
+    }
+
     public function add_user($username, $bucket_id)
     {
         pg_prepare($this->dbconn, 'fetch_user_by_username', 'SELECT * FROM users WHERE is_blocked IS NOT true AND username = $1 LIMIT 1');
@@ -140,6 +151,7 @@ class Buckets
             $bucket_data = json_decode($bucket_data[0], true);
 
             $bucket_data['users'][$user['id']] = [
+                'username' => $username,
                 'permissions' => [
                     'rlapi.custom.bucket.permission.priority' => 1, /* Highest priority, soft-limit of 200 (Bucket Owner). Priorities can be used to allow modification of lower-priority users' permissions. */
                     'rlapi.custom.bucket.upload' => true, /* bool, can upload */
@@ -187,14 +199,30 @@ class Buckets
         }
     }
 
-    public function get_users($bucket_id)
+    public function remove_user($username, $bucket_id)
     {
-        pg_prepare($this->dbconn, 'fetch_bucket_data_get_users', 'SELECT data FROM buckets WHERE id = $1');
-        $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data_get_users', array($bucket_id)));
+        pg_prepare($this->dbconn, 'fetch_user_by_username', 'SELECT * FROM users WHERE is_blocked IS NOT true AND username = $1 LIMIT 1');
+        $user = pg_fetch_array(pg_execute($this->dbconn, 'fetch_user_by_username', array($username)));
         
-        $bucket_data = json_decode($bucket_data[0], true);
+        if (!empty($user['id'])) {
+            pg_prepare($this->dbconn, 'fetch_bucket_data', 'SELECT data FROM buckets WHERE id = $1');
+            $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data', array($bucket_id)));
+            $bucket_data = json_decode($bucket_data[0], true);
 
-        return $bucket_data['users'];
+            unset($bucket_data['users'][$user['id']]);
+
+            $bucket_data = json_encode($bucket_data);
+
+            pg_prepare($this->dbconn, 'insert_updated_bucket_data', 'UPDATE buckets SET data = $1 WHERE id = $2');
+            pg_execute($this->dbconn, 'insert_updated_bucket_data', array($bucket_data, $bucket_id));
+
+            return [
+                'success' => true,
+            ];
+
+        } else {
+            return ['success' => false, 'error_message' => 'invalid username'];
+        }
     }
 
     public function bucket_exists($bucket_name)
@@ -238,6 +266,26 @@ class Buckets
             return $bucket_data['users'][$user['id']]['permissions'];
         } else {
             return [false];
+        }
+    }
+
+    public function actor_permission_higher_than_user($actor_permission_level, $username, $bucket_id)
+    {
+        pg_prepare($this->dbconn, 'fetch_user_get_permissions_permission_level', 'SELECT * FROM users WHERE is_blocked IS NOT true AND username = $1 LIMIT 1');
+        $user = pg_fetch_array(pg_execute($this->dbconn, 'fetch_user_get_permissions_permission_level', array($username)));
+
+        pg_prepare($this->dbconn, 'fetch_bucket_data_get_permission_level', 'SELECT data FROM buckets WHERE id = $1');
+        $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data_get_permissions', array($bucket_id)));
+        $bucket_data = json_decode($bucket_data[0], true);
+
+        if (array_key_exists($user['id'], $bucket_data['users'])) {
+            if($actor_permission_level > $bucket_data['users'][$user['id']]['permissions']['rlapi.custom.bucket.permission.priority']){
+                return true;
+            }else{
+                return false;
+            }
+        } else {
+            return false;
         }
     }
 }
