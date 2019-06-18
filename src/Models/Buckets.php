@@ -115,7 +115,7 @@ class Buckets
             $bucket_details = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket', array($bucket_id)));
 
             pg_prepare($this->dbconn, 'get_all_files_in_bucket', 'SELECT filename FROM files WHERE bucket = $1');
-            $files = pg_fetch_array(pg_execute($this->dbconn, 'get_all_files_in_bucket', array($bucket_details['bucket'])));
+            $files = pg_fetch_all(pg_execute($this->dbconn, 'get_all_files_in_bucket', array($bucket_details['bucket'])));
 
            /* Temporary removal for debug purposes.
            $this->s3->deleteObjects([
