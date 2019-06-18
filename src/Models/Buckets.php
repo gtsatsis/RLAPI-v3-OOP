@@ -116,7 +116,7 @@ class Buckets
 
             $keys = $this->s3->listObjects([
                 'Bucket' => $bucket_details['bucket']
-            ]) ->getPath('Contents/*/Key');
+            ]);
 
             $this->s3->deleteObjects([
                 'Bucket'  => $bucket_details['bucket'],
