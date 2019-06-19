@@ -134,24 +134,24 @@ class Domains
             'name' => 'rl-verify-'.mb_substr($verification_hash, 0, 4).'.'.$domain,
             'contents' => $verification_hash,
         ];
-        if(getenv('CLOUDFLARE_DCV_ENABLED') == true){
+        if (true == getenv('CLOUDFLARE_DCV_ENABLED')) {
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, 'https://dcvcheck.cloudflare.com/check');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, "{ \"authToken\": \"".getenv('CLOUDFLARE_DCV_TOKEN')."\", \"method\":\"TXT\", \"verbose\": true, \"params\": { \"domain\": \"".$txt_record['name']."\", \"challenge\": \"".$txt_record['contents']."\", \"expectedResponse\": \"".$txt_record['contents']."\" } }");
+            curl_setopt($ch, CURLOPT_POSTFIELDS, '{ "authToken": "'.getenv('CLOUDFLARE_DCV_TOKEN').'", "method":"TXT", "verbose": true, "params": { "domain": "'.$txt_record['name'].'", "challenge": "'.$txt_record['contents'].'", "expectedResponse": "'.$txt_record['contents'].'" } }');
             curl_setopt($ch, CURLOPT_POST, 1);
-            $headers = array(); 
+            $headers = array();
             $headers[] = 'Content-Type: application/x-www-form-urlencoded';
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers); 
-            $result = curl_exec($ch); 
-            if (curl_errno($ch)) { 
-                echo 'Error:' . curl_error($ch);
-            } 
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            $result = curl_exec($ch);
+            if (curl_errno($ch)) {
+                echo 'Error:'.curl_error($ch);
+            }
             curl_close($ch);
 
             $result = json_decode($result, true);
-            $min_allowed_accepted_responses = $result['agentRequests'] / 3; 
-            if($result['correctResponses'] >= $min_allowed_accepted_responses){
+            $min_allowed_accepted_responses = $result['agentRequests'] / 3;
+            if ($result['correctResponses'] >= $min_allowed_accepted_responses) {
                 pg_prepare($this->dbconn, 'verify_domain', 'UPDATE domains SET verified = true WHERE domain_name = $1');
                 pg_execute($this->dbconn, 'verify_domain', array($domain));
 
@@ -162,7 +162,7 @@ class Domains
                         ],
                     ],
                 ];
-            }else{
+            } else {
                 return [
                     'domains' => [
                         $domain => [
