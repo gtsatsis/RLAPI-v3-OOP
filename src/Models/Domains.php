@@ -134,9 +134,47 @@ class Domains
             'name' => 'rl-verify-'.mb_substr($verification_hash, 0, 4).'.'.$domain,
             'contents' => $verification_hash,
         ];
+        if(getenv('CLOUDFLARE_DCV_ENABLED') == true){
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, 'https://dcvcheck.cloudflare.com/check');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, "{ \"authToken\": \"".getenv('CLOUDFLARE_DCV_TOKEN')."\", \"method\":\"TXT\", \"verbose\": true, \"params\": { \"domain\": \"".$txt_record['name']."\", \"challenge\": \"".$txt_record['contents']."\", \"expectedResponse\": \"".$txt_record['contents']."\" } }");
+            curl_setopt($ch, CURLOPT_POST, 1);
+            $headers = array(); 
+            $headers[] = 'Content-Type: application/x-www-form-urlencoded';
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers); 
+            $result = curl_exec($ch); 
+            if (curl_errno($ch)) { 
+                echo 'Error:' . curl_error($ch);
+            } 
+            curl_close($ch);
 
-        $dnsController = new \Spatie\Dns\Dns($txt_record['name']);
-        $dns_record = $dnsController->getRecords('TXT');
+            $result = json_decode($result, true);
+            $min_allowed_accepted_responses = $result['agentRequests'] / 3; 
+            if($result['correctResponses'] >= $min_allowed_accepted_responses){
+                pg_prepare($this->dbconn, 'verify_domain', 'UPDATE domains SET verified = true WHERE domain_name = $1');
+                pg_execute($this->dbconn, 'verify_domain', array($domain));
+
+                return [
+                    'domains' => [
+                        $domain => [
+                            'verified' => true,
+                        ],
+                    ],
+                ];
+            }else{
+                return [
+                    'domains' => [
+                        $domain => [
+                            'verified' => false,
+                        ],
+                    ],
+                ];
+            }
+        } else {
+            $dnsController = new \Spatie\Dns\Dns($txt_record['name']);
+            $dns_record = $dnsController->getRecords('TXT');
+        }
 
         preg_match("/(?:(?:\"(?:\\\\\"|[^\"])+\")|(?:'(?:\\\'|[^'])+'))/is", $dns_record, $extracted_quote_part);
         if ($extracted_quote_part[0] == '"'.$txt_record['contents'].'"') {
