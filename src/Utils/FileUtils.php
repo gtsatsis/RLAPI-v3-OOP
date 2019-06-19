@@ -149,24 +149,24 @@ class FileUtils
         pg_prepare($this->dbconn, 'select_from_hashlist', 'SELECT md5, sha1, reason, COUNT(*) FROM blocked_hashes WHERE md5 = $1 OR sha1 = $2');
         $results = pg_fetch_array(pg_execute($this->dbconn, 'select_from_hashlist', array($md5, $sha1)));
 
-        if($results['count'] >= 1){
-            if($results['reason'] == 'cp'){
+        if ($results['count'] >= 1) {
+            if ('cp' == $results['reason']) {
                 return [
                     'clearance' => false,
                     'reason' => 'cp',
                 ];
-            }elseif($results['reason'] == 'banned'){
+            } elseif ('banned' == $results['reason']) {
                 return [
                     'clearance' => false,
                     'reason' => 'banned',
-                ]; 
-            }else{
+                ];
+            } else {
                 return [
                     'clearance' => false,
                     'reason' => $results['reason'], /* Fallback */
                 ];
             }
-        }else{
+        } else {
             return [
                 'clearance' => true,
             ];
