@@ -138,7 +138,7 @@ class Domains
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, 'https://dcvcheck.cloudflare.com/check');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, '{ "authToken": "'.getenv('CLOUDFLARE_DCV_TOKEN').'", "method":"TXT", "verbose": true, "params": { "domain": "'.$txt_record['name'].'", "challenge": "'.$txt_record['contents'].'", "expectedResponse": "'.$txt_record['contents'].'" } }');
+            curl_setopt($ch, CURLOPT_POSTFIELDS, '{ "authToken": "'.getenv('CLOUDFLARE_DCV_TOKEN').'", "method":"TXT", "verbose": true, "params": { "domain": "'.$txt_record['name'].'", "challenge": "'.$txt_record['name'].'", "expectedResponse": "'.$txt_record['contents'].'" } }');
             curl_setopt($ch, CURLOPT_POST, 1);
             $headers = array();
             $headers[] = 'Content-Type: application/x-www-form-urlencoded';
