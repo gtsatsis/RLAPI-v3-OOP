@@ -160,6 +160,7 @@ class Domains
                         $domain => [
                             'verified' => true,
                             'details' => [
+                                'method_used' => 'cloudflare',
                                 'total_requests' => $result['agentRequests'],
                                 'correct_responses' => $result['correctResponses'],
                                 'required_correct' => $min_allowed_accepted_responses,
@@ -172,6 +173,12 @@ class Domains
                     'domains' => [
                         $domain => [
                             'verified' => false,
+                            'details' => [
+                                'method_used' => 'cloudflare',
+                                'total_requests' => $result['agentRequests'],
+                                'correct_responses' => $result['correctResponses'],
+                                'required_correct' => $min_allowed_accepted_responses,
+                            ],
                         ],
                     ],
                 ];
@@ -190,6 +197,9 @@ class Domains
                 'domains' => [
                     $domain => [
                         'verified' => true,
+                        'details' => [
+                            'method_used' => 'builtin_dns',
+                        ],
                     ],
                 ],
             ];
@@ -198,6 +208,9 @@ class Domains
                 'domains' => [
                     $domain => [
                         'verified' => false,
+                        'details' => [
+                            'method_used' => 'builtin_dns',
+                        ],
                     ],
                 ],
             ];
