@@ -123,11 +123,12 @@ class Uploader
                 'error_message' => 'Invalid Credentials',
             ];
         }
-
-        if (null != $file_name) {
-            unlink(getenv('TMP_STORE').$file_name);
-        } else {
-            unlink(implode('', $file['tmp_name']));
+        if (true == $check_against_hashlist['clearance']) {
+            if (null != $file_name) {
+                unlink(getenv('TMP_STORE').$file_name);
+            } else {
+                unlink(implode('', $file['tmp_name']));
+            }
         }
 
         return $response;
