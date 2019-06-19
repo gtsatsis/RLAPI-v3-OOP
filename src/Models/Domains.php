@@ -159,6 +159,11 @@ class Domains
                     'domains' => [
                         $domain => [
                             'verified' => true,
+                            'details' => [
+                                'total_requests' => $result['agentRequests'],
+                                'correct_responses' => $result['correctResponses'],
+                                'required_correct' => $min_allowed_accepted_responses,
+                            ]
                         ],
                     ],
                 ];
