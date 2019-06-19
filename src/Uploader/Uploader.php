@@ -68,33 +68,47 @@ class Uploader
                 $file_sha1_hash = sha1_file(implode('', $file['tmp_name']));
                 $file_original_name = implode('', $file['name']);
 
-                $fileUtils->log_object($api_key, $file_name, $file_original_name, $file_md5_hash, $file_sha1_hash, $this->bucket);
+                $check_against_hashlist = $fileUtils->check_object_against_hashlist($file_md5_hash, $file_sha1_hash);
+                if($check_against_hashlist['clearance'] == true){
+                    $fileUtils->log_object($api_key, $file_name, $file_original_name, $file_md5_hash, $file_sha1_hash, $this->bucket);
 
-                if (move_uploaded_file(implode('', $file['tmp_name']), getenv('TMP_STORE').$file_name)) {
-                    $file_loc = getenv('TMP_STORE').$file_name;
+                    if (move_uploaded_file(implode('', $file['tmp_name']), getenv('TMP_STORE').$file_name)) {
+                        $file_loc = getenv('TMP_STORE').$file_name;
+                    } else {
+                        throw new \Exception('Unable to move uploaded file.');
+                    }
+
+                    $upload = $this->uploadToS3($file_name, $file_loc);
+
+                    if ($upload) {
+                        $response = [
+                            'success' => true,
+                            'files' => [
+                                    [
+                                        'url' => $file_name,
+                                        'name' => $file_original_name,
+                                        'hash_md5' => $file_md5_hash,
+                                        'hash_sha1' => $file_sha1_hash,
+                                    ],
+                            ],
+                        ];
+                    } else {
+                        $response = [
+                            'success' => false,
+                            'error_code' => 403408,
+                        ];
+                    }
                 } else {
-                    throw new \Exception('Unable to move uploaded file.');
-                }
-
-                $upload = $this->uploadToS3($file_name, $file_loc);
-
-                if ($upload) {
-                    $response = [
-                        'success' => true,
-                        'files' => [
-                                [
-                                    'url' => $file_name,
-                                    'name' => $file_original_name,
-                                    'hash_md5' => $file_md5_hash,
-                                    'hash_sha1' => $file_sha1_hash,
-                                ],
-                        ],
-                    ];
-                } else {
-                    $response = [
-                        'success' => false,
-                        'error_code' => 403408,
-                    ];
+                    if($check_against_hashlist['reason'] == 'cp'){
+                        pg_prepare($this->dbconn, 'block_by_cp_upload', 'INSERT INTO watchlist (api_key, timestamp, reason) VALUES ($1, $2, $3)');
+                        pg_execute($this->dbconn, 'block_by_cp_upload', array($api_key, time(), 'uploaded child abuse material'));
+                        pg_prepare($this->dbconn, 'block_user_by_cp_upload', 'UPDATE users SET is_blocked = true WHERE id = (SELECT user_id FROM tokens WHERE token = $1)');
+                        pg_execute($this->dbconn, 'block_user_by_cp_upload', array($api_key));
+                        $response = [
+                            'success' => false,
+                            'message' => 'Content Banned.'
+                        ];
+                    }
                 }
             } else {
                 $response = [

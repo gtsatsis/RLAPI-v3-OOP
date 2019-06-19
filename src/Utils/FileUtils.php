@@ -143,4 +143,33 @@ class FileUtils
             'success' => true,
         ];
     }
+
+    public function check_object_against_hashlist($md5, $sha1)
+    {
+        pg_prepare($this->dbconn, 'select_from_hashlist', 'SELECT md5, sha1, reason, COUNT(*) FROM blocked_hashes WHERE md5 = $1 OR sha1 = $2');
+        $results = pg_fetch_array(pg_execute($this->dbconn, 'select_from_hashlist', array($md5, $sha1)));
+
+        if($results['count'] >= 1){
+            if($results['reason'] == 'cp'){
+                return [
+                    'clearance' => false,
+                    'reason' => 'cp',
+                ];
+            }elseif($results['reason'] == 'banned'){
+                return [
+                    'clearance' => false,
+                    'reason' => 'banned',
+                ]; 
+            }else{
+                return [
+                    'clearance' => false,
+                    'reason' => $results['reason'], /* Fallback */
+                ];
+            }
+        }else{
+            return [
+                'clearance' => true,
+            ];
+        }
+    }
 }
