@@ -146,7 +146,7 @@ class FileUtils
 
     public function check_object_against_hashlist($md5, $sha1)
     {
-        pg_prepare($this->dbconn, 'select_from_hashlist', 'SELECT md5, sha1, reason, COUNT(*) FROM blocked_hashes WHERE md5 = $1 OR sha1 = $2 ORDER BY md5, sha1, reason');
+        pg_prepare($this->dbconn, 'select_from_hashlist', 'SELECT md5, sha1, reason, COUNT(*) FROM blocked_hashes WHERE md5 = $1 OR sha1 = $2 GROUP BY md5, sha1, reason');
         $results = pg_fetch_array(pg_execute($this->dbconn, 'select_from_hashlist', array($md5, $sha1)));
 
         if ($results['count'] >= 1) {
