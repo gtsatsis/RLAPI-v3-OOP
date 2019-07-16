@@ -191,6 +191,7 @@ class UploadController extends AbstractController
             ]));
             $response->headers->set('Content-Type', 'application/json');
             $response->setStatusCode(401);
+
             return $response;
         }
     }
@@ -350,6 +351,7 @@ class UploadController extends AbstractController
 
                             $response->headers->set('Content-Type', 'application/json');
                             $response->setStatusCode(400);
+
                             return $response;
                         }
                     } else {
