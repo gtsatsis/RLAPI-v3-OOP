@@ -43,7 +43,7 @@ class UploadController extends AbstractController
                             $api_key = $request->query->get('key');
                             $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-                            if($uploadFile['status_code'] == 200){
+                            if (200 == $uploadFile['status_code']) {
                                 $response = new Response(json_encode($uploadFile['response']));
                                 $response->headers->set('Content-Type', 'application/json');
                             } else {
@@ -102,7 +102,7 @@ class UploadController extends AbstractController
 
                         $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-                        if($uploadFile['status_code'] == 200){
+                        if (200 == $uploadFile['status_code']) {
                             $response = new Response(json_encode($uploadFile['response']));
                             $response->headers->set('Content-Type', 'application/json');
                         } else {
@@ -152,7 +152,7 @@ class UploadController extends AbstractController
                             $api_key = $request->headers->get('Authorization');
                             $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-                            if($uploadFile['status_code'] == 200){
+                            if (200 == $uploadFile['status_code']) {
                                 $response = new Response(json_encode($uploadFile['response']));
                                 $response->headers->set('Content-Type', 'application/json');
                             } else {
@@ -167,7 +167,7 @@ class UploadController extends AbstractController
                             $api_key = $request->headers->get('Authorization');
                             $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-                            if($uploadFile['status_code'] == 200){
+                            if (200 == $uploadFile['status_code']) {
                                 $response = new Response(json_encode($uploadFile['response']));
                                 $response->headers->set('Content-Type', 'application/json');
                             } else {
@@ -241,7 +241,7 @@ class UploadController extends AbstractController
 
                         $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-                        if($uploadFile['status_code'] == 200){
+                        if (200 == $uploadFile['status_code']) {
                             $response = new Response(json_encode($uploadFile['response']));
                             $response->headers->set('Content-Type', 'application/json');
                         } else {
@@ -257,7 +257,7 @@ class UploadController extends AbstractController
 
                         $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-                        if($uploadFile['status_code'] == 200){
+                        if (200 == $uploadFile['status_code']) {
                             $response = new Response(json_encode($uploadFile['response']));
                             $response->headers->set('Content-Type', 'application/json');
                         } else {
@@ -316,7 +316,7 @@ class UploadController extends AbstractController
                         $jsonUploader = new JsonUploader();
                         $upload_json = $jsonUploader->upload($request->query->get('key'), $request->request->get('data'));
 
-                        if($upload_json['status_code'] == 200){
+                        if (200 == $upload_json['status_code']) {
                             $response = new Response(json_encode($upload_json['response']));
                             $response->headers->set('Content-Type', 'application/json');
                         } else {
@@ -381,7 +381,7 @@ class UploadController extends AbstractController
                             $jsonUploader = new JsonUploader();
                             $update_json = $jsonUploader->update($request->query->get('key'), $json_id, $request->request->get('data'));
 
-                            if($update_json['status_code'] == 200){
+                            if (200 == $update_json['status_code']) {
                                 $response = new Response(json_encode($update_json['response']));
                                 $response->headers->set('Content-Type', 'application/json');
                             } else {
@@ -466,7 +466,7 @@ class UploadController extends AbstractController
                         $jsonUploader = new JsonUploader();
                         $delete_json = $jsonUploader->delete($request->query->get('key'), $json_id);
 
-                        if($delete_json['status_code'] == 200){
+                        if (200 == $delete_json['status_code']) {
                             $response = new Response(json_encode($delete_json['response']));
                             $response->headers->set('Content-Type', 'application/json');
                         } else {
