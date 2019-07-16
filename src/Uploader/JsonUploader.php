@@ -41,22 +41,31 @@ class JsonUploader
                 pg_execute($this->dbconn, 'upload_json', array($user_id['user_id'], $api_key, $id, $url, $json, time()));
 
                 return [
-                    'success' => true,
-                    'upload' => [
-                        'id' => $id,
-                        'url' => $url,
+                    'status_code' => 200,
+                    'response' => [
+                        'success' => true,
+                        'upload' => [
+                            'id' => $id,
+                            'url' => $url,
+                        ],
                     ],
                 ];
             } else {
                 return [
-                    'success' => false,
-                    'error_message' => 'invalid_json',
+                    'status_code' => 400,
+                    'response' => [
+                        'success' => false,
+                        'error_message' => 'invalid_json',
+                    ],
                 ];
             }
         } else {
             return [
-                'success' => false,
-                'error_message' => 'unauthorized',
+                'status_code' => 401,
+                'response' => [
+                    'success' => false,
+                    'error_message' => 'unauthorized',
+                ],
             ];
         }
     }
@@ -77,30 +86,42 @@ class JsonUploader
                     $url = '~json.'.$json_id;
 
                     return [
-                        'success' => true,
-                        'json_object' => [
-                            $json_id => [
-                                'updated' => true,
-                                'url' => $url,
+                        'status_code' => 200,
+                        'response' => [
+                            'success' => true,
+                            'json_object' => [
+                                $json_id => [
+                                    'updated' => true,
+                                    'url' => $url,
+                                ],
                             ],
                         ],
                     ];
                 } else {
                     return [
-                        'success' => false,
-                        'error_message' => 'unauthorized',
+                        'status_code' => 401,
+                        'response' => [
+                            'success' => false,
+                            'error_message' => 'unauthorized',
+                        ],
                     ];
                 }
             } else {
                 return [
-                    'success' => false,
-                    'error_message' => 'invalid_json',
+                    'status_code' => 400,
+                    'response' => [
+                        'success' => false,
+                        'error_message' => 'invalid_json',
+                    ],
                 ];
             }
         } else {
             return [
-                'success' => false,
-                'error_message' => 'unauthorized',
+                'status_code' => 401,
+                'response' => [
+                    'success' => false,
+                    'error_message' => 'unauthorized',
+                ],
             ];
         }
     }
@@ -115,12 +136,18 @@ class JsonUploader
             pg_execute($this->dbconn, 'delete_json_object', array($json_id));
 
             return [
-                'success' => true,
+                'status_code' => 200,
+                'response' => [
+                    'success' => true,
+                ],
             ];
         } else {
             return [
-                'success' => false,
-                'error_message' => 'unauthorized',
+                'status_code' => 401,
+                'response' => [
+                    'success' => false,
+                    'error_message' => 'unauthorized',
+                ],
             ];
         }
     }
