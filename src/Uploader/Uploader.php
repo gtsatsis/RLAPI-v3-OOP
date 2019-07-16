@@ -16,7 +16,7 @@ class Uploader
 
     private $authentication;
 
-    public function __construct($bucket = null)
+    public function __construct($bucket)
     {
         /* Load the env file */
         $dotenv = new Dotenv();
@@ -30,16 +30,12 @@ class Uploader
                 'version' => 'latest', // Latest S3 version
                 'region' => 'us-east-1', // The service's region
                 'endpoint' => getenv('S3_ENDPOINT'), // API to point to
-                'credentials' => new \Aws\Credentials\Credentials(getenv('S3_API_KEY'), getenv('S3_API_SECRET')), // Credentials (s3Credentials.inc.php)
+                'credentials' => new \Aws\Credentials\Credentials(getenv('S3_API_KEY'), getenv('S3_API_SECRET')), // Credentials
                 'use_path_style_endpoint' => true, // Minio Compatible (https://minio.io)
             ]
         );
 
-        if (null == $bucket) {
-            $this->bucket = getenv('S3_BUCKET');
-        } else {
-            $this->bucket = $bucket;
-        }
+        $this->bucket = $bucket;
 
         $this->authentication = new Auth();
     }
@@ -72,52 +68,82 @@ class Uploader
                 $file_sha1_hash = sha1_file(implode('', $file['tmp_name']));
                 $file_original_name = implode('', $file['name']);
 
-                $fileUtils->log_object($api_key, $file_name, $file_original_name, $file_md5_hash, $file_sha1_hash);
+                $check_against_hashlist = $fileUtils->check_object_against_hashlist($file_md5_hash, $file_sha1_hash);
+                if (true == $check_against_hashlist['clearance']) {
+                    $fileUtils->log_object($api_key, $file_name, $file_original_name, $file_md5_hash, $file_sha1_hash, $this->bucket);
 
-                if (move_uploaded_file(implode('', $file['tmp_name']), getenv('TMP_STORE').$file_name)) {
-                    $file_loc = getenv('TMP_STORE').$file_name;
-                } else {
-                    throw new \Exception('Unable to move uploaded file.');
-                }
+                    if (move_uploaded_file(implode('', $file['tmp_name']), getenv('TMP_STORE').$file_name)) {
+                        $file_loc = getenv('TMP_STORE').$file_name;
+                    } else {
+                        throw new \Exception('Unable to move uploaded file.');
+                    }
 
-                $upload = $this->uploadToS3($file_name, $file_loc);
+                    $upload = $this->uploadToS3($file_name, $file_loc);
 
-                if ($upload) {
-                    $response = [
-                        'success' => true,
-                        'files' => [
-                                [
-                                    'url' => $file_name,
-                                    'name' => $file_original_name,
-                                    'hash_md5' => $file_md5_hash,
-                                    'hash_sha1' => $file_sha1_hash,
+                    if ($upload) {
+                        $response = [
+                            'status_code' => 200,
+                            'response' => [
+                                'success' => true,
+                                'files' => [
+                                        [
+                                            'url' => $file_name,
+                                            'name' => $file_original_name,
+                                            'hash_md5' => $file_md5_hash,
+                                            'hash_sha1' => $file_sha1_hash,
+                                        ],
                                 ],
-                        ],
-                    ];
+                            ],
+                        ];
+                    } else {
+                        $response = [
+                            'status_code' => 500,
+                            'response' => [
+                                'success' => false,
+                                'error_code' => 403408,
+                            ],
+                        ];
+                    }
                 } else {
-                    $response = [
-                        'success' => false,
-                        'error_code' => 403408,
-                    ];
+                    if ('cp' == $check_against_hashlist['reason']) {
+                        pg_prepare($this->dbconn, 'block_by_cp_upload', 'INSERT INTO watchlist (api_key, timestamp, reason) VALUES ($1, $2, $3)');
+                        pg_execute($this->dbconn, 'block_by_cp_upload', array($api_key, time(), 'uploaded child abuse material'));
+                        pg_prepare($this->dbconn, 'block_user_by_cp_upload', 'UPDATE users SET is_blocked = true WHERE id = (SELECT user_id FROM tokens WHERE token = $1)');
+                        pg_execute($this->dbconn, 'block_user_by_cp_upload', array($api_key));
+                        $response = [
+                            'status_code' => 451,
+                            'response' => [
+                                'success' => false,
+                                'message' => 'Content Banned.',
+                            ],
+                        ];
+                    }
                 }
             } else {
                 $response = [
-                    'success' => false,
-                    'error_code' => 1010,
-                    'error_message' => 'Maximum Allowed Filesize Exceeded',
+                    'status_code' => 413,
+                    'response' => [
+                        'success' => false,
+                        'error_code' => 1010,
+                        'error_message' => 'Maximum Allowed Filesize Exceeded',
+                    ],
                 ];
             }
         } else {
             $response = [
-                'success' => false,
-                'error_message' => 'Invalid Credentials',
+                'status_code' => 401,
+                'response' => [
+                    'success' => false,
+                    'error_message' => 'Invalid Credentials',
+                ],
             ];
         }
-
-        if (null != $file_name) {
-            unlink(getenv('TMP_STORE').$file_name);
-        } else {
-            unlink(implode('', $file['tmp_name']));
+        if (true == $check_against_hashlist['clearance']) {
+            if (null != $file_name) {
+                unlink(getenv('TMP_STORE').$file_name);
+            } else {
+                unlink(implode('', $file['tmp_name']));
+            }
         }
 
         return $response;

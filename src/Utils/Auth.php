@@ -71,15 +71,15 @@ class Auth
         }
     }
 
-    public function bucket_allowance(string $user_id)
+    public function bucket_allowance(string $api_key)
     {
-        pg_prepare($this->dbconn, 'get_bucket_allowance', 'SELECT bucket_limit FROM tiers WHERE tier = (SELECT tier FROM users WHERE id = $1)');
+        pg_prepare($this->dbconn, 'get_bucket_allowance', 'SELECT bucket_limit FROM tiers WHERE tier = (SELECT tier FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1))');
 
-        $execute_prepared_statement = pg_execute($this->dbconn, 'get_bucket_allowance', array($user_id));
+        $execute_prepared_statement = pg_execute($this->dbconn, 'get_bucket_allowance', array($api_key));
         $bucket_allowance = pg_fetch_array($execute_prepared_statement);
 
-        pg_prepare($this->dbconn, 'get_current_buckets', 'SELECT COUNT(*) FROM buckets WHERE user_id = $1');
-        $execute_prepared_statement = pg_execute($this->dbconn, 'get_current_buckets', array($user_id));
+        pg_prepare($this->dbconn, 'get_current_buckets', 'SELECT COUNT(*) FROM buckets WHERE user_id = (SELECT user_id FROM tokens WHERE token = $1)');
+        $execute_prepared_statement = pg_execute($this->dbconn, 'get_current_buckets', array($api_key));
 
         $current_buckets = pg_fetch_array($execute_prepared_statement);
 
@@ -157,7 +157,7 @@ class Auth
             if ('t' == $user['verified']) {
                 if ('f' == $user['is_blocked'] || empty($user['is_blocked'])) {
                     $this->sqreen->sqreen_auth_track(true, $user['email']);
-                    $this->sqreen->sqreen_track_upload($user['id']);
+                    $this->sqreen->sqreen_track_upload($user['email']);
 
                     return true;
                 } else {
@@ -188,7 +188,7 @@ class Auth
             if ('t' == $user['verified']) {
                 if ('f' == $user['is_blocked'] || empty($user['is_blocked'])) {
                     $this->sqreen->sqreen_auth_track(true, $user['email']);
-                    $this->sqreen->sqreen_track_shorten($user['id']);
+                    $this->sqreen->sqreen_track_shorten($user['email']);
 
                     return true;
                 } else {
@@ -222,10 +222,23 @@ class Auth
         }
     }
 
-    public function owns_bucket(string $user_id, $bucket_name)
+    public function owns_bucket(string $user_id, $bucket_id)
     {
-        pg_prepare($this->dbconn, 'owns_bucket', 'SELECT COUNT(*) FROM buckets WHERE user_id = $1 AND bucket_name = $2');
-        $execute_prepared_statement = pg_execute($this->dbconn, 'owns_bucket', array($user_id, $bucket_name));
+        pg_prepare($this->dbconn, 'owns_bucket', 'SELECT COUNT(*) FROM buckets WHERE user_id = $1 AND id = $2');
+        $execute_prepared_statement = pg_execute($this->dbconn, 'owns_bucket', array($user_id, $bucket_id));
+
+        $count = pg_fetch_array($execute_prepared_statement);
+        if (1 == $count[0]) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function owns_bucket_by_name_api_key(string $api_key, $bucket)
+    {
+        pg_prepare($this->dbconn, 'owns_bucket', 'SELECT COUNT(*) FROM buckets WHERE api_key = $1 AND bucket = $2');
+        $execute_prepared_statement = pg_execute($this->dbconn, 'owns_bucket', array($api_key, $bucket));
 
         $count = pg_fetch_array($execute_prepared_statement);
         if (1 == $count[0]) {
@@ -255,6 +268,33 @@ class Auth
         if ($user_id[0] == $api_key_owner[0] && !empty($user_id[0]) && !empty($api_key_owner[0])) {
             return true;
         } else {
+            return false;
+        }
+    }
+
+    public function upload_to_cb_allowed($api_key, $bucket)
+    {
+        pg_prepare($this->dbconn, 'fetch_user_upload_to_cb', 'SELECT * FROM users WHERE is_blocked IS NOT true AND id = (SELECT user_id FROM tokens WHERE token = $1 LIMIT 1) LIMIT 1');
+        $user = pg_fetch_array(pg_execute($this->dbconn, 'fetch_user_upload_to_cb', array($api_key)));
+
+        pg_prepare($this->dbconn, 'fetch_bucket_data', 'SELECT data FROM buckets WHERE bucket = $1');
+        $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data', array($bucket)));
+        $bucket_data = json_decode($bucket_data[0], true);
+
+        if (array_key_exists($user['id'], $bucket_data['users'])) {
+            if (true == $bucket_data['users'][$user['id']]['permissions']['rlapi.custom.bucket.upload']) {
+                $this->sqreen->sqreen_auth_track(true, $user['email']);
+                $this->sqreen->sqreen_track_upload($user['email']);
+
+                return true;
+            } else {
+                $this->sqreen->sqreen_auth_track(false, $user['email']);
+
+                return false;
+            }
+        } else {
+            $this->sqreen->sqreen_auth_track(false, $user['email']);
+
             return false;
         }
     }

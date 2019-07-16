@@ -134,9 +134,59 @@ class Domains
             'name' => 'rl-verify-'.mb_substr($verification_hash, 0, 4).'.'.$domain,
             'contents' => $verification_hash,
         ];
+        if (true == getenv('CLOUDFLARE_DCV_ENABLED')) {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, 'https://dcvcheck.cloudflare.com/check');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, '{ "authToken": "'.getenv('CLOUDFLARE_DCV_TOKEN').'", "method":"TXT", "verbose": true, "params": { "domain": "'.$txt_record['name'].'", "challenge": "'.$txt_record['name'].'", "expectedResponse": "'.$txt_record['contents'].'" } }');
+            curl_setopt($ch, CURLOPT_POST, 1);
+            $headers = array();
+            $headers[] = 'Content-Type: application/x-www-form-urlencoded';
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            $result = curl_exec($ch);
+            if (curl_errno($ch)) {
+                echo 'Error:'.curl_error($ch);
+            }
+            curl_close($ch);
 
-        $dnsController = new \Spatie\Dns\Dns($txt_record['name']);
-        $dns_record = $dnsController->getRecords('TXT');
+            $result = json_decode($result, true);
+            $min_allowed_accepted_responses = $result['agentRequests'] / 3;
+            if ($result['correctResponses'] >= $min_allowed_accepted_responses) {
+                pg_prepare($this->dbconn, 'verify_domain', 'UPDATE domains SET verified = true WHERE domain_name = $1');
+                pg_execute($this->dbconn, 'verify_domain', array($domain));
+
+                return [
+                    'domains' => [
+                        $domain => [
+                            'verified' => true,
+                            'details' => [
+                                'method_used' => 'cloudflare',
+                                'total_requests' => $result['agentRequests'],
+                                'correct_responses' => $result['correctResponses'],
+                                'required_correct' => $min_allowed_accepted_responses,
+                            ],
+                        ],
+                    ],
+                ];
+            } else {
+                return [
+                    'domains' => [
+                        $domain => [
+                            'verified' => false,
+                            'details' => [
+                                'method_used' => 'cloudflare',
+                                'total_requests' => $result['agentRequests'],
+                                'correct_responses' => $result['correctResponses'],
+                                'required_correct' => $min_allowed_accepted_responses,
+                            ],
+                        ],
+                    ],
+                ];
+            }
+        } else {
+            $dnsController = new \Spatie\Dns\Dns($txt_record['name']);
+            $dns_record = $dnsController->getRecords('TXT');
+        }
 
         preg_match("/(?:(?:\"(?:\\\\\"|[^\"])+\")|(?:'(?:\\\'|[^'])+'))/is", $dns_record, $extracted_quote_part);
         if ($extracted_quote_part[0] == '"'.$txt_record['contents'].'"') {
@@ -147,6 +197,9 @@ class Domains
                 'domains' => [
                     $domain => [
                         'verified' => true,
+                        'details' => [
+                            'method_used' => 'builtin_dns',
+                        ],
                     ],
                 ],
             ];
@@ -155,6 +208,9 @@ class Domains
                 'domains' => [
                     $domain => [
                         'verified' => false,
+                        'details' => [
+                            'method_used' => 'builtin_dns',
+                        ],
                     ],
                 ],
             ];
@@ -224,6 +280,46 @@ class Domains
             return [
                 'success' => false,
                 'error_message' => 'official_must_be_bool',
+            ];
+        }
+    }
+
+    public function set_domain_bucket($api_key, $domain, $bucket)
+    {
+        if ($this->authentication->api_key_is_admin($api_key) || $this->authentication->is_domain_owner($api_key, $domain)) {
+            if ($this->authentication->owns_bucket_by_name_api_key($api_key, $bucket)) {
+                pg_prepare($this->dbconn, 'set_domain_bucket', 'UPDATE domains SET bucket = $1 WHERE domain_name = $2');
+                pg_execute($this->dbconn, 'set_domain_bucket', array($bucket, $domain));
+
+                pg_prepare($this->dbconn, 'get_bucket_data', 'SELECT data FROM buckets WHERE bucket = $1');
+                $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'get_bucket_data', array($bucket)));
+
+                $bucket_data = json_decode($bucket_data[0]);
+                $bucket_data['domains'][$domain] = ['added' => ['on' => time(), 'by' => $api_key]];
+
+                $bucket_data = json_encode($bucket_data);
+
+                pg_prepare($this->dbconn, 'update_bucket_data', 'UPDATE buckets SET data = $1 WHERE bucket = $2');
+                pg_execute($this->dbconn, 'update_bucket_data', array($bucket_data, $bucket));
+
+                return [
+                    'success' => true,
+                    'domains' => [
+                        $domain => [
+                            'bucket' => $bucket,
+                        ],
+                    ],
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'error_message' => 'not_bucket_owner',
+                ];
+            }
+        } else {
+            return [
+                'success' => false,
+                'error_message' => 'not_domain_owner',
             ];
         }
     }

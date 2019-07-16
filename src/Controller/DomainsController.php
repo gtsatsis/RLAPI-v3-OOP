@@ -217,4 +217,41 @@ class DomainsController extends AbstractController
             return $response;
         }
     }
+
+    /**
+     * Matches /domains/{domain}/bucket exactly.
+     *
+     * @Route("/domains/{domain}/bucket", name="domain_bucket")
+     */
+    public function domain_bucket($domain)
+    {
+        $domains = new Domains();
+        if ($request->request->has('api_key')) {
+            if ($this->authentication->isValidUUID($request->request->get('api_key'))) {
+                if ($request->request->has('bucket')) {
+                    $domain_bucket = $domains->set_domain_bucket($request->request->get('api_key'), $domain, $request->request->get('bucket'));
+
+                    $response = new Response(json_encode($domain_bucket));
+                    $response->headers->set('Content-Type', 'application/json');
+
+                    return $response;
+                } else {
+                    $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Request did not contain the bucket body parameter.']]));
+                    $response->headers->set('Content-Type', 'application/json');
+
+                    return $response;
+                }
+            } else {
+                $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'API key was not in valid UUID format.']]));
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+            }
+        } else {
+            $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Request did not contain an API key.', 'required' => ['api_key', 'bucket']]]));
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
+    }
 }

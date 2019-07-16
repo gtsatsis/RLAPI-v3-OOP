@@ -6,6 +6,8 @@ require_once __DIR__.'/../../vendor/autoload.php';
 
 use App\Models\User;
 use App\Utils\Auth;
+use App\Utils\FileUtils;
+use App\Utils\Getters;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -276,6 +278,81 @@ class UserController extends AbstractController
             }
         } else {
             $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
+    }
+
+    /**
+     * Matches /users/{user_id}/uploads/{file_name}/delete.
+     *
+     * @Route("/users/{user_id}/uploads/{file_name}/delete", name="delete_user_upload")
+     */
+    public function delete_user_upload(Request $request, $user_id, $file_name)
+    {
+        $file_util = new FileUtils();
+        $auth = new Auth();
+        if ($auth->isValidUUID($user_id)) {
+            if ($request->request->has('api_key')) {
+                if ($auth->isValidUUID($request->request->get('api_key'))) {
+                    if ($file_util->get_file_owner($file_name, $user_id, $request->request->get('api_key'), getenv('S3_BUCKET'))) {
+                        $delete_file = $file_util->delete_file($file_name, getenv('S3_BUCKET'));
+
+                        $response = new Response(json_encode($delete_file));
+                        $response->headers->set('Content-Type', 'application/json');
+
+                        return $response;
+                    } else {
+                        $response = new Response(json_encode(array('success' => false, 'error' => ['error_message' => 'Unauthorized'])));
+                        $response->headers->set('Content-Type', 'application/json');
+
+                        return $response;
+                    }
+                } else {
+                    $response = new Response(json_encode(array('success' => false, 'error' => ['error_message' => 'API Key is not in the UUID format'])));
+                    $response->headers->set('Content-Type', 'application/json');
+
+                    return $response;
+                }
+            } else {
+                $response = new Response(json_encode(array('success' => false, 'error' => ['error_message' => 'Request is missing the api_key body argument.'])));
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+            }
+        } else {
+            $response = new Response(json_encode(array('success' => false, 'error' => ['error_message' => 'Not a valid User ID.'])));
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
+    }
+
+    /**
+     * Matches /users/get_user_id exactly.
+     *
+     * @Route("/users/get_user_id", name="get_user_id")
+     */
+    public function get_user_id(Request $request)
+    {
+        $auth = new Auth();
+        $getter = new Getters();
+        if ($request->query->has('key')) {
+            if ($auth->isValidUUID($request->query->get('key'))) {
+                $get_user_id = $getter->get_user_by_api_key($request->query->get('key'));
+                $response = new Response(json_encode(['success' => true, 'user_id' => $get_user_id['id']]));
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+            } else {
+                $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Invalid API key']]));
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+            }
+        } else {
+            $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Missing API key']]));
             $response->headers->set('Content-Type', 'application/json');
 
             return $response;

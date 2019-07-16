@@ -8,12 +8,20 @@ use App\Uploader\Uploader;
 use App\Uploader\JsonUploader;
 use App\Utils\Auth;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class UploadController extends AbstractController
 {
+    public function __construct()
+    {
+        /* Load the env file */
+        $dotenv = new Dotenv();
+        $dotenv->load(__DIR__.'/../../.env');
+    }
+
     /**
      * Matches /upload/pomf exactly.
      *
@@ -23,11 +31,11 @@ class UploadController extends AbstractController
     {
         $auth = new Auth();
 
-        if ($request->query->has('key')) {
+        if ($request->query->has('key') && $request->query->has('bucket')) {
             if ($auth->isValidUUID($request->query->get('key'))) {
                 if (array_key_exists('files', $_FILES)) {
                     if (!is_null($_FILES['files'])) {
-                        if ($request->query->has('bucket')) {
+                        if ($auth->upload_to_cb_allowed($request->query->get('key'), $request->query->get('bucket'))) {
                             /* Initiate the Uploader Object */
                             $uploader = new Uploader($request->query->get('bucket'));
 
@@ -35,18 +43,23 @@ class UploadController extends AbstractController
                             $api_key = $request->query->get('key');
                             $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-                            $response = new Response(json_encode($uploadFile));
-                            $response->headers->set('Content-Type', 'application/json');
+                            if (200 == $uploadFile['status_code']) {
+                                $response = new Response(json_encode($uploadFile['response']));
+                                $response->headers->set('Content-Type', 'application/json');
+                            } else {
+                                $response = new Response(json_encode($uploadFile['response']));
+                                $response->headers->set('Content-Type', 'application/json');
+                                $response->setStatusCode($uploadFile['status_code']);
+                            }
 
                             return $response;
                         } else {
-                            $api_key = $request->query->get('key');
-                            $uploader = new Uploader();
-
-                            $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
-
-                            $response = new Response(json_encode($uploadFile));
+                            $response = new Response(json_encode([
+                                'success' => false,
+                                'error_message' => 'You are not authorized by the bucket administrator.',
+                            ]));
                             $response->headers->set('Content-Type', 'application/json');
+                            $response->setStatusCode(401);
 
                             return $response;
                         }
@@ -56,6 +69,7 @@ class UploadController extends AbstractController
                             'error_message' => 'no_file_provided',
                         ]));
                         $response->headers->set('Content-Type', 'application/json');
+                        $response->setStatusCode(400);
 
                         return $response;
                     }
@@ -65,6 +79,7 @@ class UploadController extends AbstractController
                         'error_message' => 'no_file_provided',
                     ]));
                     $response->headers->set('Content-Type', 'application/json');
+                    $response->setStatusCode(400);
 
                     return $response;
                 }
@@ -74,6 +89,56 @@ class UploadController extends AbstractController
                     'error_message' => 'key_not_uuid_format',
                 ]));
                 $response->headers->set('Content-Type', 'application/json');
+                $response->setStatusCode(401);
+
+                return $response;
+            }
+        } elseif ($request->query->has('key')) {
+            if ($auth->isValidUUID($request->query->get('key'))) {
+                if (array_key_exists('files', $_FILES)) {
+                    if (!is_null($_FILES['files'])) {
+                        $api_key = $request->query->get('key');
+                        $uploader = new Uploader(getenv('S3_BUCKET'));
+
+                        $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
+
+                        if (200 == $uploadFile['status_code']) {
+                            $response = new Response(json_encode($uploadFile['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                        } else {
+                            $response = new Response(json_encode($uploadFile['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                            $response->setStatusCode($uploadFile['status_code']);
+                        }
+
+                        return $response;
+                    } else {
+                        $response = new Response(json_encode([
+                            'success' => false,
+                            'error_message' => 'no_file_provided',
+                        ]));
+                        $response->headers->set('Content-Type', 'application/json');
+                        $response->setStatusCode(400);
+
+                        return $response;
+                    }
+                } else {
+                    $response = new Response(json_encode([
+                        'success' => false,
+                        'error_message' => 'no_file_provided',
+                    ]));
+                    $response->headers->set('Content-Type', 'application/json');
+                    $response->setStatusCode(400);
+
+                    return $response;
+                }
+            } else {
+                $response = new Response(json_encode([
+                    'success' => false,
+                    'error_message' => 'key_not_uuid_format',
+                ]));
+                $response->headers->set('Content-Type', 'application/json');
+                $response->setStatusCode(401);
 
                 return $response;
             }
@@ -87,17 +152,29 @@ class UploadController extends AbstractController
                             $api_key = $request->headers->get('Authorization');
                             $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-                            $response = new Response(json_encode($uploadFile));
-                            $response->headers->set('Content-Type', 'application/json');
+                            if (200 == $uploadFile['status_code']) {
+                                $response = new Response(json_encode($uploadFile['response']));
+                                $response->headers->set('Content-Type', 'application/json');
+                            } else {
+                                $response = new Response(json_encode($uploadFile['response']));
+                                $response->headers->set('Content-Type', 'application/json');
+                                $response->setStatusCode($uploadFile['status_code']);
+                            }
 
                             return $response;
                         } else {
-                            $uploader = new Uploader();
+                            $uploader = new Uploader(getenv('S3_BUCKET'));
                             $api_key = $request->headers->get('Authorization');
                             $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-                            $response = new Response(json_encode($uploadFile));
-                            $response->headers->set('Content-Type', 'application/json');
+                            if (200 == $uploadFile['status_code']) {
+                                $response = new Response(json_encode($uploadFile['response']));
+                                $response->headers->set('Content-Type', 'application/json');
+                            } else {
+                                $response = new Response(json_encode($uploadFile['response']));
+                                $response->headers->set('Content-Type', 'application/json');
+                                $response->setStatusCode($uploadFile['status_code']);
+                            }
 
                             return $response;
                         }
@@ -107,6 +184,7 @@ class UploadController extends AbstractController
                             'error_message' => 'no_file_provided',
                         ]));
                         $response->headers->set('Content-Type', 'application/json');
+                        $response->setStatusCode(400);
 
                         return $response;
                     }
@@ -116,6 +194,7 @@ class UploadController extends AbstractController
                         'error_message' => 'no_file_provided',
                     ]));
                     $response->headers->set('Content-Type', 'application/json');
+                    $response->setStatusCode(400);
 
                     return $response;
                 }
@@ -125,6 +204,7 @@ class UploadController extends AbstractController
                         'error_message' => 'key_not_uuid_format',
                     ]));
                 $response->headers->set('Content-Type', 'application/json');
+                $response->setStatusCode(401);
 
                 return $response;
             }
@@ -134,6 +214,7 @@ class UploadController extends AbstractController
                 'error_message' => 'no_auth_method_provided',
             ]));
             $response->headers->set('Content-Type', 'application/json');
+            $response->setStatusCode(401);
 
             return $response;
         }
@@ -160,8 +241,14 @@ class UploadController extends AbstractController
 
                         $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-                        $response = new Response(json_encode($uploadFile));
-                        $response->headers->set('Content-Type', 'application/json');
+                        if (200 == $uploadFile['status_code']) {
+                            $response = new Response(json_encode($uploadFile['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                        } else {
+                            $response = new Response(json_encode($uploadFile['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                            $response->setStatusCode($uploadFile['status_code']);
+                        }
 
                         return $response;
                     } else {
@@ -170,8 +257,14 @@ class UploadController extends AbstractController
 
                         $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-                        $response = new Response(json_encode($uploadFile));
-                        $response->headers->set('Content-Type', 'application/json');
+                        if (200 == $uploadFile['status_code']) {
+                            $response = new Response(json_encode($uploadFile['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                        } else {
+                            $response = new Response(json_encode($uploadFile['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                            $response->setStatusCode($uploadFile['status_code']);
+                        }
 
                         return $response;
                     }
@@ -181,6 +274,7 @@ class UploadController extends AbstractController
                         'error_message' => 'no_file_provided',
                     ]));
                     $response->headers->set('Content-Type', 'application/json');
+                    $response->setStatusCode(400);
 
                     return $response;
                 }
@@ -190,6 +284,7 @@ class UploadController extends AbstractController
                     'error_message' => 'no_file_provided',
                 ]));
                 $response->headers->set('Content-Type', 'application/json');
+                $response->setStatusCode(400);
 
                 return $response;
             }
@@ -199,6 +294,7 @@ class UploadController extends AbstractController
                     'error_message' => 'key_not_uuid_format',
                 ]));
             $response->headers->set('Content-Type', 'application/json');
+            $response->setStatusCode(401);
 
             return $response;
         }
@@ -220,8 +316,14 @@ class UploadController extends AbstractController
                         $jsonUploader = new JsonUploader();
                         $upload_json = $jsonUploader->upload($request->query->get('key'), $request->request->get('data'));
 
-                        $response = new Response(json_encode($upload_json));
-                        $response->headers->set('Content-Type', 'application/json');
+                        if (200 == $upload_json['status_code']) {
+                            $response = new Response(json_encode($upload_json['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                        } else {
+                            $response = new Response(json_encode($upload_json['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                            $response->setStatusCode($upload_json['status_code']);
+                        }
 
                         return $response;
                     } else {
@@ -231,6 +333,7 @@ class UploadController extends AbstractController
                         ]));
 
                         $response->headers->set('Content-Type', 'application/json');
+                        $response->setStatusCode(400);
 
                         return $response;
                     }
@@ -241,6 +344,7 @@ class UploadController extends AbstractController
                     ]));
 
                     $response->headers->set('Content-Type', 'application/json');
+                    $response->setStatusCode(401);
 
                     return $response;
                 }
@@ -253,6 +357,7 @@ class UploadController extends AbstractController
             ]));
 
             $response->headers->set('Content-Type', 'application/json');
+            $response->setStatusCode(501);
 
             return $response;
         }
@@ -274,10 +379,16 @@ class UploadController extends AbstractController
                     if ($authentication->isValidUUID($json_id)) {
                         if ($request->request->has('data')) {
                             $jsonUploader = new JsonUploader();
-                            $upload_json = $jsonUploader->update($request->query->get('key'), $json_id, $request->request->get('data'));
+                            $update_json = $jsonUploader->update($request->query->get('key'), $json_id, $request->request->get('data'));
 
-                            $response = new Response(json_encode($upload_json));
-                            $response->headers->set('Content-Type', 'application/json');
+                            if (200 == $update_json['status_code']) {
+                                $response = new Response(json_encode($update_json['response']));
+                                $response->headers->set('Content-Type', 'application/json');
+                            } else {
+                                $response = new Response(json_encode($update_json['response']));
+                                $response->headers->set('Content-Type', 'application/json');
+                                $response->setStatusCode($update_json['status_code']);
+                            }
 
                             return $response;
                         } else {
@@ -287,6 +398,7 @@ class UploadController extends AbstractController
                             ]));
 
                             $response->headers->set('Content-Type', 'application/json');
+                            $response->setStatusCode(400);
 
                             return $response;
                         }
@@ -297,6 +409,7 @@ class UploadController extends AbstractController
                         ]));
 
                         $response->headers->set('Content-Type', 'application/json');
+                        $response->setStatusCode(400);
 
                         return $response;
                     }
@@ -307,6 +420,7 @@ class UploadController extends AbstractController
                     ]));
 
                     $response->headers->set('Content-Type', 'application/json');
+                    $response->setStatusCode(401);
 
                     return $response;
                 }
@@ -318,6 +432,7 @@ class UploadController extends AbstractController
                 ]));
 
                 $response->headers->set('Content-Type', 'application/json');
+                $response->setStatusCode(401);
 
                 return $response;
             }
@@ -328,6 +443,7 @@ class UploadController extends AbstractController
             ]));
 
             $response->headers->set('Content-Type', 'application/json');
+            $response->setStatusCode(501);
 
             return $response;
         }
@@ -348,10 +464,16 @@ class UploadController extends AbstractController
                 if ($authentication->isValidUUID($request->query->get('key'))) {
                     if ($authentication->isValidUUID($json_id)) {
                         $jsonUploader = new JsonUploader();
-                        $upload_json = $jsonUploader->delete($request->query->get('key'), $json_id);
+                        $delete_json = $jsonUploader->delete($request->query->get('key'), $json_id);
 
-                        $response = new Response(json_encode($upload_json));
-                        $response->headers->set('Content-Type', 'application/json');
+                        if (200 == $delete_json['status_code']) {
+                            $response = new Response(json_encode($delete_json['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                        } else {
+                            $response = new Response(json_encode($delete_json['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                            $response->setStatusCode($delete_json['status_code']);
+                        }
 
                         return $response;
                     } else {
@@ -361,6 +483,7 @@ class UploadController extends AbstractController
                         ]));
 
                         $response->headers->set('Content-Type', 'application/json');
+                        $response->setStatusCode(400);
 
                         return $response;
                     }
@@ -371,6 +494,7 @@ class UploadController extends AbstractController
                     ]));
 
                     $response->headers->set('Content-Type', 'application/json');
+                    $response->setStatusCode(401);
 
                     return $response;
                 }
@@ -382,6 +506,7 @@ class UploadController extends AbstractController
                 ]));
 
                 $response->headers->set('Content-Type', 'application/json');
+                $response->setStatusCode(401);
 
                 return $response;
             }
@@ -392,6 +517,7 @@ class UploadController extends AbstractController
             ]));
 
             $response->headers->set('Content-Type', 'application/json');
+            $response->setStatusCode(501);
 
             return $response;
         }

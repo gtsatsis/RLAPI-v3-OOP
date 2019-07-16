@@ -20,6 +20,42 @@ class Getters
         $this->dbconn = pg_connect('host='.getenv('DB_HOST').' port=5432 dbname='.getenv('DB_NAME').' user='.getenv('DB_USERNAME').' password='.getenv('DB_PASSWORD'));
     }
 
+    public function get_user_id_by_username(string $username)
+    {
+        pg_prepare($this->dbconn, 'get_user_id_by_username', 'SELECT id FROM users WHERE username = $1');
+        $result = pg_fetch_array(pg_execute($this->dbconn, 'get_user_id_by_username', array($username)));
+
+        if (!empty($result[0])) {
+            return $result[0];
+        } else {
+            return false;
+        }
+    }
+
+    public function get_user_id_by_api_key(string $api_key)
+    {
+        pg_prepare($this->dbconn, 'get_user_id_by_api_key', 'SELECT user_id FROM tokens WHERE token = $1');
+        $result = pg_fetch_array(pg_execute($this->dbconn, 'get_user_id_by_api_key', array($api_key)));
+
+        if (!empty($result[0])) {
+            return $result[0];
+        } else {
+            return false;
+        }
+    }
+
+    public function get_bucket_name_by_id($bucket_id)
+    {
+        pg_prepare($this->dbconn, 'get_bucket_name_by_id', 'SELECT id FROM buckets WHERE bucket = $1');
+        $result = pg_fetch_array(pg_execute($this->dbconn, 'get_bucket_name_by_id', array($bucket_id)));
+
+        if (!empty($result[0])) {
+            return $result[0];
+        } else {
+            return false;
+        }
+    }
+
     public function check_if_user_exists(string $username, string $user_email)
     {
         pg_prepare($this->dbconn, 'check_if_user_exists', 'SELECT COUNT(*) FROM users WHERE username = $1 OR email = $2');
@@ -44,9 +80,9 @@ class Getters
 
     public function get_user_by_api_key(string $api_key)
     {
-        $this->prepared = false;
+        static $prepared;
 
-        if (!$this->prepared) {
+        if (true != $prepared) {
             $prepareStatement = pg_prepare($this->dbconn, 'get_user_by_api_key', 'SELECT * FROM users WHERE id = (SELECT user_id FROM tokens WHERE token = $1 LIMIT 1)');
             $this->prepared = true;
         }
@@ -82,6 +118,14 @@ class Getters
                 'error_message' => 'No data found',
             ];
         }
+    }
+
+    public function getBucketNameFromID($bucket_id)
+    {
+        pg_prepare($this->dbconn, 'get_bucket_name_from_id', 'SELECT bucket FROM buckets WHERE id = $1');
+        $arr = pg_fetch_array(pg_execute($this->dbconn, 'get_bucket_name_from_id', array($bucket_id)));
+
+        return $arr['bucket'];
     }
 
     public function get_user_id_by_email(string $user_email)
