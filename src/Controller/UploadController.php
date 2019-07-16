@@ -43,8 +43,14 @@ class UploadController extends AbstractController
                             $api_key = $request->query->get('key');
                             $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-                            $response = new Response(json_encode($uploadFile));
-                            $response->headers->set('Content-Type', 'application/json');
+                            if($uploadFile['status_code'] == 200){
+                                $response = new Response(json_encode($uploadFile['response']));
+                                $response->headers->set('Content-Type', 'application/json');
+                            } else {
+                                $response = new Response(json_encode($uploadFile['response']));
+                                $response->headers->set('Content-Type', 'application/json');
+                                $response->setStatusCode($uploadFile['status_code']);
+                            }
 
                             return $response;
                         } else {
@@ -96,8 +102,14 @@ class UploadController extends AbstractController
 
                         $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-                        $response = new Response(json_encode($uploadFile));
-                        $response->headers->set('Content-Type', 'application/json');
+                        if($uploadFile['status_code'] == 200){
+                            $response = new Response(json_encode($uploadFile['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                        } else {
+                            $response = new Response(json_encode($uploadFile['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                            $response->setStatusCode($uploadFile['status_code']);
+                        }
 
                         return $response;
                     } else {
@@ -140,8 +152,14 @@ class UploadController extends AbstractController
                             $api_key = $request->headers->get('Authorization');
                             $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-                            $response = new Response(json_encode($uploadFile));
-                            $response->headers->set('Content-Type', 'application/json');
+                            if($uploadFile['status_code'] == 200){
+                                $response = new Response(json_encode($uploadFile['response']));
+                                $response->headers->set('Content-Type', 'application/json');
+                            } else {
+                                $response = new Response(json_encode($uploadFile['response']));
+                                $response->headers->set('Content-Type', 'application/json');
+                                $response->setStatusCode($uploadFile['status_code']);
+                            }
 
                             return $response;
                         } else {
@@ -149,8 +167,14 @@ class UploadController extends AbstractController
                             $api_key = $request->headers->get('Authorization');
                             $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-                            $response = new Response(json_encode($uploadFile));
-                            $response->headers->set('Content-Type', 'application/json');
+                            if($uploadFile['status_code'] == 200){
+                                $response = new Response(json_encode($uploadFile['response']));
+                                $response->headers->set('Content-Type', 'application/json');
+                            } else {
+                                $response = new Response(json_encode($uploadFile['response']));
+                                $response->headers->set('Content-Type', 'application/json');
+                                $response->setStatusCode($uploadFile['status_code']);
+                            }
 
                             return $response;
                         }
@@ -217,8 +241,14 @@ class UploadController extends AbstractController
 
                         $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-                        $response = new Response(json_encode($uploadFile));
-                        $response->headers->set('Content-Type', 'application/json');
+                        if($uploadFile['status_code'] == 200){
+                            $response = new Response(json_encode($uploadFile['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                        } else {
+                            $response = new Response(json_encode($uploadFile['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                            $response->setStatusCode($uploadFile['status_code']);
+                        }
 
                         return $response;
                     } else {
@@ -227,8 +257,14 @@ class UploadController extends AbstractController
 
                         $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
-                        $response = new Response(json_encode($uploadFile));
-                        $response->headers->set('Content-Type', 'application/json');
+                        if($uploadFile['status_code'] == 200){
+                            $response = new Response(json_encode($uploadFile['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                        } else {
+                            $response = new Response(json_encode($uploadFile['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                            $response->setStatusCode($uploadFile['status_code']);
+                        }
 
                         return $response;
                     }
@@ -280,8 +316,14 @@ class UploadController extends AbstractController
                         $jsonUploader = new JsonUploader();
                         $upload_json = $jsonUploader->upload($request->query->get('key'), $request->request->get('data'));
 
-                        $response = new Response(json_encode($upload_json));
-                        $response->headers->set('Content-Type', 'application/json');
+                        if($upload_json['status_code'] == 200){
+                            $response = new Response(json_encode($upload_json['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                        } else {
+                            $response = new Response(json_encode($upload_json['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                            $response->setStatusCode($upload_json['status_code']);
+                        }
 
                         return $response;
                     } else {
@@ -337,10 +379,16 @@ class UploadController extends AbstractController
                     if ($authentication->isValidUUID($json_id)) {
                         if ($request->request->has('data')) {
                             $jsonUploader = new JsonUploader();
-                            $upload_json = $jsonUploader->update($request->query->get('key'), $json_id, $request->request->get('data'));
+                            $update_json = $jsonUploader->update($request->query->get('key'), $json_id, $request->request->get('data'));
 
-                            $response = new Response(json_encode($upload_json));
-                            $response->headers->set('Content-Type', 'application/json');
+                            if($update_json['status_code'] == 200){
+                                $response = new Response(json_encode($update_json['response']));
+                                $response->headers->set('Content-Type', 'application/json');
+                            } else {
+                                $response = new Response(json_encode($update_json['response']));
+                                $response->headers->set('Content-Type', 'application/json');
+                                $response->setStatusCode($update_json['status_code']);
+                            }
 
                             return $response;
                         } else {
@@ -416,10 +464,16 @@ class UploadController extends AbstractController
                 if ($authentication->isValidUUID($request->query->get('key'))) {
                     if ($authentication->isValidUUID($json_id)) {
                         $jsonUploader = new JsonUploader();
-                        $upload_json = $jsonUploader->delete($request->query->get('key'), $json_id);
+                        $delete_json = $jsonUploader->delete($request->query->get('key'), $json_id);
 
-                        $response = new Response(json_encode($upload_json));
-                        $response->headers->set('Content-Type', 'application/json');
+                        if($delete_json['status_code'] == 200){
+                            $response = new Response(json_encode($delete_json['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                        } else {
+                            $response = new Response(json_encode($delete_json['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                            $response->setStatusCode($delete_json['status_code']);
+                        }
 
                         return $response;
                     } else {

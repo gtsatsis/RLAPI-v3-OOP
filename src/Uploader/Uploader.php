@@ -82,20 +82,26 @@ class Uploader
 
                     if ($upload) {
                         $response = [
-                            'success' => true,
-                            'files' => [
-                                    [
-                                        'url' => $file_name,
-                                        'name' => $file_original_name,
-                                        'hash_md5' => $file_md5_hash,
-                                        'hash_sha1' => $file_sha1_hash,
-                                    ],
+                            'status_code' => 200,
+                            'response' => [
+                                'success' => true,
+                                'files' => [
+                                        [
+                                            'url' => $file_name,
+                                            'name' => $file_original_name,
+                                            'hash_md5' => $file_md5_hash,
+                                            'hash_sha1' => $file_sha1_hash,
+                                        ],
+                                ],
                             ],
                         ];
                     } else {
                         $response = [
-                            'success' => false,
-                            'error_code' => 403408,
+                            'status_code' => 500,
+                            'response' => [
+                                'success' => false,
+                                'error_code' => 403408,
+                            ],
                         ];
                     }
                 } else {
@@ -105,22 +111,31 @@ class Uploader
                         pg_prepare($this->dbconn, 'block_user_by_cp_upload', 'UPDATE users SET is_blocked = true WHERE id = (SELECT user_id FROM tokens WHERE token = $1)');
                         pg_execute($this->dbconn, 'block_user_by_cp_upload', array($api_key));
                         $response = [
-                            'success' => false,
-                            'message' => 'Content Banned.',
+                            'status_code' => 451,
+                            'response' => [
+                                'success' => false,
+                                'message' => 'Content Banned.',
+                            ],
                         ];
                     }
                 }
             } else {
                 $response = [
-                    'success' => false,
-                    'error_code' => 1010,
-                    'error_message' => 'Maximum Allowed Filesize Exceeded',
+                    'status_code' => 413,
+                    'response' => [
+                        'success' => false,
+                        'error_code' => 1010,
+                        'error_message' => 'Maximum Allowed Filesize Exceeded',
+                    ],
                 ];
             }
         } else {
             $response = [
-                'success' => false,
-                'error_message' => 'Invalid Credentials',
+                'status_code' => 401,
+                'response' => [
+                    'success' => false,
+                    'error_message' => 'Invalid Credentials',
+                ],
             ];
         }
         if (true == $check_against_hashlist['clearance']) {
