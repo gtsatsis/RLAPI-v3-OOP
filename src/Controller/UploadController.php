@@ -53,6 +53,7 @@ class UploadController extends AbstractController
                                 'error_message' => 'You are not authorized by the bucket administrator.',
                             ]));
                             $response->headers->set('Content-Type', 'application/json');
+                            $response->setStatusCode(401);
 
                             return $response;
                         }
@@ -62,6 +63,7 @@ class UploadController extends AbstractController
                             'error_message' => 'no_file_provided',
                         ]));
                         $response->headers->set('Content-Type', 'application/json');
+                        $response->setStatusCode(400);
 
                         return $response;
                     }
@@ -71,6 +73,7 @@ class UploadController extends AbstractController
                         'error_message' => 'no_file_provided',
                     ]));
                     $response->headers->set('Content-Type', 'application/json');
+                    $response->setStatusCode(400);
 
                     return $response;
                 }
@@ -80,6 +83,7 @@ class UploadController extends AbstractController
                     'error_message' => 'key_not_uuid_format',
                 ]));
                 $response->headers->set('Content-Type', 'application/json');
+                $response->setStatusCode(401);
 
                 return $response;
             }
@@ -102,6 +106,7 @@ class UploadController extends AbstractController
                             'error_message' => 'no_file_provided',
                         ]));
                         $response->headers->set('Content-Type', 'application/json');
+                        $response->setStatusCode(400);
 
                         return $response;
                     }
@@ -111,6 +116,7 @@ class UploadController extends AbstractController
                         'error_message' => 'no_file_provided',
                     ]));
                     $response->headers->set('Content-Type', 'application/json');
+                    $response->setStatusCode(400);
 
                     return $response;
                 }
@@ -120,6 +126,7 @@ class UploadController extends AbstractController
                     'error_message' => 'key_not_uuid_format',
                 ]));
                 $response->headers->set('Content-Type', 'application/json');
+                $response->setStatusCode(401);
 
                 return $response;
             }
@@ -153,6 +160,7 @@ class UploadController extends AbstractController
                             'error_message' => 'no_file_provided',
                         ]));
                         $response->headers->set('Content-Type', 'application/json');
+                        $response->setStatusCode(400);
 
                         return $response;
                     }
@@ -162,6 +170,7 @@ class UploadController extends AbstractController
                         'error_message' => 'no_file_provided',
                     ]));
                     $response->headers->set('Content-Type', 'application/json');
+                    $response->setStatusCode(400);
 
                     return $response;
                 }
@@ -171,6 +180,7 @@ class UploadController extends AbstractController
                         'error_message' => 'key_not_uuid_format',
                     ]));
                 $response->headers->set('Content-Type', 'application/json');
+                $response->setStatusCode(401);
 
                 return $response;
             }
@@ -180,7 +190,7 @@ class UploadController extends AbstractController
                 'error_message' => 'no_auth_method_provided',
             ]));
             $response->headers->set('Content-Type', 'application/json');
-
+            $response->setStatusCode(401);
             return $response;
         }
     }
@@ -227,6 +237,7 @@ class UploadController extends AbstractController
                         'error_message' => 'no_file_provided',
                     ]));
                     $response->headers->set('Content-Type', 'application/json');
+                    $response->setStatusCode(400);
 
                     return $response;
                 }
@@ -236,6 +247,7 @@ class UploadController extends AbstractController
                     'error_message' => 'no_file_provided',
                 ]));
                 $response->headers->set('Content-Type', 'application/json');
+                $response->setStatusCode(400);
 
                 return $response;
             }
@@ -245,6 +257,7 @@ class UploadController extends AbstractController
                     'error_message' => 'key_not_uuid_format',
                 ]));
             $response->headers->set('Content-Type', 'application/json');
+            $response->setStatusCode(401);
 
             return $response;
         }
@@ -277,6 +290,7 @@ class UploadController extends AbstractController
                         ]));
 
                         $response->headers->set('Content-Type', 'application/json');
+                        $response->setStatusCode(400);
 
                         return $response;
                     }
@@ -287,6 +301,7 @@ class UploadController extends AbstractController
                     ]));
 
                     $response->headers->set('Content-Type', 'application/json');
+                    $response->setStatusCode(401);
 
                     return $response;
                 }
@@ -299,6 +314,7 @@ class UploadController extends AbstractController
             ]));
 
             $response->headers->set('Content-Type', 'application/json');
+            $response->setStatusCode(501);
 
             return $response;
         }
@@ -333,7 +349,7 @@ class UploadController extends AbstractController
                             ]));
 
                             $response->headers->set('Content-Type', 'application/json');
-
+                            $response->setStatusCode(400);
                             return $response;
                         }
                     } else {
@@ -343,6 +359,7 @@ class UploadController extends AbstractController
                         ]));
 
                         $response->headers->set('Content-Type', 'application/json');
+                        $response->setStatusCode(400);
 
                         return $response;
                     }
@@ -353,6 +370,7 @@ class UploadController extends AbstractController
                     ]));
 
                     $response->headers->set('Content-Type', 'application/json');
+                    $response->setStatusCode(401);
 
                     return $response;
                 }
@@ -364,6 +382,7 @@ class UploadController extends AbstractController
                 ]));
 
                 $response->headers->set('Content-Type', 'application/json');
+                $response->setStatusCode(401);
 
                 return $response;
             }
@@ -374,6 +393,7 @@ class UploadController extends AbstractController
             ]));
 
             $response->headers->set('Content-Type', 'application/json');
+            $response->setStatusCode(501);
 
             return $response;
         }
@@ -407,6 +427,7 @@ class UploadController extends AbstractController
                         ]));
 
                         $response->headers->set('Content-Type', 'application/json');
+                        $response->setStatusCode(400);
 
                         return $response;
                     }
@@ -417,6 +438,7 @@ class UploadController extends AbstractController
                     ]));
 
                     $response->headers->set('Content-Type', 'application/json');
+                    $response->setStatusCode(401);
 
                     return $response;
                 }
@@ -428,6 +450,7 @@ class UploadController extends AbstractController
                 ]));
 
                 $response->headers->set('Content-Type', 'application/json');
+                $response->setStatusCode(401);
 
                 return $response;
             }
@@ -438,6 +461,7 @@ class UploadController extends AbstractController
             ]));
 
             $response->headers->set('Content-Type', 'application/json');
+            $response->setStatusCode(501);
 
             return $response;
         }
