@@ -315,5 +315,5 @@ class Auth
 
             return false;
         }
-    }    
+    }
 }
