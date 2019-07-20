@@ -3,6 +3,7 @@
 namespace App\Utils;
 
 use App\Models\User;
+use App\Utils\Auth;
 use Aws\S3\S3Client;
 use Symfony\Component\Dotenv\Dotenv;
 
@@ -109,11 +110,21 @@ class FileUtils
 
     public function get_file_owner($file_name, $user_id, $api_key, $bucket)
     {
+        $auth = new Auth();
+
         pg_prepare($this->dbconn, 'get_file_owner', 'SELECT COUNT(*) FROM files WHERE filename = $1 AND token = $2 AND user_id = $3 AND bucket = $4');
         $count = pg_fetch_array(pg_execute($this->dbconn, 'get_file_owner', array($file_name, $api_key, $user_id, $bucket)));
 
         if (1 == $count[0]) {
-            return true;
+            if($bucket != getenv('S3_BUCKET')){
+                if($auth->get_cb_permissions($api_key, $bucket)['rlapi.custom.bucket.file.delete'] == 'self' || $auth->get_cb_permissions($api_key, $bucket)['rlapi.custom.bucket.file.delete'] == 'all'){
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return true;
+            }
         } else {
             return false;
         }
