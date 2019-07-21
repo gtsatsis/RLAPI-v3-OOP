@@ -2,7 +2,6 @@
 
 namespace App\Uploader;
 
-use App\Models\User;
 use App\Utils\Auth;
 use App\Utils\FileUtils;
 use Symfony\Component\Dotenv\Dotenv;
@@ -10,8 +9,11 @@ use Symfony\Component\Dotenv\Dotenv;
 class Uploader
 {
     private $dbconn;
+
     private $s3;
+
     private $bucket;
+
     private $authentication;
 
     public function __construct($bucket = null)
@@ -25,15 +27,15 @@ class Uploader
 
         $this->s3 = new \Aws\S3\S3Client(
             [
-                'version'                 => 'latest', // Latest S3 version
-                'region'                  => 'us-east-1', // The service's region
-                'endpoint'                => getenv('S3_ENDPOINT'), // API to point to
-                'credentials'             => new \Aws\Credentials\Credentials(getenv('S3_API_KEY'), getenv('S3_API_SECRET')), // Credentials (s3Credentials.inc.php)
+                'version' => 'latest', // Latest S3 version
+                'region' => 'us-east-1', // The service's region
+                'endpoint' => getenv('S3_ENDPOINT'), // API to point to
+                'credentials' => new \Aws\Credentials\Credentials(getenv('S3_API_KEY'), getenv('S3_API_SECRET')), // Credentials (s3Credentials.inc.php)
                 'use_path_style_endpoint' => true, // Minio Compatible (https://minio.io)
             ]
         );
 
-        if ($bucket == null) {
+        if (null == $bucket) {
             $this->bucket = getenv('S3_BUCKET');
         } else {
             $this->bucket = $bucket;
@@ -83,36 +85,36 @@ class Uploader
                 if ($upload) {
                     $response = [
                         'success' => true,
-                        'files'   => [
+                        'files' => [
                                 [
-                                    'url'       => $file_name,
-                                    'name'      => $file_original_name,
-                                    'hash_md5'  => $file_md5_hash,
+                                    'url' => $file_name,
+                                    'name' => $file_original_name,
+                                    'hash_md5' => $file_md5_hash,
                                     'hash_sha1' => $file_sha1_hash,
                                 ],
                         ],
                     ];
                 } else {
                     $response = [
-                        'success'    => false,
+                        'success' => false,
                         'error_code' => 403408,
                     ];
                 }
             } else {
                 $response = [
-                    'success'       => false,
-                    'error_code'    => 1010,
+                    'success' => false,
+                    'error_code' => 1010,
                     'error_message' => 'Maximum Allowed Filesize Exceeded',
                 ];
             }
         } else {
             $response = [
-                'success'       => false,
+                'success' => false,
                 'error_message' => 'Invalid Credentials',
             ];
         }
 
-        if ($file_name != null) {
+        if (null != $file_name) {
             unlink(getenv('TMP_STORE').$file_name);
         } else {
             unlink(implode('', $file['tmp_name']));
@@ -125,10 +127,10 @@ class Uploader
     {
         $putObject = $this->s3->putObject(
             [
-                'Bucket'     => $this->bucket, // Bucket name
-                'Key'        => $file_name, // Key = File name (on the server)
+                'Bucket' => $this->bucket, // Bucket name
+                'Key' => $file_name, // Key = File name (on the server)
                 'SourceFile' => $file_loc, // The file to be put
-                'ACL'        => 'public-read', // Access Control List set to public read
+                'ACL' => 'public-read', // Access Control List set to public read
             ]
         );
 

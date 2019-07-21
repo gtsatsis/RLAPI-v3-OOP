@@ -14,15 +14,19 @@ use Symfony\Component\Dotenv\Dotenv;
 class User
 {
     private $dbconn;
+
     private $authentication;
+
     private $sqreen;
+
     public $verification_created_pg;
+
     public $reset_created_fetch_user_pg;
+
     public $reset_created;
 
     public function __construct()
     {
-
         /* Load the env file */
         $dotenv = new Dotenv();
         $dotenv->load(__DIR__.'/../../.env');
@@ -48,7 +52,7 @@ class User
                 $user_id = Uuid::uuid4();
                 $user_id = $user_id->toString();
 
-                if (getenv('PROMOS') == true && !is_null($optional_params['promo_code'])) {
+                if (true == getenv('PROMOS') && !is_null($optional_params['promo_code'])) {
                     pg_prepare($this->dbconn, 'fetch_promo_code', 'SELECT * FROM promo_codes WHERE code = $1 AND expired = false');
                     $execute_prepared_statement = pg_execute($this->dbconn, 'fetch_promo_code', [$optional_params['promo_code']]);
 
@@ -56,12 +60,12 @@ class User
 
                     if (is_null($promo_results['id'])) {
                         return [
-                            'success'       => false,
+                            'success' => false,
                             'error_message' => 'no_promo_found',
                         ];
                     } elseif ($promo_results['uses'] >= $promo_results['max_uses']) {
                         return [
-                            'success'       => false,
+                            'success' => false,
                             'error_message' => 'promo_out_of_uses',
                         ];
                     } else {
@@ -80,11 +84,11 @@ class User
 
                                 return [
                                     'success' => true,
-                                    'status'  => 'created',
+                                    'status' => 'created',
                                     'account' => [
-                                        'id'       => $user_id,
+                                        'id' => $user_id,
                                         'username' => $username,
-                                        'email'    => $email,
+                                        'email' => $email,
                                     ],
                                 ];
                             }
@@ -103,11 +107,11 @@ class User
                         if ($send_verification_email) {
                             return [
                                 'success' => true,
-                                'status'  => 'created',
+                                'status' => 'created',
                                 'account' => [
-                                    'id'       => $user_id,
+                                    'id' => $user_id,
                                     'username' => $username,
-                                    'email'    => $email,
+                                    'email' => $email,
                                 ],
                             ];
                         }
@@ -117,15 +121,15 @@ class User
                 }
             } else {
                 return [
-                    'success'       => false,
-                    'error_code'    => 1013,
+                    'success' => false,
+                    'error_code' => 1013,
                     'error_message' => 'insufficient_password_length',
                 ];
             }
         } else {
             return [
-                    'success'       => false,
-                    'error_code'    => 1012,
+                    'success' => false,
+                    'error_code' => 1012,
                     'error_message' => 'user_email_or_name_exists',
                 ];
         }
@@ -138,7 +142,6 @@ class User
     public function delete_user(string $user_id, string $email, string $password)
     {
         if ($this->authentication->validate_password($user_id, $password)) {
-
             /* User Deletion */
             pg_prepare($this->dbconn, 'delete_user', 'DELETE FROM users WHERE id = $1 AND email = $2');
             $execute_prepared_statement = pg_execute($this->dbconn, 'delete_user', [$user_id, $email]);
@@ -161,8 +164,8 @@ class User
             }
         } else {
             return [
-                'success'       => false,
-                'error_code'    => 1002,
+                'success' => false,
+                'error_code' => 1002,
                 'error_message' => 'invalid_user_id_or_password',
             ];
         }
@@ -192,8 +195,8 @@ class User
             }
         } else {
             return [
-                'success'       => false,
-                'error_code'    => 1002,
+                'success' => false,
+                'error_code' => 1002,
                 'error_message' => 'invalid_user_id_or_password',
             ];
         }
@@ -240,8 +243,8 @@ class User
                 }
             } else {
                 return [
-                    'success'       => false,
-                    'error_code'    => 1002,
+                    'success' => false,
+                    'error_code' => 1002,
                     'error_message' => 'invalid_user_id_or_password',
                 ];
             }
@@ -262,15 +265,15 @@ class User
                 return [
                     'success' => true,
                     'account' => [
-                        'id'   => $user_id,
+                        'id' => $user_id,
                         'tier' => $user_tier,
                     ],
                 ];
             }
         } else {
             return [
-                'success'       => false,
-                'error_code'    => 1009,
+                'success' => false,
+                'error_code' => 1009,
                 'error_message' => 'insufficient_permissions',
             ];
         }
@@ -325,7 +328,7 @@ class User
                 if ($execute_prepared_statement && $execute_prepared_statement_2) {
                     return [
                         'success' => true,
-                        'email'   => [
+                        'email' => [
                             'verified' => true,
                         ],
                     ];
@@ -334,7 +337,7 @@ class User
                 }
             } else {
                 return [
-                    'success'       => false,
+                    'success' => false,
                     'error_message' => 'already_verified_or_nonexistant',
                 ];
             }
@@ -362,7 +365,7 @@ class User
             return pg_fetch_array($execute_prepared_statement);
         } else {
             return [
-                'success'       => false,
+                'success' => false,
                 'error_message' => 'no_user_data_found',
             ];
         }
@@ -432,21 +435,21 @@ class User
                         pg_execute($this->dbconn, 'reset_password_set_used', [$reset_id]);
 
                         return [
-                            'success'  => true,
+                            'success' => true,
                             'password' => [
                                 'reset' => true,
                             ],
                         ];
                     } else {
                         return [
-                            'success'       => false,
+                            'success' => false,
                             'error_message' => 'user_not_found',
                         ];
                     }
                 }
             } else {
                 return [
-                    'success'       => false,
+                    'success' => false,
                     'error_message' => 'already_reset_or_nonexistant',
                 ];
             }

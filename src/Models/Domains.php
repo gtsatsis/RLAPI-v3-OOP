@@ -11,12 +11,13 @@ use Symfony\Component\Dotenv\Dotenv;
 class Domains
 {
     private $dbconn;
+
     private $authentication;
+
     private $sqreen;
 
     public function __construct()
     {
-
         /* Load the env file */
         $dotenv = new Dotenv();
         $dotenv->load(__DIR__.'/../../.env');

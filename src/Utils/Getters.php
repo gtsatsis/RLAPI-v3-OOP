@@ -7,11 +7,11 @@ use Symfony\Component\Dotenv\Dotenv;
 class Getters
 {
     private $dbconn;
+
     private $prepared;
 
     public function __construct()
     {
-
         /* Load the env file */
         $dotenv = new Dotenv();
         $dotenv->load(__DIR__.'/../../.env');
@@ -27,7 +27,7 @@ class Getters
 
         $result = pg_fetch_array($execute_prepared_statement);
 
-        if ($result[0] == 0) {
+        if (0 == $result[0]) {
             return false;
         } else {
             return true;
@@ -57,7 +57,7 @@ class Getters
             return pg_fetch_array($execute_prepared_statement);
         } else {
             return [
-                'success'       => false,
+                'success' => false,
                 'error_message' => 'No data found',
             ];
         }
