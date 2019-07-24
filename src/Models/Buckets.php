@@ -222,8 +222,8 @@ class Buckets
         $user = pg_fetch_array(pg_execute($this->dbconn, 'fetch_user_by_username', array($username)));
 
         if (!empty($user['id'])) {
-            pg_prepare($this->dbconn, 'fetch_bucket_data', 'SELECT data FROM buckets WHERE id = $1');
-            $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data', array($bucket_id)));
+            pg_prepare($this->dbconn, 'fetch_bucket_data_remove_user', 'SELECT data FROM buckets WHERE id = $1');
+            $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data_remove_user', array($bucket_id)));
             $bucket_data = json_decode($bucket_data[0], true);
 
             unset($bucket_data['users'][$user['id']]);
@@ -247,8 +247,8 @@ class Buckets
         $user = pg_fetch_array(pg_execute($this->dbconn, 'fetch_user_by_username', array($username)));
 
         if (!empty($user['id'])) {
-            pg_prepare($this->dbconn, 'fetch_bucket_data', 'SELECT data FROM buckets WHERE id = $1');
-            $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data', array($bucket_id)));
+            pg_prepare($this->dbconn, 'fetch_bucket_data_block_user', 'SELECT data FROM buckets WHERE id = $1');
+            $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data_block_user', array($bucket_id)));
             $bucket_data = json_decode($bucket_data[0], true);
 
             $bucket_data['users'][$user['id']]['permissions']['rlapi.custom.bucket.upload'] = false;
@@ -271,8 +271,8 @@ class Buckets
         $user = pg_fetch_array(pg_execute($this->dbconn, 'fetch_user_by_username', array($username)));
 
         if (!empty($user['id'])) {
-            pg_prepare($this->dbconn, 'fetch_bucket_data', 'SELECT data FROM buckets WHERE id = $1');
-            $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data', array($bucket_id)));
+            pg_prepare($this->dbconn, 'fetch_bucket_data_unblock_user', 'SELECT data FROM buckets WHERE id = $1');
+            $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data_unblock_user', array($bucket_id)));
             $bucket_data = json_decode($bucket_data[0], true);
 
             $bucket_data['users'][$user['id']]['permissions']['rlapi.custom.bucket.upload'] = true;
