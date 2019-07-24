@@ -241,6 +241,52 @@ class Buckets
         }
     }
 
+    public function block_user($username, $bucket_id){
+        pg_prepare($this->dbconn, 'fetch_user_by_username', 'SELECT * FROM users WHERE is_blocked IS NOT true AND username = $1 LIMIT 1');
+        $user = pg_fetch_array(pg_execute($this->dbconn, 'fetch_user_by_username', array($username)));
+
+        if (!empty($user['id'])) {
+            pg_prepare($this->dbconn, 'fetch_bucket_data', 'SELECT data FROM buckets WHERE id = $1');
+            $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data', array($bucket_id)));
+            $bucket_data = json_decode($bucket_data[0], true);
+
+            $bucket_data['users'][$user['id']]['permissions']['rlapi.custom.bucket.upload'] = false;
+            $bucket_data = json_encode($bucket_data);
+
+            pg_prepare($this->dbconn, 'insert_updated_bucket_data', 'UPDATE buckets SET data = $1 WHERE id = $2');
+            pg_execute($this->dbconn, 'insert_updated_bucket_data', array($bucket_data, $bucket_id));
+
+            return [
+                'success' => true,
+            ];
+        } else {
+            return ['success' => false, 'error_message' => 'invalid username'];
+        }
+    }
+
+    public function unblock_user($username, $bucket_id){
+        pg_prepare($this->dbconn, 'fetch_user_by_username', 'SELECT * FROM users WHERE is_blocked IS NOT true AND username = $1 LIMIT 1');
+        $user = pg_fetch_array(pg_execute($this->dbconn, 'fetch_user_by_username', array($username)));
+
+        if (!empty($user['id'])) {
+            pg_prepare($this->dbconn, 'fetch_bucket_data', 'SELECT data FROM buckets WHERE id = $1');
+            $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data', array($bucket_id)));
+            $bucket_data = json_decode($bucket_data[0], true);
+
+            $bucket_data['users'][$user['id']]['permissions']['rlapi.custom.bucket.upload'] = true;
+            $bucket_data = json_encode($bucket_data);
+
+            pg_prepare($this->dbconn, 'insert_updated_bucket_data', 'UPDATE buckets SET data = $1 WHERE id = $2');
+            pg_execute($this->dbconn, 'insert_updated_bucket_data', array($bucket_data, $bucket_id));
+
+            return [
+                'success' => true,
+            ];
+        } else {
+            return ['success' => false, 'error_message' => 'invalid username'];
+        }
+    }
+
     public function bucket_exists($bucket_name)
     {
         pg_prepare($this->dbconn, 'bucket_exists', 'SELECT COUNT(*) FROM buckets WHERE bucket = $1');
