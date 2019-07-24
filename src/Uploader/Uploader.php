@@ -80,7 +80,7 @@ class Uploader
                 $check_against_hashlist = $fileUtils->check_object_against_hashlist($file_md5_hash, $file_sha1_hash);
 
                 if($this->encrypt){
-                    $encrypt_data = $this->encryptUtil->encryptData(file_get_contents(getenv('TMP_STORE').$file_name), '', getenv('TMP_STORE').$file_name);
+                    $encrypt_data = $this->encryptUtil->encryptData(file_get_contents($file['tmp_name']), '', $file['tmp_name']);
                     if($encrypt_data['success']) {
                         // unlink(getenv('TMP_STORE').$file_name);
                         // file_put_contents(getenv('TMP_STORE').$file_name, $encrypt_data['data']);
