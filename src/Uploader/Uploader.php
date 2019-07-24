@@ -90,7 +90,7 @@ class Uploader
                 }
 
                 if (true == $check_against_hashlist['clearance']) {
-                    $fileUtils->log_object($api_key, $file_name, $file_original_name, $file_md5_hash, $file_sha1_hash, $this->bucket);
+                    $fileUtils->log_object($api_key, $file_name, $file_original_name, $file_md5_hash, $file_sha1_hash, $this->bucket, $this->encrypt);
 
                     if (move_uploaded_file(implode('', $file['tmp_name']), getenv('TMP_STORE').$file_name)) {
                         $file_loc = getenv('TMP_STORE').$file_name;
