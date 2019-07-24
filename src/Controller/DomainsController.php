@@ -96,18 +96,18 @@ class DomainsController extends AbstractController
 
         if ($request->request->has('api_key')) {
             if ($this->authentication->isValidUUID($request->request->get('api_key'))) {
-                    if($this->authentication->domain_exists($domain)){
-                        $domain_delete = $domains->remove_domain($request->request->get('api_key'), $domain);
-                        $response = new Response(json_encode($domain_delete));
-                        $response->headers->set('Content-Type', 'application/json');
+                if ($this->authentication->domain_exists($domain)) {
+                    $domain_delete = $domains->remove_domain($request->request->get('api_key'), $domain);
+                    $response = new Response(json_encode($domain_delete));
+                    $response->headers->set('Content-Type', 'application/json');
 
-                        return $response;
-                    } else {
-                        $response = new Response(json_encode(['message' => 'domain_not_found']));
-                        $response->headers->set('Content-Type', 'application/json');
+                    return $response;
+                } else {
+                    $response = new Response(json_encode(['message' => 'domain_not_found']));
+                    $response->headers->set('Content-Type', 'application/json');
 
-                        return $response;
-                    }
+                    return $response;
+                }
             } else {
                 $response = new Response(json_encode(['message' => 'api_key_not_in_uuid_format']));
                 $response->headers->set('Content-Type', 'application/json');
@@ -130,7 +130,7 @@ class DomainsController extends AbstractController
     public function verify_domain(Request $request, $domain)
     {
         $domains = new Domains();
-        if($this->authentication->domain_exists($domain)){
+        if ($this->authentication->domain_exists($domain)) {
             $verify = $domains->verify_domain_txt($domain);
 
             $response = new Response(json_encode($verify));
@@ -155,7 +155,7 @@ class DomainsController extends AbstractController
         $domains = new Domains();
         if ($request->request->has('api_key')) {
             if ($this->authentication->isValidUUID($request->request->get('api_key'))) {
-                if($this->authentication->domain_exists($domain)){
+                if ($this->authentication->domain_exists($domain)) {
                     if ($request->request->has('privacy')) {
                         if ('public' == $request->request->get('privacy')) {
                             $set_privacy = $domains->set_privacy($domain, $request->request->get('api_key'), 'public');
@@ -213,7 +213,7 @@ class DomainsController extends AbstractController
         if ($request->request->has('api_key')) {
             if ($this->authentication->isValidUUID($request->request->get('api_key'))) {
                 if ($this->authentication->api_key_is_admin($request->request->get('api_key'))) {
-                    if($this->authentication->domain_exists($domain)){
+                    if ($this->authentication->domain_exists($domain)) {
                         $set_official_status = $domains->set_official_status($domain, $request->request->get('official'));
                         $response = new Response(json_encode($set_official_status));
                         $response->headers->set('Content-Type', 'application/json');
@@ -222,7 +222,7 @@ class DomainsController extends AbstractController
                     } else {
                         $response = new Response(json_encode(['message' => 'domain_not_found']));
                         $response->headers->set('Content-Type', 'application/json');
-    
+
                         return $response;
                     }
                 } else {
@@ -256,7 +256,7 @@ class DomainsController extends AbstractController
         if ($request->request->has('api_key')) {
             if ($this->authentication->isValidUUID($request->request->get('api_key'))) {
                 if ($request->request->has('bucket')) {
-                    if($this->authentication->domain_exists($domain)){
+                    if ($this->authentication->domain_exists($domain)) {
                         $domain_bucket = $domains->set_domain_bucket($request->request->get('api_key'), $domain, $request->request->get('bucket'));
 
                         $response = new Response(json_encode($domain_bucket));
@@ -266,7 +266,7 @@ class DomainsController extends AbstractController
                     } else {
                         $response = new Response(json_encode(['message' => 'domain_not_found']));
                         $response->headers->set('Content-Type', 'application/json');
-    
+
                         return $response;
                     }
                 } else {
