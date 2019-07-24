@@ -217,7 +217,7 @@ class BucketsController extends AbstractController
                 if ($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->request->get('api_key'), $bucket_id)) {
                     $permissions = $this->buckets->get_permissions($request->request->get('api_key'), $bucket_id);
                     if (true == $permissions['rlapi.custom.bucket.user.remove'] && $this->buckets->actor_permission_higher_than_user($permissions['rlapi.custom.bucket.permission.priority'], $user_name, $bucket_id)) {
-                        $remove_user = $this->buckets->remove_user($request->request->get('username'), $bucket_id);
+                        $remove_user = $this->buckets->remove_user($user_name, $bucket_id);
                         $response = new Response(json_encode($remove_user));
                         $response->headers->set('Content-Type', 'application/json');
 
@@ -260,7 +260,7 @@ class BucketsController extends AbstractController
                 if ($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->request->get('api_key'), $bucket_id)) {
                     $permissions = $this->buckets->get_permissions($request->request->get('api_key'), $bucket_id);
                     if (true == $permissions['rlapi.custom.bucket.user.block'] && $this->buckets->actor_permission_higher_than_user($permissions['rlapi.custom.bucket.permission.priority'], $user_name, $bucket_id)) {
-                        $block_user = $this->buckets->block_user($request->request->get('username'), $bucket_id);
+                        $block_user = $this->buckets->block_user($user_name, $bucket_id);
                         $response = new Response(json_encode($block_user));
                         $response->headers->set('Content-Type', 'application/json');
 
@@ -303,7 +303,7 @@ class BucketsController extends AbstractController
                 if ($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->request->get('api_key'), $bucket_id)) {
                     $permissions = $this->buckets->get_permissions($request->request->get('api_key'), $bucket_id);
                     if (true == $permissions['rlapi.custom.bucket.user.unblock'] && $this->buckets->actor_permission_higher_than_user($permissions['rlapi.custom.bucket.permission.priority'], $user_name, $bucket_id)) {
-                        $unblock_user = $this->buckets->unblock_user($request->request->get('username'), $bucket_id);
+                        $unblock_user = $this->buckets->unblock_user($user_name, $bucket_id);
                         $response = new Response(json_encode($unblock_user));
                         $response->headers->set('Content-Type', 'application/json');
 
