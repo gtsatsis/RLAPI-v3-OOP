@@ -96,11 +96,18 @@ class DomainsController extends AbstractController
 
         if ($request->request->has('api_key')) {
             if ($this->authentication->isValidUUID($request->request->get('api_key'))) {
-                $domain_delete = $domains->remove_domain($request->request->get('api_key'), $domain);
-                $response = new Response(json_encode($domain_delete));
-                $response->headers->set('Content-Type', 'application/json');
+                    if($this->authentication->domain_exists($domain)){
+                        $domain_delete = $domains->remove_domain($request->request->get('api_key'), $domain);
+                        $response = new Response(json_encode($domain_delete));
+                        $response->headers->set('Content-Type', 'application/json');
 
-                return $response;
+                        return $response;
+                    } else {
+                        $response = new Response(json_encode(['message' => 'domain_not_found']));
+                        $response->headers->set('Content-Type', 'application/json');
+
+                        return $response;
+                    }
             } else {
                 $response = new Response(json_encode(['message' => 'api_key_not_in_uuid_format']));
                 $response->headers->set('Content-Type', 'application/json');
@@ -123,13 +130,19 @@ class DomainsController extends AbstractController
     public function verify_domain(Request $request, $domain)
     {
         $domains = new Domains();
+        if($this->authentication->domain_exists($domain)){
+            $verify = $domains->verify_domain_txt($domain);
 
-        $verify = $domains->verify_domain_txt($domain);
+            $response = new Response(json_encode($verify));
+            $response->headers->set('Content-Type', 'application/json');
 
-        $response = new Response(json_encode($verify));
-        $response->headers->set('Content-Type', 'application/json');
+            return $response;
+        } else {
+            $response = new Response(json_encode(['message' => 'domain_not_found']));
+            $response->headers->set('Content-Type', 'application/json');
 
-        return $response;
+            return $response;
+        }
     }
 
     /**
@@ -142,27 +155,34 @@ class DomainsController extends AbstractController
         $domains = new Domains();
         if ($request->request->has('api_key')) {
             if ($this->authentication->isValidUUID($request->request->get('api_key'))) {
-                if ($request->request->has('privacy')) {
-                    if ('public' == $request->request->get('privacy')) {
-                        $set_privacy = $domains->set_privacy($domain, $request->request->get('api_key'), 'public');
-                        $response = new Response(json_encode($set_privacy));
-                        $response->headers->set('Content-Type', 'application/json');
+                if($this->authentication->domain_exists($domain)){
+                    if ($request->request->has('privacy')) {
+                        if ('public' == $request->request->get('privacy')) {
+                            $set_privacy = $domains->set_privacy($domain, $request->request->get('api_key'), 'public');
+                            $response = new Response(json_encode($set_privacy));
+                            $response->headers->set('Content-Type', 'application/json');
 
-                        return $response;
-                    } elseif ('private' == $request->request->get('privacy')) {
-                        $set_privacy = $domains->set_privacy($domain, $request->request->get('api_key'), 'private');
-                        $response = new Response(json_encode($set_privacy));
-                        $response->headers->set('Content-Type', 'application/json');
+                            return $response;
+                        } elseif ('private' == $request->request->get('privacy')) {
+                            $set_privacy = $domains->set_privacy($domain, $request->request->get('api_key'), 'private');
+                            $response = new Response(json_encode($set_privacy));
+                            $response->headers->set('Content-Type', 'application/json');
 
-                        return $response;
+                            return $response;
+                        } else {
+                            $response = new Response(json_encode(['message' => 'privacy_must_be_public_or_private']));
+                            $response->headers->set('Content-Type', 'application/json');
+
+                            return $response;
+                        }
                     } else {
-                        $response = new Response(json_encode(['message' => 'privacy_must_be_public_or_private']));
+                        $response = new Response(json_encode(['message' => 'privacy_is_missing']));
                         $response->headers->set('Content-Type', 'application/json');
 
                         return $response;
                     }
                 } else {
-                    $response = new Response(json_encode(['message' => 'privacy_is_missing']));
+                    $response = new Response(json_encode(['message' => 'domain_not_found']));
                     $response->headers->set('Content-Type', 'application/json');
 
                     return $response;
@@ -193,11 +213,18 @@ class DomainsController extends AbstractController
         if ($request->request->has('api_key')) {
             if ($this->authentication->isValidUUID($request->request->get('api_key'))) {
                 if ($this->authentication->api_key_is_admin($request->request->get('api_key'))) {
-                    $set_official_status = $domains->set_official_status($domain, $request->request->get('official'));
-                    $response = new Response(json_encode($set_official_status));
-                    $response->headers->set('Content-Type', 'application/json');
+                    if($this->authentication->domain_exists($domain)){
+                        $set_official_status = $domains->set_official_status($domain, $request->request->get('official'));
+                        $response = new Response(json_encode($set_official_status));
+                        $response->headers->set('Content-Type', 'application/json');
 
-                    return $response;
+                        return $response;
+                    } else {
+                        $response = new Response(json_encode(['message' => 'domain_not_found']));
+                        $response->headers->set('Content-Type', 'application/json');
+    
+                        return $response;
+                    }
                 } else {
                     $response = new Response(json_encode(['success' => false, 'message' => 'unauthorized']));
                     $response->headers->set('Content-Type', 'application/json');
@@ -229,12 +256,19 @@ class DomainsController extends AbstractController
         if ($request->request->has('api_key')) {
             if ($this->authentication->isValidUUID($request->request->get('api_key'))) {
                 if ($request->request->has('bucket')) {
-                    $domain_bucket = $domains->set_domain_bucket($request->request->get('api_key'), $domain, $request->request->get('bucket'));
+                    if($this->authentication->domain_exists($domain)){
+                        $domain_bucket = $domains->set_domain_bucket($request->request->get('api_key'), $domain, $request->request->get('bucket'));
 
-                    $response = new Response(json_encode($domain_bucket));
-                    $response->headers->set('Content-Type', 'application/json');
+                        $response = new Response(json_encode($domain_bucket));
+                        $response->headers->set('Content-Type', 'application/json');
 
-                    return $response;
+                        return $response;
+                    } else {
+                        $response = new Response(json_encode(['message' => 'domain_not_found']));
+                        $response->headers->set('Content-Type', 'application/json');
+    
+                        return $response;
+                    }
                 } else {
                     $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Request did not contain the bucket body parameter.']]));
                     $response->headers->set('Content-Type', 'application/json');
