@@ -294,7 +294,7 @@ class Domains
                 pg_prepare($this->dbconn, 'get_bucket_data', 'SELECT data FROM buckets WHERE bucket = $1');
                 $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'get_bucket_data', array($bucket)));
 
-                $bucket_data = json_decode($bucket_data[0]);
+                $bucket_data = json_decode($bucket_data[0], true);
                 $bucket_data['domains'][$domain] = ['added' => ['on' => time(), 'by' => $api_key]];
 
                 $bucket_data = json_encode($bucket_data);
