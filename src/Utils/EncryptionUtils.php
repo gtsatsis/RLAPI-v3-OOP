@@ -31,10 +31,10 @@ class EncryptionUtils
         return $randomPassword;
     }
 
-    public function encryptData($data, $key = '', $outFile = '', $cipher = 'aes-128-gcm')
+    public function encryptData($data, $key = null, $outFile = '', $cipher = 'aes-128-gcm')
     {
         // Generate password if blank
-        if ('' == $key) {
+        if (null == $key) {
             $key = $this->generateRandomPassword(10);
         }
 
