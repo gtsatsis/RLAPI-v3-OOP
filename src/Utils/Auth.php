@@ -317,7 +317,8 @@ class Auth
         }
     }
 
-    public function domain_exists($domain) {
+    public function domain_exists($domain)
+    {
         pg_prepare($this->dbconn, 'fetch_domain_exists', 'SELECT COUNT(*) FROM domains WHERE domain_name = $1');
         $domain_exists = pg_fetch_array(pg_execute($this->dbconn, 'fetch_domain_exists', array($domain)));
 
