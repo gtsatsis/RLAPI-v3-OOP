@@ -223,7 +223,7 @@ class DomainsController extends AbstractController
      *
      * @Route("/domains/{domain}/bucket", name="domain_bucket")
      */
-    public function domain_bucket($domain)
+    public function domain_bucket(Request $request, $domain)
     {
         $domains = new Domains();
         if ($request->request->has('api_key')) {
