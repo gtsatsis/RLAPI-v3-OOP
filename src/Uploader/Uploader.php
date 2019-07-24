@@ -79,9 +79,9 @@ class Uploader
 
                 $check_against_hashlist = $fileUtils->check_object_against_hashlist($file_md5_hash, $file_sha1_hash);
                 $password = 'owo';
-                if($this->encrypt){
+                if ($this->encrypt) {
                     $encrypt_data = $this->encryptUtil->encryptData(file_get_contents(implode('', $file['tmp_name'])), '', implode('', $file['tmp_name']));
-                    if($encrypt_data['success']) {
+                    if ($encrypt_data['success']) {
                         // unlink(getenv('TMP_STORE').$file_name);
                         // file_put_contents(getenv('TMP_STORE').$file_name, $encrypt_data['data']);
                         unset($encrypt_data['data']);
@@ -116,10 +116,10 @@ class Uploader
                             ],
                         ];
 
-                        if($this->encrypt) {
+                        if ($this->encrypt) {
                             $response['response']['files'][0]['url'] = $file_name.'?password='.$password;
                             $response['response']['files'][0]['url_plain'] = $file_name;
-                            $response['response']['files'][0]['encryption_password'] = $password; 
+                            $response['response']['files'][0]['encryption_password'] = $password;
                         }
                     } else {
                         $response = [
