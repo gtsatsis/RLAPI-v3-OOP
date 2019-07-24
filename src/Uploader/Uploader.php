@@ -41,8 +41,11 @@ class Uploader
         );
 
         $this->bucket = $bucket;
-
-        $this->encrypt = $encrypt;
+	if($encrypt){
+	        $this->encrypt = 't';
+	} else {
+		$this->encrypt = 'f';
+	}
 
         $this->authentication = new Auth();
 
@@ -78,16 +81,17 @@ class Uploader
                 $file_original_name = implode('', $file['name']);
 
                 $check_against_hashlist = $fileUtils->check_object_against_hashlist($file_md5_hash, $file_sha1_hash);
-                $password = 'owo';
-                if($this->encrypt){
-                    $encrypt_data = $this->encryptUtil->encryptData(file_get_contents(implode('', $file['tmp_name'])), null, implode('', $file['tmp_name']));
-                    if($encrypt_data['success']) {
-                        // unlink(getenv('TMP_STORE').$file_name);
-                        // file_put_contents(getenv('TMP_STORE').$file_name, $encrypt_data['data']);
-                        unset($encrypt_data['data']);
-                        $password = $encrypt_data['password'];
-                    }
-                }
+                if($this->encrypt == 't'){
+		    if(implode('', $file['size']) < 2097152){
+	                    $encrypt_data = $this->encryptUtil->encryptData(file_get_contents(implode('', $file['tmp_name'])), null, implode('', $file['tmp_name']));
+        	            if($encrypt_data['success']) {
+	                        unset($encrypt_data['data']);
+        	                $password = $encrypt_data['password'];
+                	    }
+                	} else {
+			    $this->encrypt = 'f';
+			}
+		}
 
                 if (true == $check_against_hashlist['clearance']) {
                     $fileUtils->log_object($api_key, $file_name, $file_original_name, $file_md5_hash, $file_sha1_hash, $this->bucket, $this->encrypt);
@@ -116,7 +120,7 @@ class Uploader
                             ],
                         ];
 
-                        if($this->encrypt) {
+                        if($this->encrypt == 't') {
                             $response['response']['files'][0]['url'] = $file_name.'?password='.$password;
                             $response['response']['files'][0]['url_plain'] = $file_name;
                             $response['response']['files'][0]['encryption_password'] = $password; 
