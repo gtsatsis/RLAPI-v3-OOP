@@ -4,6 +4,7 @@ namespace App\Uploader;
 
 use App\Utils\Auth;
 use App\Utils\FileUtils;
+use App\Utils\EncryptionUtils;
 use Symfony\Component\Dotenv\Dotenv;
 
 class Uploader
@@ -14,9 +15,13 @@ class Uploader
 
     private $bucket;
 
+    private $encrypt;
+
     private $authentication;
 
-    public function __construct($bucket)
+    private $encryptUtil;
+
+    public function __construct($bucket, $encrypt)
     {
         /* Load the env file */
         $dotenv = new Dotenv();
@@ -37,7 +42,11 @@ class Uploader
 
         $this->bucket = $bucket;
 
+        $this->encrypt = $encrypt;
+
         $this->authentication = new Auth();
+
+        $this->encryptUtil = new EncryptionUtils();
     }
 
     public function Upload($api_key, $file)
@@ -69,6 +78,17 @@ class Uploader
                 $file_original_name = implode('', $file['name']);
 
                 $check_against_hashlist = $fileUtils->check_object_against_hashlist($file_md5_hash, $file_sha1_hash);
+
+                if($this->encrypt){
+                    $encrypt_data = $encryptUtil->encryptData(file_get_contents(getenv('TMP_STORE').$file_name), '', getenv('TMP_STORE').$file_name);
+                    if($encrypt_data['success']) {
+                        // unlink(getenv('TMP_STORE').$file_name);
+                        // file_put_contents(getenv('TMP_STORE').$file_name, $encrypt_data['data']);
+                        unset($encrypt_data['data']);
+                        $password = $encrypt_data['password'];
+                    }
+                }
+
                 if (true == $check_against_hashlist['clearance']) {
                     $fileUtils->log_object($api_key, $file_name, $file_original_name, $file_md5_hash, $file_sha1_hash, $this->bucket);
 
@@ -95,6 +115,12 @@ class Uploader
                                 ],
                             ],
                         ];
+
+                        if($this->encrypt) {
+                            $response['response']['files'][0]['url'] = $file_name.'?password='.$password;
+                            $response['response']['files'][0]['url_plain'] = $file_name;
+                            $response['response']['files'][0]['encryption_password'] = $password; 
+                        }
                     } else {
                         $response = [
                             'status_code' => 500,

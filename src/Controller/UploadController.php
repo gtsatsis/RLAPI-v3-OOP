@@ -36,8 +36,17 @@ class UploadController extends AbstractController
                 if (array_key_exists('files', $_FILES)) {
                     if (!is_null($_FILES['files'])) {
                         if ($auth->upload_to_cb_allowed($request->query->get('key'), $request->query->get('bucket'))) {
+                            if($request->query->has('encrypt')){
+                                if($request->query->get('encrypt') == 'true'){
+                                    $encrypt = true;
+                                } else {
+                                    $encrypt = false;
+                                }
+                            } else {
+                                $encrypt = false;
+                            }
                             /* Initiate the Uploader Object */
-                            $uploader = new Uploader($request->query->get('bucket'));
+                            $uploader = new Uploader($request->query->get('bucket'), $encrypt);
 
                             /* Get the API key from the query, then proceed to the uploader */
                             $api_key = $request->query->get('key');
@@ -97,8 +106,17 @@ class UploadController extends AbstractController
             if ($auth->isValidUUID($request->query->get('key'))) {
                 if (array_key_exists('files', $_FILES)) {
                     if (!is_null($_FILES['files'])) {
+                        if($request->query->has('encrypt')){
+                            if($request->query->get('encrypt') == 'true'){
+                                $encrypt = true;
+                            } else {
+                                $encrypt = false;
+                            }
+                        } else {
+                            $encrypt = false;
+                        }
                         $api_key = $request->query->get('key');
-                        $uploader = new Uploader(getenv('S3_BUCKET'));
+                        $uploader = new Uploader(getenv('S3_BUCKET'), $encrypt);
 
                         $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
@@ -147,7 +165,17 @@ class UploadController extends AbstractController
                 if (array_key_exists('files', $_FILES)) {
                     if (!is_null($_FILES['files'])) {
                         if ($request->query->has('bucket')) {
-                            $uploader = new Uploader($request->query->get('bucket'));
+                            if($request->query->has('encrypt')){
+                                if($request->query->get('encrypt') == 'true'){
+                                    $encrypt = true;
+                                } else {
+                                    $encrypt = false;
+                                }
+                            } else {
+                                $encrypt = false;
+                            }
+                            
+                            $uploader = new Uploader($request->query->get('bucket'), $encrypt);
 
                             $api_key = $request->headers->get('Authorization');
                             $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
@@ -163,7 +191,17 @@ class UploadController extends AbstractController
 
                             return $response;
                         } else {
-                            $uploader = new Uploader(getenv('S3_BUCKET'));
+                            if($request->query->has('encrypt')){
+                                if($request->query->get('encrypt') == 'true'){
+                                    $encrypt = true;
+                                } else {
+                                    $encrypt = false;
+                                }
+                            } else {
+                                $encrypt = false;
+                            }
+
+                            $uploader = new Uploader(getenv('S3_BUCKET'), $encrypt);
                             $api_key = $request->headers->get('Authorization');
                             $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
@@ -233,8 +271,19 @@ class UploadController extends AbstractController
             if (array_key_exists('files', $_FILES)) {
                 if (!is_null($_FILES['files'])) {
                     if ($request->query->has('bucket')) {
+
+                        if($request->query->has('encrypt')){
+                            if($request->query->get('encrypt') == 'true'){
+                                $encrypt = true;
+                            } else {
+                                $encrypt = false;
+                            }
+                        } else {
+                            $encrypt = false;
+                        }
+
                         /* Initiate the Uploader Object */
-                        $uploader = new Uploader($request->query->get('bucket'));
+                        $uploader = new Uploader($request->query->get('bucket'), $encrypt);
 
                         /* Get the API key from the query, then proceed to the uploader */
                         $api_key = apiKey;
@@ -252,8 +301,18 @@ class UploadController extends AbstractController
 
                         return $response;
                     } else {
+                        if($request->query->has('encrypt')){
+                            if($request->query->get('encrypt') == 'true'){
+                                $encrypt = true;
+                            } else {
+                                $encrypt = false;
+                            }
+                        } else {
+                            $encrypt = false;
+                        }
+
                         $api_key = $apiKey;
-                        $uploader = new Uploader();
+                        $uploader = new Uploader(getenv('S3_BUCKET'), $encrypt);
 
                         $uploadFile = $uploader->Upload($api_key, $_FILES['files']);
 
