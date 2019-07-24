@@ -33,8 +33,10 @@ class EncryptionUtils
 
     public function encryptData($data, $key = null, $outFile = '', $cipher = 'aes-128-gcm')
     {
-        
-        $key = $this->generateRandomPassword(10);
+        // Generate password if blank
+        if (null == $key) {
+            $key = $this->generateRandomPassword(10);
+        }
 
         // Encryption magic
         $ivlen = openssl_cipher_iv_length($cipher);
