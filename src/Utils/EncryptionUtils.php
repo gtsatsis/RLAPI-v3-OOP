@@ -35,7 +35,7 @@ class EncryptionUtils
     {
         // Generate password if blank
         if ('' == $key) {
-            $key = generateRandomPassword(10);
+            $key = $this->generateRandomPassword(10);
         }
 
         // Encryption magic
