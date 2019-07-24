@@ -78,7 +78,7 @@ class Uploader
                 $file_original_name = implode('', $file['name']);
 
                 $check_against_hashlist = $fileUtils->check_object_against_hashlist($file_md5_hash, $file_sha1_hash);
-
+                $password = 'owo';
                 if($this->encrypt){
                     $encrypt_data = $this->encryptUtil->encryptData(file_get_contents(implode('', $file['tmp_name'])), '', implode('', $file['tmp_name']));
                     if($encrypt_data['success']) {
