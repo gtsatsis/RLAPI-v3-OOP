@@ -241,7 +241,8 @@ class Buckets
         }
     }
 
-    public function block_user($username, $bucket_id){
+    public function block_user($username, $bucket_id)
+    {
         pg_prepare($this->dbconn, 'fetch_user_by_username', 'SELECT * FROM users WHERE is_blocked IS NOT true AND username = $1 LIMIT 1');
         $user = pg_fetch_array(pg_execute($this->dbconn, 'fetch_user_by_username', array($username)));
 
@@ -264,7 +265,8 @@ class Buckets
         }
     }
 
-    public function unblock_user($username, $bucket_id){
+    public function unblock_user($username, $bucket_id)
+    {
         pg_prepare($this->dbconn, 'fetch_user_by_username', 'SELECT * FROM users WHERE is_blocked IS NOT true AND username = $1 LIMIT 1');
         $user = pg_fetch_array(pg_execute($this->dbconn, 'fetch_user_by_username', array($username)));
 
