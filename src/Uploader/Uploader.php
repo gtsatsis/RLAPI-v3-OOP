@@ -41,11 +41,11 @@ class Uploader
         );
 
         $this->bucket = $bucket;
-	if($encrypt){
-	        $this->encrypt = 't';
-	} else {
-		$this->encrypt = 'f';
-	}
+        if ($encrypt) {
+            $this->encrypt = 't';
+        } else {
+            $this->encrypt = 'f';
+        }
 
         $this->authentication = new Auth();
 
@@ -81,6 +81,7 @@ class Uploader
                 $file_original_name = implode('', $file['name']);
 
                 $check_against_hashlist = $fileUtils->check_object_against_hashlist($file_md5_hash, $file_sha1_hash);
+
                 if($this->encrypt == 't'){
 		    if(implode('', $file['size']) < 12582912){
 	                    $encrypt_data = $this->encryptUtil->encryptData(file_get_contents(implode('', $file['tmp_name'])), null, implode('', $file['tmp_name']));
@@ -120,10 +121,10 @@ class Uploader
                             ],
                         ];
 
-                        if($this->encrypt == 't') {
+                        if ('t' == $this->encrypt) {
                             $response['response']['files'][0]['url'] = $file_name.'?password='.$password;
                             $response['response']['files'][0]['url_plain'] = $file_name;
-                            $response['response']['files'][0]['encryption_password'] = $password; 
+                            $response['response']['files'][0]['encryption_password'] = $password;
                         }
                     } else {
                         $response = [
