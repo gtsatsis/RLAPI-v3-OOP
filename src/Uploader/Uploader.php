@@ -82,7 +82,7 @@ class Uploader
 
                 $check_against_hashlist = $fileUtils->check_object_against_hashlist($file_md5_hash, $file_sha1_hash);
                 if($this->encrypt == 't'){
-		    if(implode('', $file['size']) < 2097152){
+		    if(implode('', $file['size']) < 12582912){
 	                    $encrypt_data = $this->encryptUtil->encryptData(file_get_contents(implode('', $file['tmp_name'])), null, implode('', $file['tmp_name']));
         	            if($encrypt_data['success']) {
 	                        unset($encrypt_data['data']);
@@ -147,7 +147,15 @@ class Uploader
                                 'message' => 'Content Banned.',
                             ],
                         ];
-                    }
+                    } else {
+			$response = [
+				'status_code' => 451,
+				'response' => [
+					'success' => false,
+					'message' => 'Content Banned.',
+				],
+			];
+		}
                 }
             } else {
                 $response = [
