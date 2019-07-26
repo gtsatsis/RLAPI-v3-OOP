@@ -69,7 +69,7 @@ class FileUtils
         return false;
     }
 
-    public function log_object($api_key, $file_name, $file_original_name, $file_md5_hash, $file_sha1_hash, $bucket)
+    public function log_object($api_key, $file_name, $file_original_name, $file_md5_hash, $file_sha1_hash, $bucket, $encrypted)
     {
         $users = new User();
 
@@ -77,8 +77,8 @@ class FileUtils
 
         $user_id = $user_id['id'];
         if (!empty($user_id)) {
-            pg_prepare($this->dbconn, 'log_object', 'INSERT INTO files VALUES ($1, $2, $3, $4, $5, $6, $7, false, $8)');
-            $executePreparedStatement = pg_execute($this->dbconn, 'log_object', array($file_name, $file_original_name, time(), $user_id, $api_key, $file_md5_hash, $file_sha1_hash, $bucket));
+            pg_prepare($this->dbconn, 'log_object', 'INSERT INTO files (filename, originalfilename, timestamp, user_id, token, md5, sha1, deleted, bucket, encrypted) VALUES ($1, $2, $3, $4, $5, $6, $7, false, $8, $9)');
+            $executePreparedStatement = pg_execute($this->dbconn, 'log_object', array($file_name, $file_original_name, time(), $user_id, $api_key, $file_md5_hash, $file_sha1_hash, $bucket, $encrypted));
 
             if ($executePreparedStatement) {
                 return true;
