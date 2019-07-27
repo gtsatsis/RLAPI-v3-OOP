@@ -108,7 +108,15 @@ class JsonUploadController extends AbstractController
                     return $response;
                 }
             } else {
+                $response = new Response(json_encode([
+                    'success' => false,
+                    'error_message' => 'No authentication method provided.',
+                ]));
 
+                $response->headers->set('Content-Type', 'application/json');
+                $response->setStatusCode(401);
+
+                return $response;
             }
         } else {
             $response = new Response(json_encode([
@@ -237,7 +245,7 @@ class JsonUploadController extends AbstractController
             } else {
                 $response = new Response(json_encode([
                     'success' => false,
-                    'error_message' => 'no_auth_method_provided',
+                    'error_message' => 'No authentication method provided.',
                 ]));
 
                 $response->headers->set('Content-Type', 'application/json');
@@ -348,7 +356,7 @@ class JsonUploadController extends AbstractController
             } else {
                 $response = new Response(json_encode([
                     'success' => false,
-                    'error_message' => 'no_auth_method_provided',
+                    'error_message' => 'No authentication method provided.',
                 ]));
 
                 $response->headers->set('Content-Type', 'application/json');
