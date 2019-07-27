@@ -70,6 +70,45 @@ class JsonUploadController extends AbstractController
                     return $response;
                 }
             } elseif ($request->headers->has('Authorization')) {
+                if ($authentication->isValidUUID($request->headers->get('Authorization'))) {
+                    if ($request->request->has('data')) {
+                        $jsonUploader = new JsonUploader();
+                        $upload_json = $jsonUploader->upload($request->headers->get('Authorization'), $request->request->get('data'));
+
+                        if (200 == $upload_json['status_code']) {
+                            $response = new Response(json_encode($upload_json['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                        } else {
+                            $response = new Response(json_encode($upload_json['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                            $response->setStatusCode($upload_json['status_code']);
+                        }
+
+                        return $response;
+                    } else {
+                        $response = new Response(json_encode([
+                            'success' => false,
+                            'error_message' => 'request_does_not_have_json_data',
+                        ]));
+
+                        $response->headers->set('Content-Type', 'application/json');
+                        $response->setStatusCode(400);
+
+                        return $response;
+                    }
+                } else {
+                    $response = new Response(json_encode([
+                        'success' => false,
+                        'error_message' => 'key_not_in_uuid_format',
+                    ]));
+
+                    $response->headers->set('Content-Type', 'application/json');
+                    $response->setStatusCode(401);
+
+                    return $response;
+                }
+            } else {
+
             }
         } else {
             $response = new Response(json_encode([
@@ -146,6 +185,55 @@ class JsonUploadController extends AbstractController
                     return $response;
                 }
             } elseif ($request->headers->has('Authorization')) {
+                if ($authentication->isValidUUID($request->headers->get('Authorization'))) {
+                    if ($authentication->isValidUUID($json_id)) {
+                        if ($request->request->has('data')) {
+                            $jsonUploader = new JsonUploader();
+                            $update_json = $jsonUploader->update($request->headers->get('Authorization'), $json_id, $request->request->get('data'));
+
+                            if (200 == $update_json['status_code']) {
+                                $response = new Response(json_encode($update_json['response']));
+                                $response->headers->set('Content-Type', 'application/json');
+                            } else {
+                                $response = new Response(json_encode($update_json['response']));
+                                $response->headers->set('Content-Type', 'application/json');
+                                $response->setStatusCode($update_json['status_code']);
+                            }
+
+                            return $response;
+                        } else {
+                            $response = new Response(json_encode([
+                                'success' => false,
+                                'error_message' => 'request_does_not_have_json_data',
+                            ]));
+
+                            $response->headers->set('Content-Type', 'application/json');
+                            $response->setStatusCode(400);
+
+                            return $response;
+                        }
+                    } else {
+                        $response = new Response(json_encode([
+                            'success' => false,
+                            'error_message' => 'invalid_json_id',
+                        ]));
+
+                        $response->headers->set('Content-Type', 'application/json');
+                        $response->setStatusCode(400);
+
+                        return $response;
+                    }
+                } else {
+                    $response = new Response(json_encode([
+                        'success' => false,
+                        'error_message' => 'key_not_in_uuid_format',
+                    ]));
+
+                    $response->headers->set('Content-Type', 'application/json');
+                    $response->setStatusCode(401);
+
+                    return $response;
+                }
             } else {
                 $response = new Response(json_encode([
                     'success' => false,
@@ -220,6 +308,43 @@ class JsonUploadController extends AbstractController
                     return $response;
                 }
             } elseif ($request->headers->has('Authorization')) {
+                if ($authentication->isValidUUID($request->headers->get('Authorization'))) {
+                    if ($authentication->isValidUUID($json_id)) {
+                        $jsonUploader = new JsonUploader();
+                        $delete_json = $jsonUploader->delete($request->headers->get('Authorization'), $json_id);
+
+                        if (200 == $delete_json['status_code']) {
+                            $response = new Response(json_encode($delete_json['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                        } else {
+                            $response = new Response(json_encode($delete_json['response']));
+                            $response->headers->set('Content-Type', 'application/json');
+                            $response->setStatusCode($delete_json['status_code']);
+                        }
+
+                        return $response;
+                    } else {
+                        $response = new Response(json_encode([
+                            'success' => false,
+                            'error_message' => 'invalid_json_id',
+                        ]));
+
+                        $response->headers->set('Content-Type', 'application/json');
+                        $response->setStatusCode(400);
+
+                        return $response;
+                    }
+                } else {
+                    $response = new Response(json_encode([
+                        'success' => false,
+                        'error_message' => 'key_not_in_uuid_format',
+                    ]));
+
+                    $response->headers->set('Content-Type', 'application/json');
+                    $response->setStatusCode(401);
+
+                    return $response;
+                }
             } else {
                 $response = new Response(json_encode([
                     'success' => false,
