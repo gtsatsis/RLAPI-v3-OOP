@@ -22,7 +22,7 @@ class DomainsController extends AbstractController
      * Matches /domains/add exactly.
      *
      * @Route("/domains", name="create_user_domain", methods={"POST"})
-     * @Route("/domains/add", name="create_user_domain", methods={"POST"})
+     * @Route("/domains/add", name="create_user_domain_bc", methods={"POST"})
      */
     public function create_user_domain(Request $request)
     {
@@ -149,25 +149,27 @@ class DomainsController extends AbstractController
     }
 
     /**
-     * Matches /domains/{domain}/privacy exactly.
+     * Matches /domains/privacy exactly.
      *
-     * @Route("/domains/{domain}/privacy", name="domain_privacy")
+     * @Route("/domains/privacy", name="domain_privacy")
      */
     public function domain_privacy(Request $request, $domain)
     {
         $domains = new Domains();
-        if ($request->request->has('api_key')) {
-            if ($this->authentication->isValidUUID($request->request->get('api_key'))) {
-                if ($this->authentication->domain_exists($domain)) {
-                    if ($request->request->has('privacy')) {
-                        if ('public' == $request->request->get('privacy')) {
-                            $set_privacy = $domains->set_privacy($domain, $request->request->get('api_key'), 'public');
+	$data = json_decode($request->getContents(), true);
+
+        if ($request->headers->has('Authorization') && array_key_exists('domain', $data)) {
+            if ($this->authentication->isValidUUID($request->headers->get('Authorization'))) {
+                if ($this->authentication->domain_exists($data['domain'])) {
+                    if (array_key_exists('privacy', $data)) {
+                        if ('public' == $data['privacy']) {
+                            $set_privacy = $domains->set_privacy($data['domain'], $request->headers->get('Authorization'), 'public');
                             $response = new Response(json_encode($set_privacy));
                             $response->headers->set('Content-Type', 'application/json');
 
                             return $response;
-                        } elseif ('private' == $request->request->get('privacy')) {
-                            $set_privacy = $domains->set_privacy($domain, $request->request->get('api_key'), 'private');
+                        } elseif ('private' == $data['privacy']) {
+                            $set_privacy = $domains->set_privacy($data['domain'], $request->headers->get('Authorization'), 'private');
                             $response = new Response(json_encode($set_privacy));
                             $response->headers->set('Content-Type', 'application/json');
 
