@@ -31,8 +31,8 @@ class BucketsController extends AbstractController
     /**
      * Matches /buckets/create exactly.
      *
-     * @Route("/buckets", name="create_bucket", methods={"POST"})
-     * @Route("/buckets/create", name="create_bucket", methods={"POST"})
+     * @Route("/buckets", name="create_bucket", methods={"POST","PUT"})
+     * @Route("/buckets/create", name="create_bucket", methods={"POST","PUT"})
      */
     public function create_bucket(Request $request)
     {
@@ -92,12 +92,11 @@ class BucketsController extends AbstractController
     /**
      * Matches /buckets/{bucket_id}/users exactly.
      *
-     * @Route("/buckets/{bucket_id}/users", name="get_users")
+     * @Route("/buckets/{bucket_id}/users", name="get_users", methods={"GET"})
      */
     public function get_users(Request $request, $bucket_id)
     {
-        if ($request->isMethod('get')) {
-            if ($request->query->has('key')) {
+            if ($request->headers->has('key')) {
                 if ($this->authentication->isValidUUID($request->query->get('key'))) {
                     if ($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->request->get('api_key'), $bucket_id)) {
                         $permissions = $this->buckets->get_permissions($request->query->get('key'), $bucket_id);
@@ -159,27 +158,24 @@ class BucketsController extends AbstractController
 
                 return $response;
             }
-        } else {
-            $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Request must be of type GET']]));
-            $response->headers->set('Content-Type', 'application/json');
-
-            return $response;
-        }
     }
 
     /**
      * Matches /buckets/{bucket_id}/users/add.
      *
-     * @Route("/buckets/{bucket_id}/users/add", name="add_user")
+     * @Route("/buckets/{bucket_id}/users", name="add_user", methods={"PUT", "POST"})
+     * @Route("/buckets/{bucket_id}/users/add", name="add_user", methods={"PUT", "POST"})
      */
     public function add_user(Request $request, $bucket_id)
     {
-        if ($request->request->has('api_key')) {
-            if ($this->authentication->isValidUUID($bucket_id) && $this->authentication->isValidUUID($request->request->get('api_key'))) {
-                if ($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->request->get('api_key'), $bucket_id)) {
-                    $permissions = $this->buckets->get_permissions($request->request->get('api_key'), $bucket_id);
+        $data = json_decode($request->getContents(), true);
+
+        if ($request->headers->has('Authorization')) {
+            if ($this->authentication->isValidUUID($bucket_id) && $this->authentication->isValidUUID($request->headers->get('Authorization'))) {
+                if ($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->headers->get('Authorization'), $bucket_id)) {
+                    $permissions = $this->buckets->get_permissions($request->headers->get('Authorization'), $bucket_id);
                     if (true == $permissions['rlapi.custom.bucket.user.add']) {
-                        $add_user = $this->buckets->add_user($request->request->get('username'), $bucket_id);
+                        $add_user = $this->buckets->add_user($data['username'], $bucket_id);
                         $response = new Response(json_encode($add_user));
                         $response->headers->set('Content-Type', 'application/json');
 
@@ -213,14 +209,15 @@ class BucketsController extends AbstractController
     /**
      * Matches /buckets/{bucket_id}/users/{user_name}/remove.
      *
-     * @Route("/buckets/{bucket_id}/users/{user_name}/remove", name="remove_user")
+     * @Route("/buckets/{bucket_id}/users/{user_name}, name="remove_user", methods={"DELETE"})
+     * @Route("/buckets/{bucket_id}/users/{user_name}/remove", name="remove_user", methods={"DELETE"})
      */
     public function remove_user(Request $request, $bucket_id, $user_name)
     {
-        if ($request->request->has('api_key')) {
-            if ($this->authentication->isValidUUID($bucket_id) && $this->authentication->isValidUUID($request->request->get('api_key'))) {
-                if ($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->request->get('api_key'), $bucket_id)) {
-                    $permissions = $this->buckets->get_permissions($request->request->get('api_key'), $bucket_id);
+        if ($request->headers->has('Authorization')) {
+            if ($this->authentication->isValidUUID($bucket_id) && $this->authentication->isValidUUID($request->headers->get('Authorization'))) {
+                if ($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->headers->get('Authorization'), $bucket_id)) {
+                    $permissions = $this->buckets->get_permissions($request->headers->get('Authorization'), $bucket_id);
                     if (true == $permissions['rlapi.custom.bucket.user.remove'] && $this->buckets->actor_permission_higher_than_user($permissions['rlapi.custom.bucket.permission.priority'], $user_name, $bucket_id)) {
                         $remove_user = $this->buckets->remove_user($user_name, $bucket_id);
                         $response = new Response(json_encode($remove_user));
@@ -256,14 +253,14 @@ class BucketsController extends AbstractController
     /**
      * Matches /buckets/{bucket_id}/users/{user_name}/block.
      *
-     * @Route("/buckets/{bucket_id}/users/{user_name}/block", name="block_user")
+     * @Route("/buckets/{bucket_id}/users/{user_name}/block", name="block_user", methods={"POST", "PATCH"})
      */
     public function block_user(Request $request, $bucket_id, $user_name)
     {
-        if ($request->request->has('api_key')) {
-            if ($this->authentication->isValidUUID($bucket_id) && $this->authentication->isValidUUID($request->request->get('api_key'))) {
-                if ($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->request->get('api_key'), $bucket_id)) {
-                    $permissions = $this->buckets->get_permissions($request->request->get('api_key'), $bucket_id);
+        if ($request->headers->has('Authorization')) {
+            if ($this->authentication->isValidUUID($bucket_id) && $this->authentication->isValidUUID($request->headers->get('Authorization'))) {
+                if ($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->headers->get('Authorization'), $bucket_id)) {
+                    $permissions = $this->buckets->get_permissions($request->headers->get('Authorization'), $bucket_id);
                     if (true == $permissions['rlapi.custom.bucket.user.block'] && $this->buckets->actor_permission_higher_than_user($permissions['rlapi.custom.bucket.permission.priority'], $user_name, $bucket_id)) {
                         $block_user = $this->buckets->block_user($user_name, $bucket_id);
                         $response = new Response(json_encode($block_user));
@@ -304,9 +301,9 @@ class BucketsController extends AbstractController
     public function unblock_user(Request $request, $bucket_id, $user_name)
     {
         if ($request->request->has('api_key')) {
-            if ($this->authentication->isValidUUID($bucket_id) && $this->authentication->isValidUUID($request->request->get('api_key'))) {
-                if ($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->request->get('api_key'), $bucket_id)) {
-                    $permissions = $this->buckets->get_permissions($request->request->get('api_key'), $bucket_id);
+            if ($this->authentication->isValidUUID($bucket_id) && $this->authentication->isValidUUID($request->headers->get('Authorization'))) {
+                if ($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->headers->get('Authorization'), $bucket_id)) {
+                    $permissions = $this->buckets->get_permissions($request->headers->get('Authorization'), $bucket_id);
                     if (true == $permissions['rlapi.custom.bucket.user.unblock'] && $this->buckets->actor_permission_higher_than_user($permissions['rlapi.custom.bucket.permission.priority'], $user_name, $bucket_id)) {
                         $unblock_user = $this->buckets->unblock_user($user_name, $bucket_id);
                         $response = new Response(json_encode($unblock_user));
@@ -347,10 +344,10 @@ class BucketsController extends AbstractController
     public function delete_file(Request $request, $bucket_id, $file_name)
     {
         $file_utils = new FileUtils();
-        if ($request->request->has('api_key')) {
-            if ($this->authentication->isValidUUID($bucket_id) && $this->authentication->isValidUUID($request->request->get('api_key'))) {
+        if ($request->headers->has('Authorization')) {
+            if ($this->authentication->isValidUUID($bucket_id) && $this->authentication->isValidUUID($request->headers->get('Authorization'))) {
                 $bucket_name = $this->getter->getBucketNameFromID($bucket_id);
-                if ($file_utils->get_file_owner($file_name, $this->getter->get_user_id_by_api_key($request->request->get('api_key')), $request->request->get('api_key'), $bucket_name)) {
+                if ($file_utils->get_file_owner($file_name, $this->getter->get_user_id_by_api_key($request->headers->get('Authorization')), $request->headers->get('Authorization'), $bucket_name)) {
                     $delete_file = $file_utils->delete_file($file_name, $bucket_name);
                     $response = new Response(json_encode($delete_file));
                     $response->headers->set('Content-Type', 'application/json');
