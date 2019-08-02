@@ -209,7 +209,7 @@ class BucketsController extends AbstractController
     /**
      * Matches /buckets/{bucket_id}/users/{user_name}/remove.
      *
-     * @Route("/buckets/{bucket_id}/users/{user_name}, name="remove_user", methods={"DELETE"})
+     * @Route("/buckets/{bucket_id}/users/{user_name}", name="remove_user", methods={"DELETE"})
      * @Route("/buckets/{bucket_id}/users/{user_name}/remove", name="remove_user", methods={"DELETE"})
      */
     public function remove_user(Request $request, $bucket_id, $user_name)
