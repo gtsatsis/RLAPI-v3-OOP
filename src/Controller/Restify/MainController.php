@@ -111,6 +111,7 @@ class MainController extends AbstractController
 
     /**
      * Matches /domains/list exactly.
+     *
      * @Route("/domains", name="domains", methods={"GET"})
      * @Route("/domains/list", name="domains_list", methods={"GET"})
      */
