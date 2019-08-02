@@ -18,22 +18,23 @@ class UserController extends AbstractController
     /**
      * Matches /users/create exactly.
      *
-     * @Route("/users/create", name="create_user")
+     * @Route("/users/create", name="create_user", methods={"PUT", "POST"})
      */
     public function create_user(Request $request)
     {
+        $data = json_encode($request->getContents(), true);
         $users = new User();
 
-        if ($request->request->has('username') && $request->request->has('password') && $request->request->has('email')) {
-            if ($request->request->has('promo_code')) {
-                $createUser = $users->create_user($request->request->get('username'), $request->request->get('password'), $request->request->get('email'), array('promo_code' => $request->request->get('promo_code')));
+        if (array_key_exists('username', $data) && array_key_exists('password', $data) && array_key_exists('email', $data)) {
+            if (array_key_exists('promo_code', $data)) {
+                $createUser = $users->create_user($data['username'], $data['password'], $data['email'], array('promo_code' => $data['promo_code']));
 
                 $response = new Response(json_encode($createUser));
                 $response->headers->set('Content-Type', 'application/json');
 
                 return $response;
             } else {
-                $createUser = $users->create_user($request->request->get('username'), $request->request->get('password'), $request->request->get('email'), array('promo_code' => null));
+                $createUser = $users->create_user($data['username'], $data['password'], $data['email'], array('promo_code' => null));
 
                 $response = new Response(json_encode($createUser));
                 $response->headers->set('Content-Type', 'application/json');
@@ -51,16 +52,17 @@ class UserController extends AbstractController
     /**
      * Matches /users/{id}/delete exactly.
      *
-     * @Route("/users/{id}/delete", name="delete_user")
+     * @Route("/users/{id}/delete", name="delete_user", methods={"DELETE"})
      */
     public function delete_user(Request $request, $id)
     {
+        $data = json_encode($request->getContents(), true);
         $auth = new Auth();
         if ($auth->isValidUUID($id)) {
-            if ($request->request->has('email') && $request->request->has('password')) {
+            if (array_key_exists('email', $data) && array_key_exists('password', $data)) {
                 $users = new User();
 
-                $deleteUser = $users->delete_user($id, $request->request->get('email'), $request->request->get('password'));
+                $deleteUser = $users->delete_user($id, $data['email'], $data['password']);
 
                 return new Response(json_encode($deleteUser));
             } else {
