@@ -22,7 +22,7 @@ class UserController extends AbstractController
      */
     public function create_user(Request $request)
     {
-        $data = json_encode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true);
         $users = new User();
 
         if (array_key_exists('username', $data) && array_key_exists('password', $data) && array_key_exists('email', $data)) {
@@ -56,7 +56,7 @@ class UserController extends AbstractController
      */
     public function delete_user(Request $request, $id)
     {
-        $data = json_encode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true);
         $auth = new Auth();
         if ($auth->isValidUUID($id)) {
             if (array_key_exists('email', $data) && array_key_exists('password', $data)) {
