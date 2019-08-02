@@ -27,7 +27,7 @@ class DomainsController extends AbstractController
     public function create_user_domain(Request $request)
     {
         $domains = new Domains();
-        $data = json_decocode($request->getContents(), true);
+        $data = json_decocode($request->getContent(), true);
 
         if ($request->headers->has('Authorization') && array_key_exists('domain', $data)) {
             if (array_key_exists('wildcard', $data) && array_key_exists('public', $data) && array_key_exists('bucket', $data)) {
@@ -95,7 +95,7 @@ class DomainsController extends AbstractController
     public function delete_domain(Request $request)
     {
         $domains = new Domains();
-        $data = json_decode($request->getContents(), true);
+        $data = json_decode($request->getContent(), true);
 
         if ($request->headers->has('Authorization')) {
             if ($this->authentication->isValidUUID($request->headers->get('Authorization'))) {
@@ -156,7 +156,7 @@ class DomainsController extends AbstractController
     public function domain_privacy(Request $request, $domain)
     {
         $domains = new Domains();
-        $data = json_decode($request->getContents(), true);
+        $data = json_decode($request->getContent(), true);
 
         if ($request->headers->has('Authorization') && array_key_exists('domain', $data)) {
             if ($this->authentication->isValidUUID($request->headers->get('Authorization'))) {
@@ -214,7 +214,7 @@ class DomainsController extends AbstractController
     public function domain_official(Request $request, $domain)
     {
         $domains = new Domains();
-        $data = json_decode($request->getContents(), true);
+        $data = json_decode($request->getContent(), true);
 
         if ($request->headers->has('Authorization')) {
             if ($this->authentication->isValidUUID($request->headers->get('Authorization'))) {
@@ -259,7 +259,7 @@ class DomainsController extends AbstractController
     public function domain_bucket(Request $request, $domain)
     {
         $domains = new Domains();
-        $data = json_decode($request->getContents(), true);
+        $data = json_decode($request->getContent(), true);
 
         if ($request->headers->has('Authorization')) {
             if ($this->authentication->isValidUUID($request->headers->get('Authorization'))) {

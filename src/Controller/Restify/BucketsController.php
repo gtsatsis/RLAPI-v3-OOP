@@ -36,7 +36,7 @@ class BucketsController extends AbstractController
      */
     public function create_bucket(Request $request)
     {
-        $data = json_decode($request->getContents(), true);
+        $data = json_decode($request->getContent(), true);
 
         if ($request->headers->has('Authorization') && array_key_exists('bucket_name', $data)) {
             if ($this->authentication->isValidUUID($request->headers->get('Authorization'))) {
@@ -66,7 +66,7 @@ class BucketsController extends AbstractController
      */
     public function delete_bucket(Request $request)
     {
-        $data = json_decode($request->getContents(), true);
+        $data = json_decode($request->getContent(), true);
 
         if ($request->headers->has('Authorization')) {
             if ($this->authentication->isValidUUID($request->headers->get('Authorization'))) {
@@ -168,7 +168,7 @@ class BucketsController extends AbstractController
      */
     public function add_user(Request $request, $bucket_id)
     {
-        $data = json_decode($request->getContents(), true);
+        $data = json_decode($request->getContent(), true);
 
         if ($request->headers->has('Authorization')) {
             if ($this->authentication->isValidUUID($bucket_id) && $this->authentication->isValidUUID($request->headers->get('Authorization'))) {
