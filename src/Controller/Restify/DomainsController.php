@@ -149,27 +149,27 @@ class DomainsController extends AbstractController
     }
 
     /**
-     * Matches /domains/privacy exactly.
+     * Matches /domains/{domain}/privacy exactly.
      *
-     * @Route("/domains/privacy", name="domain_privacy", methods={"PATCH"})
+     * @Route("/domains/{domain}/privacy", name="domain_privacy", methods={"PATCH"})
      */
-    public function domain_privacy(Request $request)
+    public function domain_privacy(Request $request, $domain)
     {
         $domains = new Domains();
         $data = json_decode($request->getContents(), true);
 
         if ($request->headers->has('Authorization') && array_key_exists('domain', $data)) {
             if ($this->authentication->isValidUUID($request->headers->get('Authorization'))) {
-                if ($this->authentication->domain_exists($data['domain'])) {
+                if ($this->authentication->domain_exists($domain)) {
                     if (array_key_exists('privacy', $data)) {
                         if ('public' == $data['privacy']) {
-                            $set_privacy = $domains->set_privacy($data['domain'], $request->headers->get('Authorization'), 'public');
+                            $set_privacy = $domains->set_privacy($domain, $request->headers->get('Authorization'), 'public');
                             $response = new Response(json_encode($set_privacy));
                             $response->headers->set('Content-Type', 'application/json');
 
                             return $response;
                         } elseif ('private' == $data['privacy']) {
-                            $set_privacy = $domains->set_privacy($data['domain'], $request->headers->get('Authorization'), 'private');
+                            $set_privacy = $domains->set_privacy($domain, $request->headers->get('Authorization'), 'private');
                             $response = new Response(json_encode($set_privacy));
                             $response->headers->set('Content-Type', 'application/json');
 
@@ -209,9 +209,9 @@ class DomainsController extends AbstractController
     /**
      * Matches /domains/{domain}/official exactly.
      *
-     * @Route("/domains/official", name="domain_official", methods={"PATCH"})
+     * @Route("/domains/{domain}/official", name="domain_official", methods={"PATCH"})
      */
-    public function domain_official(Request $request)
+    public function domain_official(Request $request, $domain)
     {
         $domains = new Domains();
         $data = json_decode($request->getContents(), true);
@@ -219,8 +219,8 @@ class DomainsController extends AbstractController
         if ($request->headers->has('Authorization')) {
             if ($this->authentication->isValidUUID($request->headers->get('Authorization'))) {
                 if ($this->authentication->api_key_is_admin($request->headers->get('Authorization'))) {
-                    if ($this->authentication->domain_exists($data['domain'])) {
-                        $set_official_status = $domains->set_official_status($data['domain'], $data['official']);
+                    if ($this->authentication->domain_exists($domain)) {
+                        $set_official_status = $domains->set_official_status($domain, $data['official']);
                         $response = new Response(json_encode($set_official_status));
                         $response->headers->set('Content-Type', 'application/json');
 
@@ -254,7 +254,7 @@ class DomainsController extends AbstractController
     /**
      * Matches /domains/{domain}/bucket exactly.
      *
-     * @Route("/domains/bucket", name="domain_bucket", methods={"PATCH"})
+     * @Route("/domains/{domain}/bucket", name="domain_bucket", methods={"PATCH"})
      */
     public function domain_bucket(Request $request, $domain)
     {
@@ -264,8 +264,8 @@ class DomainsController extends AbstractController
         if ($request->headers->has('Authorization')) {
             if ($this->authentication->isValidUUID($request->headers->get('Authorization'))) {
                 if (array_key_exists('bucket', $data)) {
-                    if ($this->authentication->domain_exists($data['domain'])) {
-                        $domain_bucket = $domains->set_domain_bucket($request->headers->get('Authorization'), $data['domain'], $data['bucket']);
+                    if ($this->authentication->domain_exists($domain)) {
+                        $domain_bucket = $domains->set_domain_bucket($request->headers->get('Authorization'), $domain, $data['bucket']);
 
                         $response = new Response(json_encode($domain_bucket));
                         $response->headers->set('Content-Type', 'application/json');
