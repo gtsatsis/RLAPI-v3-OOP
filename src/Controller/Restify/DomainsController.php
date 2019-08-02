@@ -90,6 +90,7 @@ class DomainsController extends AbstractController
     /**
      * Matches /domains/delete exactly.
      *
+     * @Route("/domains", name="delete_domain", methods={"DELETE"})
      * @Route("/domains/delete", name="delete_domain", methods={"DELETE"})
      */
     public function delete_domain(Request $request)
@@ -151,9 +152,9 @@ class DomainsController extends AbstractController
     /**
      * Matches /domains/privacy exactly.
      *
-     * @Route("/domains/privacy", name="domain_privacy")
+     * @Route("/domains/privacy", name="domain_privacy", methods={"PATCH"})
      */
-    public function domain_privacy(Request $request, $domain)
+    public function domain_privacy(Request $request)
     {
         $domains = new Domains();
 	$data = json_decode($request->getContents(), true);
@@ -209,15 +210,16 @@ class DomainsController extends AbstractController
     /**
      * Matches /domains/{domain}/official exactly.
      *
-     * @Route("/domains/{domain}/official", name="domain_official")
+     * @Route("/domains/{domain}/official", name="domain_official", methods={"PATCH"})
      */
     public function domain_official(Request $request, $domain)
     {
         $domains = new Domains();
+	$data = json_decode($request->getContents(), true);
 
-        if ($request->request->has('api_key')) {
-            if ($this->authentication->isValidUUID($request->request->get('api_key'))) {
-                if ($this->authentication->api_key_is_admin($request->request->get('api_key'))) {
+        if ($request->headers->has('Authorization')) {
+            if ($this->authentication->isValidUUID($request->headers->get('Authorization'))) {
+                if ($this->authentication->api_key_is_admin($request->headers->get('Authorization'))) {
                     if ($this->authentication->domain_exists($domain)) {
                         $set_official_status = $domains->set_official_status($domain, $request->request->get('official'));
                         $response = new Response(json_encode($set_official_status));
