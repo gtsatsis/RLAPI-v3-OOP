@@ -177,7 +177,7 @@ class Uploader
                 ],
             ];
         }
-        if($authentication){
+        if ($authentication) {
             if (true == $check_against_hashlist['clearance']) {
                 if (null != $file_name) {
                     unlink(getenv('TMP_STORE').$file_name);
