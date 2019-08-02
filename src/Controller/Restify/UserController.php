@@ -42,7 +42,7 @@ class UserController extends AbstractController
                 return $response;
             }
         } else {
-            $response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
+            $response = new Response(json_encode(array('success' => false, 'error_code' => 1082 )));
             $response->headers->set('Content-Type', 'application/json');
 
             return $response;
@@ -88,10 +88,11 @@ class UserController extends AbstractController
     {
         $users = new User();
         $auth = new Auth();
+        $data = json_decode($request->getContent(), true);
 
         if ($auth->isValidUUID($id)) {
-            if ($request->request->has('tier') && $request->request->has('api_key')) {
-                $setTier = $users->user_set_tier($id, $request->request->get('tier'), $request->request->get('api_key'));
+            if (array_key_exists('tier', $data) && $request->headers->has('Authorization')) {
+                $setTier = $users->user_set_tier($id, $data['tier'], $request->headers->get('Authorization'));
 
                 return new Response(json_encode($setTier));
             } else {
