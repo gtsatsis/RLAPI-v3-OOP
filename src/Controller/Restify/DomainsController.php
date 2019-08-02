@@ -91,7 +91,6 @@ class DomainsController extends AbstractController
      * Matches /domains/delete exactly.
      *
      * @Route("/domains", name="delete_domain", methods={"DELETE"})
-     * @Route("/domains/delete", name="delete_domain", methods={"DELETE"})
      */
     public function delete_domain(Request $request)
     {
@@ -210,9 +209,9 @@ class DomainsController extends AbstractController
     /**
      * Matches /domains/{domain}/official exactly.
      *
-     * @Route("/domains/{domain}/official", name="domain_official", methods={"PATCH"})
+     * @Route("/domains/official", name="domain_official", methods={"PATCH"})
      */
-    public function domain_official(Request $request, $domain)
+    public function domain_official(Request $request)
     {
         $domains = new Domains();
 	$data = json_decode($request->getContents(), true);
@@ -220,8 +219,8 @@ class DomainsController extends AbstractController
         if ($request->headers->has('Authorization')) {
             if ($this->authentication->isValidUUID($request->headers->get('Authorization'))) {
                 if ($this->authentication->api_key_is_admin($request->headers->get('Authorization'))) {
-                    if ($this->authentication->domain_exists($domain)) {
-                        $set_official_status = $domains->set_official_status($domain, $request->request->get('official'));
+                    if ($this->authentication->domain_exists($data['domain'])) {
+                        $set_official_status = $domains->set_official_status($data['domain'], $data['official']);
                         $response = new Response(json_encode($set_official_status));
                         $response->headers->set('Content-Type', 'application/json');
 
@@ -255,16 +254,18 @@ class DomainsController extends AbstractController
     /**
      * Matches /domains/{domain}/bucket exactly.
      *
-     * @Route("/domains/{domain}/bucket", name="domain_bucket")
+     * @Route("/domains/bucket", name="domain_bucket", methods={"PATCH"})
      */
     public function domain_bucket(Request $request, $domain)
     {
         $domains = new Domains();
-        if ($request->request->has('api_key')) {
-            if ($this->authentication->isValidUUID($request->request->get('api_key'))) {
-                if ($request->request->has('bucket')) {
-                    if ($this->authentication->domain_exists($domain)) {
-                        $domain_bucket = $domains->set_domain_bucket($request->request->get('api_key'), $domain, $request->request->get('bucket'));
+	$data = json_decode($request->getContents(), true);
+
+        if ($request->headers->has('Authorization')) {
+            if ($this->authentication->isValidUUID($request->headers->get('Authorization'))) {
+                if (array_key_exists('bucket', $data)) {
+                    if ($this->authentication->domain_exists($data['domain'])) {
+                        $domain_bucket = $domains->set_domain_bucket($request->headers->get('Authorization'), $data['domain'], $data['bucket']);
 
                         $response = new Response(json_encode($domain_bucket));
                         $response->headers->set('Content-Type', 'application/json');
