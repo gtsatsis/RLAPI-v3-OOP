@@ -19,6 +19,4 @@ Found a security issue? Want to make sure it's patched? Contact us via our [Hack
 - [gtsatsis](https://github.com/gtsatsis) (Main development lead)
 - [Sami Stewart](https://github.com/mightbemaybeme) (Documentation)
 - [Sxribe](https://github.com/Sxribe) (Contributed in the first steps, now-resigned)
-- [SamuelCSimao](https://github.com/samueldcs) (Developer of the original RATELIMITED API)
-
-test
+- [samueldcs](https://github.com/samueldcs) (Developer of the original RATELIMITED API
