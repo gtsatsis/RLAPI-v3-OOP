@@ -24,11 +24,11 @@ class JsonUploadController extends AbstractController
     /**
      * Matches /upload/json.
      *
-     * @Route("/upload/json", name="upload_json")
+     * @Route("/upload/json", name="upload_json", methods={"PUT"})
      */
     public function upload_json(Request $request)
     {
-        if (getenv('JSON_UPLOADER_ENABLED')) {
+        if(getenv('JSON_UPLOADER_ENABLED')){
             $authentication = new Auth();
 
             if ($request->query->has('key')) {
@@ -134,12 +134,12 @@ class JsonUploadController extends AbstractController
     /**
      * Matches /upload/json/json_id/update.
      *
-     * @Route("/upload/json/{json_id}/update", name="update_json_noSlash")
-     * @Route("/upload/json/{json_id}/update/", name="update_json_withSlash")
+     * @Route("/upload/json/{json_id}/update", name="update_json_noSlash", methods={"POST"})
+     * @Route("/upload/json/{json_id}/update/", name="update_json_withSlash", methods={"POST"})
      */
     public function update_json(Request $request, $json_id)
     {
-        if (getenv('JSON_UPLOADER_ENABLED')) {
+        if(getenv('JSON_UPLOADER_ENABLED')){
             $authentication = new Auth();
 
             if ($request->query->has('key')) {
@@ -269,12 +269,12 @@ class JsonUploadController extends AbstractController
     /**
      * Matches /upload/json/json_id/delete.
      *
-     * @Route("/upload/json/{json_id}/delete", name="delete_json_noSlash")
-     * @Route("/upload/json/{json_id}/delete/", name="delete_json_withSlash")
+     * @Route("/upload/json/{json_id}/delete", name="delete_json_noSlash", methods={"DELETE"})
+     * @Route("/upload/json/{json_id}/delete/", name="delete_json_withSlash", methods={"DELETE"})
      */
     public function delete_json(Request $request, $json_id)
     {
-        if (getenv('JSON_UPLOADER_ENABLED')) {
+        if(getenv('JSON_UPLOADER_ENABLED')){
             $authentication = new Auth();
 
             if ($request->query->has('key')) {
