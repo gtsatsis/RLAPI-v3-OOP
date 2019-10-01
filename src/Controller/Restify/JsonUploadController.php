@@ -28,7 +28,7 @@ class JsonUploadController extends AbstractController
      */
     public function upload_json(Request $request)
     {
-        if(getenv('JSON_UPLOADER_ENABLED')){
+        if (getenv('JSON_UPLOADER_ENABLED')) {
             $authentication = new Auth();
 
             if ($request->query->has('key')) {
@@ -139,7 +139,7 @@ class JsonUploadController extends AbstractController
      */
     public function update_json(Request $request, $json_id)
     {
-        if(getenv('JSON_UPLOADER_ENABLED')){
+        if (getenv('JSON_UPLOADER_ENABLED')) {
             $authentication = new Auth();
 
             if ($request->query->has('key')) {
@@ -274,7 +274,7 @@ class JsonUploadController extends AbstractController
      */
     public function delete_json(Request $request, $json_id)
     {
-        if(getenv('JSON_UPLOADER_ENABLED')){
+        if (getenv('JSON_UPLOADER_ENABLED')) {
             $authentication = new Auth();
 
             if ($request->query->has('key')) {
