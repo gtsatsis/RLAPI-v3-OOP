@@ -96,35 +96,7 @@ class BucketsController extends AbstractController
      */
     public function get_users(Request $request, $bucket_id)
     {
-        if ($request->headers->has('key')) {
-            if ($this->authentication->isValidUUID($request->query->get('key'))) {
-                if ($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->request->get('api_key'), $bucket_id)) {
-                    $permissions = $this->buckets->get_permissions($request->query->get('key'), $bucket_id);
-                    if (true == $permissions['rlapi.custom.bucket.users.get']) {
-                        $get_users = $this->bucket->get_users($bucket_id);
-                        $response = new Response(json_encode($get_users));
-                        $response->headers->set('Content-Type', 'application/json');
-
-                        return $response;
-                    } else {
-                        $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Unauthorized']]));
-                        $response->headers->set('Content-Type', 'application/json');
-
-                        return $response;
-                    }
-                } else {
-                    $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Unauthorized']]));
-                    $response->headers->set('Content-Type', 'application/json');
-
-                    return $response;
-                }
-            } else {
-                $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Key not in UUID format']]));
-                $response->headers->set('Content-Type', 'application/json');
-
-                return $response;
-            }
-        } elseif ($request->headers->has('Authorization')) {
+        if($request->headers->has('Authorization')){
             if ($this->authentication->isValidUUID($request->headers->get('Authorization'))) {
                 if ($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->headers->get('Authorization'), $bucket_id)) {
                     $permissions = $this->buckets->get_permissions($request->headers->get('Authorization'), $bucket_id);
