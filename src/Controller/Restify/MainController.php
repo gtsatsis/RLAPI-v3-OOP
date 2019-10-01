@@ -39,13 +39,14 @@ class MainController extends AbstractController
             ],
         ];
 
-        if (true == getenv('SECURITY_TXT_ENABLED')) {
+        if(getenv('SECURITY_TXT_ENABLED')){
             $information_array['instance_info']['security'] = getenv('INSTANCE_URL').'.well-known/security.txt';
         }
 
         $response = new Response(json_encode($information_array));
 
         $response->headers->set('Content-Type', 'application/json');
+       $response->setStatusCode(200);
 
         return $response;
     }
@@ -57,7 +58,7 @@ class MainController extends AbstractController
      */
     public function security_text()
     {
-        if (true == getenv('SECURITY_TXT_ENABLED')) {
+        if(getenv('SECURITY_TXT_ENABLED')){
             $response = new Response('Contact: '.getenv('SECURITY_CONTACT')."\n".
                 'Acknowledgments: '.getenv('SECURITY_ACKNOWLEDGEMENTS')."\n".
                 'Preferred-Languages: en'."\n".
@@ -65,12 +66,14 @@ class MainController extends AbstractController
                 'Policy: '.getenv('SECURITY_POLICY'));
 
             $response->headers->set('Content-Type', 'text/plain');
+            $response->setStatusCode(200);
         } else {
             $response = new Response(json_encode([
                 'error_message' => 'security_dot_txt_not_enabled',
             ]));
 
             $response->headers->set('Content-Type', 'application/json');
+            $response->setStatusCode(501);
         }
 
         return $response;
@@ -88,6 +91,7 @@ class MainController extends AbstractController
         ]));
 
         $response->headers->set('Content-Type', 'application/json');
+        $response->setStatusCode(404);
 
         return $response;
     }
@@ -105,6 +109,7 @@ class MainController extends AbstractController
         ]));
 
         $response->headers->set('Content-Type', 'application/json');
+        $response->setStatusCode(200);
 
         return $response;
     }
@@ -124,6 +129,7 @@ class MainController extends AbstractController
         $response = new Response(json_encode($list_domains));
 
         $response->headers->set('Content-Type', 'application/json');
+        $response->setStatusCode(200);
 
         return $response;
     }
@@ -142,6 +148,7 @@ class MainController extends AbstractController
         $response = new Response(json_encode($stats_array));
 
         $response->headers->set('Content-Type', 'application/json');
+        $response->setStatusCode(200);
 
         return $response;
     }
