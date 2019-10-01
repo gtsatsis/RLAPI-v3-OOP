@@ -96,7 +96,7 @@ class BucketsController extends AbstractController
      */
     public function get_users(Request $request, $bucket_id)
     {
-        if($request->headers->has('Authorization')){
+        if ($request->headers->has('Authorization')) {
             if ($this->authentication->isValidUUID($request->headers->get('Authorization'))) {
                 if ($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->headers->get('Authorization'), $bucket_id)) {
                     $permissions = $this->buckets->get_permissions($request->headers->get('Authorization'), $bucket_id);
