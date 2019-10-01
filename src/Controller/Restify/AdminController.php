@@ -23,7 +23,7 @@ class AdminController extends AbstractController
         $admin = new Admin();
         $auth = new Auth();
 
-        if($request->headers->has('Authorization') && $request->request->has('password') && $request->request->has('email')){
+        if ($request->headers->has('Authorization') && $request->request->has('password') && $request->request->has('email')) {
             if ($auth->isValidUUID($request->headers->get('Authorization'))) {
                 $verify_email = $admin->verify_user_emails($request->headers->get('Authorization'), $request->request->get('password'), $request->request->get('email'));
 
@@ -56,7 +56,7 @@ class AdminController extends AbstractController
         $admin = new Admin();
         $auth = new Auth();
 
-        if($request->headers->has('Authorization') && $request->request->has('password') && $request->request->has('email') && $request->request->has('user_id')){
+        if ($request->headers->has('Authorization') && $request->request->has('password') && $request->request->has('email') && $request->request->has('user_id')) {
             if ($auth->isValidUUID($request->headers->get('Authorization'))) {
                 $delete_user = $admin->delete_user($request->headers->get('Authorization'), $request->request->get('password'), $request->request->get('email'), $request->request->get('user_id'));
 
