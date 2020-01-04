@@ -1,4 +1,10 @@
 # RLAPI
+
+### Deprecated
+RLAPI v3 is no-longer developed due to the cost of maintaining the codebase.
+
+v4 is in the wotks. Check out https://gitlab.com/gtsatsis/rlapi-v4
+
 ### An open-source file hosting API
 
 RLAPI is an API developed for [RATELIMITED](https://ratelimited.me), a file hosting service started by [George Tsatsis](https://github.com/gtsatsis) in early 2017.
