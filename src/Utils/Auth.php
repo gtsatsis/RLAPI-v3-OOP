@@ -298,4 +298,34 @@ class Auth
             return false;
         }
     }
+
+    public function get_cb_permissions($api_key, $bucket)
+    {
+        pg_prepare($this->dbconn, 'fetch_user_get_cb_perms', 'SELECT * FROM users WHERE is_blocked IS NOT true AND id = (SELECT user_id FROM tokens WHERE token = $1 LIMIT 1) LIMIT 1');
+        $user = pg_fetch_array(pg_execute($this->dbconn, 'fetch_user_get_cb_perms', array($api_key)));
+
+        pg_prepare($this->dbconn, 'fetch_bucket_data', 'SELECT data FROM buckets WHERE bucket = $1');
+        $bucket_data = pg_fetch_array(pg_execute($this->dbconn, 'fetch_bucket_data', array($bucket)));
+        $bucket_data = json_decode($bucket_data[0], true);
+
+        if (array_key_exists($user['id'], $bucket_data['users'])) {
+            return $bucket_data['users'][$user['id']]['permissions'];
+        } else {
+            $this->sqreen->sqreen_auth_track(false, $user['email']);
+
+            return false;
+        }
+    }
+
+    public function domain_exists($domain)
+    {
+        pg_prepare($this->dbconn, 'fetch_domain_exists', 'SELECT COUNT(*) FROM domains WHERE domain_name = $1');
+        $domain_exists = pg_fetch_array(pg_execute($this->dbconn, 'fetch_domain_exists', array($domain)));
+
+        if ($domain_exists[0] >= 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

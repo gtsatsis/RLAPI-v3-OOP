@@ -217,8 +217,94 @@ class BucketsController extends AbstractController
                 if ($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->request->get('api_key'), $bucket_id)) {
                     $permissions = $this->buckets->get_permissions($request->request->get('api_key'), $bucket_id);
                     if (true == $permissions['rlapi.custom.bucket.user.remove'] && $this->buckets->actor_permission_higher_than_user($permissions['rlapi.custom.bucket.permission.priority'], $user_name, $bucket_id)) {
-                        $remove_user = $this->buckets->remove_user($request->request->get('username'), $bucket_id);
+                        $remove_user = $this->buckets->remove_user($user_name, $bucket_id);
                         $response = new Response(json_encode($remove_user));
+                        $response->headers->set('Content-Type', 'application/json');
+
+                        return $response;
+                    } else {
+                        $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Unauthorized']]));
+                        $response->headers->set('Content-Type', 'application/json');
+
+                        return $response;
+                    }
+                } else {
+                    $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Unauthorized']]));
+                    $response->headers->set('Content-Type', 'application/json');
+
+                    return $response;
+                }
+            } else {
+                $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Bucket ID and API key not in UUID format.']]));
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+            }
+        } else {
+            $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Missing required parameters', 'required' => ['api_key']]]));
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
+    }
+
+    /**
+     * Matches /buckets/{bucket_id}/users/{user_name}/block.
+     *
+     * @Route("/buckets/{bucket_id}/users/{user_name}/block", name="block_user")
+     */
+    public function block_user(Request $request, $bucket_id, $user_name)
+    {
+        if ($request->request->has('api_key')) {
+            if ($this->authentication->isValidUUID($bucket_id) && $this->authentication->isValidUUID($request->request->get('api_key'))) {
+                if ($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->request->get('api_key'), $bucket_id)) {
+                    $permissions = $this->buckets->get_permissions($request->request->get('api_key'), $bucket_id);
+                    if (true == $permissions['rlapi.custom.bucket.user.block'] && $this->buckets->actor_permission_higher_than_user($permissions['rlapi.custom.bucket.permission.priority'], $user_name, $bucket_id)) {
+                        $block_user = $this->buckets->block_user($user_name, $bucket_id);
+                        $response = new Response(json_encode($block_user));
+                        $response->headers->set('Content-Type', 'application/json');
+
+                        return $response;
+                    } else {
+                        $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Unauthorized']]));
+                        $response->headers->set('Content-Type', 'application/json');
+
+                        return $response;
+                    }
+                } else {
+                    $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Unauthorized']]));
+                    $response->headers->set('Content-Type', 'application/json');
+
+                    return $response;
+                }
+            } else {
+                $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Bucket ID and API key not in UUID format.']]));
+                $response->headers->set('Content-Type', 'application/json');
+
+                return $response;
+            }
+        } else {
+            $response = new Response(json_encode(['success' => false, 'error' => ['error_message' => 'Missing required parameters', 'required' => ['api_key']]]));
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
+    }
+
+    /**
+     * Matches /buckets/{bucket_id}/users/{user_name}/unblock.
+     *
+     * @Route("/buckets/{bucket_id}/users/{user_name}/unblock", name="unblock_user")
+     */
+    public function unblock_user(Request $request, $bucket_id, $user_name)
+    {
+        if ($request->request->has('api_key')) {
+            if ($this->authentication->isValidUUID($bucket_id) && $this->authentication->isValidUUID($request->request->get('api_key'))) {
+                if ($this->buckets->bucket_exists($this->getter->getBucketNameFromID($bucket_id)) && $this->buckets->user_is_in_bucket($request->request->get('api_key'), $bucket_id)) {
+                    $permissions = $this->buckets->get_permissions($request->request->get('api_key'), $bucket_id);
+                    if (true == $permissions['rlapi.custom.bucket.user.unblock'] && $this->buckets->actor_permission_higher_than_user($permissions['rlapi.custom.bucket.permission.priority'], $user_name, $bucket_id)) {
+                        $unblock_user = $this->buckets->unblock_user($user_name, $bucket_id);
+                        $response = new Response(json_encode($unblock_user));
                         $response->headers->set('Content-Type', 'application/json');
 
                         return $response;

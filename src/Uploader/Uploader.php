@@ -4,6 +4,7 @@ namespace App\Uploader;
 
 use App\Utils\Auth;
 use App\Utils\FileUtils;
+use App\Utils\EncryptionUtils;
 use Symfony\Component\Dotenv\Dotenv;
 
 class Uploader
@@ -14,9 +15,13 @@ class Uploader
 
     private $bucket;
 
+    private $encrypt;
+
     private $authentication;
 
-    public function __construct($bucket)
+    private $encryptUtil;
+
+    public function __construct($bucket, $encrypt)
     {
         /* Load the env file */
         $dotenv = new Dotenv();
@@ -36,8 +41,15 @@ class Uploader
         );
 
         $this->bucket = $bucket;
+        if ($encrypt) {
+            $this->encrypt = 't';
+        } else {
+            $this->encrypt = 'f';
+        }
 
         $this->authentication = new Auth();
+
+        $this->encryptUtil = new EncryptionUtils();
     }
 
     public function Upload($api_key, $file)
@@ -69,8 +81,21 @@ class Uploader
                 $file_original_name = implode('', $file['name']);
 
                 $check_against_hashlist = $fileUtils->check_object_against_hashlist($file_md5_hash, $file_sha1_hash);
+
+                if ('t' == $this->encrypt) {
+                    if (implode('', $file['size']) < 12582912) {
+                        $encrypt_data = $this->encryptUtil->encryptData(file_get_contents(implode('', $file['tmp_name'])), null, implode('', $file['tmp_name']));
+                        if ($encrypt_data['success']) {
+                            unset($encrypt_data['data']);
+                            $password = $encrypt_data['password'];
+                        }
+                    } else {
+                        $this->encrypt = 'f';
+                    }
+                }
+
                 if (true == $check_against_hashlist['clearance']) {
-                    $fileUtils->log_object($api_key, $file_name, $file_original_name, $file_md5_hash, $file_sha1_hash, $this->bucket);
+                    $fileUtils->log_object($api_key, $file_name, $file_original_name, $file_md5_hash, $file_sha1_hash, $this->bucket, $this->encrypt);
 
                     if (move_uploaded_file(implode('', $file['tmp_name']), getenv('TMP_STORE').$file_name)) {
                         $file_loc = getenv('TMP_STORE').$file_name;
@@ -95,6 +120,12 @@ class Uploader
                                 ],
                             ],
                         ];
+
+                        if ('t' == $this->encrypt) {
+                            $response['response']['files'][0]['url'] = $file_name.'?password='.$password;
+                            $response['response']['files'][0]['url_plain'] = $file_name;
+                            $response['response']['files'][0]['encryption_password'] = $password;
+                        }
                     } else {
                         $response = [
                             'status_code' => 500,
@@ -117,6 +148,14 @@ class Uploader
                                 'message' => 'Content Banned.',
                             ],
                         ];
+                    } else {
+                        $response = [
+                'status_code' => 451,
+                'response' => [
+                    'success' => false,
+                    'message' => 'Content Banned.',
+                ],
+            ];
                     }
                 }
             } else {
@@ -138,11 +177,13 @@ class Uploader
                 ],
             ];
         }
-        if (true == $check_against_hashlist['clearance']) {
-            if (null != $file_name) {
-                unlink(getenv('TMP_STORE').$file_name);
-            } else {
-                unlink(implode('', $file['tmp_name']));
+        if ($authentication) {
+            if (true == $check_against_hashlist['clearance']) {
+                if (null != $file_name) {
+                    unlink(getenv('TMP_STORE').$file_name);
+                } else {
+                    unlink(implode('', $file['tmp_name']));
+                }
             }
         }
 

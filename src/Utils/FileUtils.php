@@ -69,7 +69,7 @@ class FileUtils
         return false;
     }
 
-    public function log_object($api_key, $file_name, $file_original_name, $file_md5_hash, $file_sha1_hash, $bucket)
+    public function log_object($api_key, $file_name, $file_original_name, $file_md5_hash, $file_sha1_hash, $bucket, $encrypted)
     {
         $users = new User();
 
@@ -77,8 +77,8 @@ class FileUtils
 
         $user_id = $user_id['id'];
         if (!empty($user_id)) {
-            pg_prepare($this->dbconn, 'log_object', 'INSERT INTO files VALUES ($1, $2, $3, $4, $5, $6, $7, false, $8)');
-            $executePreparedStatement = pg_execute($this->dbconn, 'log_object', array($file_name, $file_original_name, time(), $user_id, $api_key, $file_md5_hash, $file_sha1_hash, $bucket));
+            pg_prepare($this->dbconn, 'log_object', 'INSERT INTO files (filename, originalfilename, timestamp, user_id, token, md5, sha1, deleted, bucket, encrypted) VALUES ($1, $2, $3, $4, $5, $6, $7, false, $8, $9)');
+            $executePreparedStatement = pg_execute($this->dbconn, 'log_object', array($file_name, $file_original_name, time(), $user_id, $api_key, $file_md5_hash, $file_sha1_hash, $bucket, $encrypted));
 
             if ($executePreparedStatement) {
                 return true;
@@ -109,11 +109,21 @@ class FileUtils
 
     public function get_file_owner($file_name, $user_id, $api_key, $bucket)
     {
+        $auth = new Auth();
+
         pg_prepare($this->dbconn, 'get_file_owner', 'SELECT COUNT(*) FROM files WHERE filename = $1 AND token = $2 AND user_id = $3 AND bucket = $4');
         $count = pg_fetch_array(pg_execute($this->dbconn, 'get_file_owner', array($file_name, $api_key, $user_id, $bucket)));
 
         if (1 == $count[0]) {
-            return true;
+            if ($bucket != getenv('S3_BUCKET')) {
+                if ('self' == $auth->get_cb_permissions($api_key, $bucket)['rlapi.custom.bucket.file.delete'] || 'all' == $auth->get_cb_permissions($api_key, $bucket)['rlapi.custom.bucket.file.delete']) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return true;
+            }
         } else {
             return false;
         }
