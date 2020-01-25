@@ -91,12 +91,21 @@ class UserController extends AbstractController
             if ($request->request->has('tier') && $request->request->has('api_key')) {
                 $setTier = $users->user_set_tier($id, $request->request->get('tier'), $request->request->get('api_key'));
 
-                return new Response(json_encode($setTier));
+                $response = new Response(json_encode($setTier));
+                $response->headers->set('Content-Type', 'application/json');
+                
+                return $response;
             } else {
-                return new Response(json_encode(array('success' => false, 'error_code' => 1082)));
+                $response = new Response(json_encode(array('success' => false, 'error_code' => 1082)));
+                $response->headers->set('Content-Type', 'application/json');
+                
+                return $response;
             }
         } else {
-            return new Response(json_encode(array('success' => false, 'error_code' => 1083)));
+            $response = new Response(json_encode(array('success' => false, 'error_code' => 1083)));
+            $response->headers->set('Content-Type', 'application/json');
+            
+            return $response;
         }
     }
 
